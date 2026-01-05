@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
+import { getAccessToken, getRefreshToken, setTokens, clearTokens } from './utils/jwt';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -16,7 +17,7 @@ class ApiClient {
     // Request interceptor to add auth token
     this.axiosInstance.interceptors.request.use(
       (config) => {
-        const token = this.getAccessToken();
+        const token = getAccessToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -37,21 +38,21 @@ class ApiClient {
           originalRequest._retry = true;
 
           try {
-            const refreshToken = this.getRefreshToken();
+            const refreshToken = getRefreshToken();
             if (refreshToken) {
               const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
                 refreshToken,
               });
 
               const { accessToken, refreshToken: newRefreshToken } = response.data;
-              this.setTokens(accessToken, newRefreshToken);
+              setTokens(accessToken, newRefreshToken);
 
               originalRequest.headers.Authorization = `Bearer ${accessToken}`;
               return this.axiosInstance(originalRequest);
             }
           } catch (refreshError) {
             // Refresh failed, clear tokens and redirect to login
-            this.clearTokens();
+            clearTokens();
             window.location.href = '/auth/login';
             return Promise.reject(refreshError);
           }
@@ -62,29 +63,7 @@ class ApiClient {
     );
   }
 
-  private getAccessToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('accessToken');
-  }
-
-  private getRefreshToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('refreshToken');
-  }
-
-  private setTokens(accessToken: string, refreshToken?: string): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('accessToken', accessToken);
-    if (refreshToken) {
-      localStorage.setItem('refreshToken', refreshToken);
-    }
-  }
-
-  private clearTokens(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-  }
+  // Token management methods now use JWT utility functions
 
   // Auth endpoints
   async login(data: { email: string; password: string; rememberMe: boolean }): Promise<AxiosResponse> {

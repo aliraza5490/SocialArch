@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { CheckCircle, XCircle, Loader2, AlertTriangle, ArrowLeft, Mail } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ export function EmailVerificationPage() {
     onSuccess: (data) => {
       setState('success');
       setMessage(data.message);
+      toast.success('Email verified successfully! You can now log in to your account.');
       // Redirect to login after a delay
       setTimeout(() => {
         router.push('/auth/login?message=email-verified');
@@ -44,6 +46,7 @@ export function EmailVerificationPage() {
     },
     onError: (error) => {
       const errorMessage = (error as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Verification failed';
+      toast.error(errorMessage);
       if (errorMessage.includes('expired') || errorMessage.includes('invalid')) {
         setState('invalid-token');
       } else {
@@ -57,6 +60,13 @@ export function EmailVerificationPage() {
     mutationFn: async (email: string) => {
       const response = await apiClient.sendEmailVerification({ email });
       return response.data;
+    },
+    onSuccess: () => {
+      toast.success('Verification email sent! Please check your inbox.');
+    },
+    onError: (error) => {
+      const errorMessage = (error as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to send verification email.';
+      toast.error(errorMessage);
     },
   });
 

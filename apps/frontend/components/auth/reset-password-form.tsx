@@ -6,13 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2, CheckCircle, ArrowLeft, AlertTriangle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { apiClient } from '@/lib/api-client';
 import { resetPasswordSchema, ResetPasswordFormData } from '@/lib/types/auth';
@@ -41,10 +41,15 @@ export function ResetPasswordForm() {
     },
     onSuccess: () => {
       setSuccess(true);
+      toast.success('Password reset successful! You can now log in with your new password.');
       // Redirect to login after a delay
       setTimeout(() => {
         router.push('/auth/login?message=password-reset-success');
       }, 3000);
+    },
+    onError: (error) => {
+      const errorMessage = (error as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to reset password. Please try again.';
+      toast.error(errorMessage);
     },
   });
 
@@ -118,19 +123,10 @@ export function ResetPasswordForm() {
           Enter your new password below
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {resetPasswordMutation.error && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  {(resetPasswordMutation.error as Error & { response?: { data?: { message?: string } } })?.response?.data?.message ||
-                    'Failed to reset password. Please try again.'}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <FormField
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
               control={form.control}
               name="password"
               render={({ field }) => (

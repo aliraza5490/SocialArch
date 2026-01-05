@@ -5,16 +5,17 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Mail, Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { apiClient } from '@/lib/api-client';
-import { forgotPasswordSchema, ForgotPasswordFormData } from '@/lib/types/auth';
+import { forgotPasswordSchema } from '@/lib/types/auth';
+import type { ForgotPasswordFormData } from '@/lib/types/auth';
 
 export function ForgotPasswordForm() {
   const [success, setSuccess] = useState(false);
@@ -33,6 +34,11 @@ export function ForgotPasswordForm() {
     },
     onSuccess: () => {
       setSuccess(true);
+      toast.success('Password reset email sent! Please check your inbox.');
+    },
+    onError: (error) => {
+      const errorMessage = (error as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to send reset email. Please try again.';
+      toast.error(errorMessage);
     },
   });
 
@@ -76,19 +82,10 @@ export function ForgotPasswordForm() {
           Enter your email address and we&apos;ll send you a reset link
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {requestResetMutation.error && (
-              <Alert variant="destructive">
-                <AlertDescription>
-                  {(requestResetMutation.error as Error & { response?: { data?: { message?: string } } })?.response?.data?.message ||
-                    'Failed to send reset email. Please try again.'}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <FormField
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
               control={form.control}
               name="email"
               render={({ field }) => (

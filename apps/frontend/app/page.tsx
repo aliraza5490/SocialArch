@@ -3,8 +3,25 @@
 import Link from 'next/link';
 import { useAuth } from '@/lib/contexts/auth-context';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { LogOut, User, Mail, TrendingUp, BarChart3, Users, Calendar, Zap, Shield, Star } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  LogOut,
+  User,
+  Mail,
+  TrendingUp,
+  BarChart3,
+  Users,
+  Calendar,
+  Zap,
+  Shield,
+  Star,
+} from 'lucide-react';
 
 function LandingPage() {
   return (
@@ -17,7 +34,9 @@ function LandingPage() {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">SA</span>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">SocialArch</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
+                SocialArch
+              </span>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/auth/login">
@@ -41,8 +60,9 @@ function LandingPage() {
             </span>
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            SocialArch is the all-in-one platform for scheduling posts, analyzing performance,
-            and growing your social media presence across all platforms.
+            SocialArch is the all-in-one platform for scheduling posts,
+            analyzing performance, and growing your social media presence across
+            all platforms.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/register">
@@ -68,7 +88,8 @@ function LandingPage() {
               Everything You Need to Succeed
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Powerful features designed to help you grow your social media presence
+              Powerful features designed to help you grow your social media
+              presence
             </p>
           </div>
 
@@ -78,7 +99,8 @@ function LandingPage() {
                 <Calendar className="h-12 w-12 text-blue-600 mb-4" />
                 <CardTitle>Smart Scheduling</CardTitle>
                 <CardDescription>
-                  Schedule posts for optimal engagement times across all platforms
+                  Schedule posts for optimal engagement times across all
+                  platforms
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -88,7 +110,8 @@ function LandingPage() {
                 <BarChart3 className="h-12 w-12 text-green-600 mb-4" />
                 <CardTitle>Analytics Dashboard</CardTitle>
                 <CardDescription>
-                  Track performance, engagement rates, and audience growth insights
+                  Track performance, engagement rates, and audience growth
+                  insights
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -166,10 +189,16 @@ function LandingPage() {
               <span className="text-xl font-bold">SocialArch</span>
             </div>
             <div className="flex space-x-6">
-              <Link href="/auth/login" className="hover:text-blue-400 transition-colors">
+              <Link
+                href="/auth/login"
+                className="hover:text-blue-400 transition-colors"
+              >
                 Sign In
               </Link>
-              <Link href="/auth/register" className="hover:text-blue-400 transition-colors">
+              <Link
+                href="/auth/register"
+                className="hover:text-blue-400 transition-colors"
+              >
                 Sign Up
               </Link>
             </div>
@@ -206,25 +235,26 @@ function Dashboard() {
                   <User className="h-5 w-5" />
                   Profile Information
                 </CardTitle>
-                <CardDescription>
-                  Your account details
-                </CardDescription>
+                <CardDescription>Your account details</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <p className="text-sm">
-                    <span className="font-medium">Name:</span> {user?.firstName} {user?.lastName}
+                    <span className="font-medium">Name:</span> {user?.firstName}{' '}
+                    {user?.lastName}
                   </p>
                   <p className="text-sm">
                     <span className="font-medium">Email:</span> {user?.email}
                   </p>
                   <p className="text-sm">
                     <span className="font-medium">Status:</span>{' '}
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      user?.isEmailVerified
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    }`}>
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        user?.isEmailVerified
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      }`}
+                    >
                       {user?.isEmailVerified ? 'Verified' : 'Unverified'}
                     </span>
                   </p>
@@ -240,9 +270,7 @@ function Dashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
-                <CardDescription>
-                  Manage your account
-                </CardDescription>
+                <CardDescription>Manage your account</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {!user?.isEmailVerified && (
@@ -253,11 +281,7 @@ function Dashboard() {
                     </Button>
                   </Link>
                 )}
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={logout}
-                >
+                <Button variant="outline" className="w-full" onClick={logout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
                 </Button>
@@ -275,8 +299,9 @@ function Dashboard() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  SocialArch helps you manage multiple social media accounts from one place.
-                  Connect your accounts and start scheduling posts, analyzing engagement, and growing your audience.
+                  SocialArch helps you manage multiple social media accounts
+                  from one place. Connect your accounts and start scheduling
+                  posts, analyzing engagement, and growing your audience.
                 </p>
               </CardContent>
             </Card>

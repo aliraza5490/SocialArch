@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthContextType, AuthState, LoginRequest, RegisterRequest } from '../types/auth';
+import { getValidAccessToken, setTokens, clearTokens } from '../utils/jwt';
 import { apiClient } from '../api-client';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,14 +25,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const accessToken = localStorage.getItem('accessToken');
+        const tokenPayload = getValidAccessToken();
 
-        if (accessToken) {
-          // Try to decode user from token or validate it
-          // For now, we'll assume the token is valid if it exists
-          // In a real app, you might want to validate the token with the server
+        if (tokenPayload) {
+          // Token is valid, extract user info from payload
+          const user = tokenPayload.email && tokenPayload.ID ? {
+            ID: tokenPayload.ID,
+            email: tokenPayload.email,
+            firstName: '', // We don't store name in JWT, could fetch from API if needed
+            lastName: '',
+            isEmailVerified: true, // Assume verified if token exists
+            createdAt: '',
+            updatedAt: '',
+          } : null;
+
           setState({
-            user: null, // We'll need to decode this from JWT or fetch user profile
+            user,
             isAuthenticated: true,
             isLoading: false,
           });
@@ -62,11 +71,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await apiClient.login(credentials);
       const { accessToken, refreshToken, user } = response.data;
 
-      // Store tokens
-      localStorage.setItem('accessToken', accessToken);
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
-      }
+      // Store tokens using utility function
+      setTokens(accessToken, refreshToken);
 
       setState({
         user,
@@ -97,9 +103,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const logout = () => {
-    // Clear tokens
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    // Clear tokens using utility function
+    clearTokens();
 
     setState({
       user: null,

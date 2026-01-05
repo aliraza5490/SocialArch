@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { useAuth } from '@/lib/contexts/auth-context';
 import { registerSchema, RegisterFormData } from '@/lib/types/auth';
@@ -18,7 +18,6 @@ import { registerSchema, RegisterFormData } from '@/lib/types/auth';
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const { register, isLoading } = useAuth();
 
@@ -35,11 +34,12 @@ export function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      setError(null);
       await register(data);
       setSuccess(true);
+      toast.success('Registration successful! Please check your email to verify your account.');
     } catch (err) {
-      setError((err as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Registration failed. Please try again.');
+      const errorMessage = (err as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Registration failed. Please try again.';
+      toast.error(errorMessage);
     }
   };
 
@@ -77,16 +77,10 @@ export function RegisterForm() {
           Enter your information to create your account
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="firstName"

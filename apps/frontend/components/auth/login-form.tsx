@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
+import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -12,14 +13,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { useAuth } from '@/lib/contexts/auth-context';
 import { loginSchema } from '@/lib/types/auth';
+import { formatLoginBlockTime } from '@/lib/utils/date';
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { login, isLoading } = useAuth();
 
   const form = useForm({
@@ -33,10 +33,23 @@ export function LoginForm() {
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      setError(null);
       await login(data);
+      toast.success('Login successful!');
     } catch (err) {
-      setError((err as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Login failed. Please try again.');
+      const errorMessage = (err as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Login failed. Please try again.';
+
+      // Handle specific case of too many failed login attempts
+      if (errorMessage.includes('Too many failed login attempts')) {
+        const timestampMatch = errorMessage.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
+        if (timestampMatch) {
+          const formattedTime = formatLoginBlockTime(timestampMatch[1]);
+          toast.error(`Too many failed login attempts. Try again ${formattedTime}.`);
+          return;
+        }
+      }
+
+      // Default error handling
+      toast.error(errorMessage);
     }
   };
 
@@ -48,16 +61,10 @@ export function LoginForm() {
           Enter your email and password to access your account
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <FormField
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
