@@ -25,13 +25,13 @@ import {
 
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Navigation */}
       <nav className="border-b bg-white/80 backdrop-blur-md dark:bg-gray-900/80">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">SA</span>
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
@@ -55,7 +55,7 @@ function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
             Manage Your Social Media
-            <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="block bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Like a Pro
             </span>
           </h1>
@@ -160,7 +160,7 @@ function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+      <section className="py-20 bg-linear-to-r from-blue-600 to-purple-600">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-2xl mx-auto text-white">
             <h2 className="text-3xl font-bold mb-4">
@@ -183,7 +183,7 @@ function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">SA</span>
               </div>
               <span className="text-xl font-bold">SocialArch</span>
