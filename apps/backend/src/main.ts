@@ -42,8 +42,8 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle("NestJS Template")
-    .setDescription("The API description")
+    .setTitle("SocialArch API")
+    .setDescription("SocialArch API")
     .setVersion("1.0")
     .addBearerAuth()
     .build();
