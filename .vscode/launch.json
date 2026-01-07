@@ -1,0 +1,80 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run All Dev Servers (Turbo)",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ],
+            "console": "integratedTerminal",
+            "presentation": {
+                "group": "turbo"
+            }
+        },
+        {
+            "name": "Build All Projects (Turbo)",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": [
+                "run",
+                "build"
+            ],
+            "console": "integratedTerminal",
+            "presentation": {
+                "group": "turbo"
+            }
+        },
+        {
+            "name": "Lint All Projects (Turbo)",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": [
+                "run",
+                "lint"
+            ],
+            "console": "integratedTerminal",
+            "presentation": {
+                "group": "turbo"
+            }
+        },
+        {
+            "name": "Check Types All Projects (Turbo)",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": [
+                "run",
+                "check-types"
+            ],
+            "console": "integratedTerminal",
+            "presentation": {
+                "group": "turbo"
+            }
+        },
+        {
+            "name": "Format Code (Prettier)",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": [
+                "run",
+                "format"
+            ],
+            "console": "integratedTerminal",
+            "presentation": {
+                "group": "turbo"
+            }
+        }
+    ]
+}
