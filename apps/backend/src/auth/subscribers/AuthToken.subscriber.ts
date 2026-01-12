@@ -7,9 +7,7 @@ import {
 } from "typeorm";
 
 @EventSubscriber()
-export class AuthTokenSubscriber
-  implements EntitySubscriberInterface<AuthToken>
-{
+export class AuthTokenSubscriber implements EntitySubscriberInterface<AuthToken> {
   /**
    * Indicates that this subscriber only listen to AuthToken events.
    */
