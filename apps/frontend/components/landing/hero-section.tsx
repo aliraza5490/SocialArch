@@ -14,7 +14,7 @@ export function HeroSection() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-white dark:from-gray-900 to-transparent"></div>
       </div>
 
-      <div className="container relative z-10 mx-auto px-4 text-center">
+      <div className="container relative z-10 mx-auto px-4 py-16 text-center">
         <div className="max-w-4xl mx-auto mb-16">
           <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300 mb-6">
             <span className="flex h-2 w-2 rounded-full bg-blue-600 mr-2"></span>
@@ -33,7 +33,10 @@ export function HeroSection() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/auth/register">
-              <Button size="lg" className="text-lg px-8 py-6 h-auto rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all">
+              <Button
+                size="lg"
+                className="text-lg px-8 py-6 h-auto rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all"
+              >
                 Start Free Trial
                 <TrendingUp className="ml-2 h-5 w-5" />
               </Button>
@@ -52,53 +55,81 @@ export function HeroSection() {
 
         {/* Social Proof */}
         <div className="mb-10">
-          <p className="text-sm text-gray-500 mb-6 font-medium uppercase tracking-wider">Trusted by 10,000+ teams including</p>
+          <p className="text-sm text-gray-500 mb-6 font-medium uppercase tracking-wider">
+            Trusted by 10,000+ teams including
+          </p>
           <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-             {['Acme Corp', 'GlobalTech', 'Nebula', 'FoxRun', 'Circle'].map((company) => (
-               <span key={company} className="text-xl font-bold text-gray-400 font-serif">{company}</span>
-             ))}
+            {['Acme Corp', 'GlobalTech', 'Nebula', 'FoxRun', 'Circle'].map(
+              (company) => (
+                <span
+                  key={company}
+                  className="text-xl font-bold text-gray-400 font-serif"
+                >
+                  {company}
+                </span>
+              ),
+            )}
           </div>
         </div>
 
         {/* Dashboard Preview */}
-        <div className="relative mx-auto max-w-6xl perspective-1000 -mb-96">
-          <div className="relative border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden transform rotate-x-12 translate-y-12 opacity-0 animate-fade-in-up" style={{ animation: 'fade-in-up 1s ease-out forwards', animationDelay: '0.2s', transformStyle: 'preserve-3d', transform: 'perspective(1000px) rotateX(10deg)' }}>
-             {/* Mock Dashboard Header */}
-             <div className="h-12 border-b border-gray-100 dark:border-gray-800 flex items-center px-4 gap-2">
-               <div className="flex gap-2">
-                 <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                 <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                 <div className="w-3 h-3 rounded-full bg-green-400"></div>
-               </div>
-               <div className="flex-1 bg-gray-50 dark:bg-gray-800 h-6 mx-4 rounded-md"></div>
-             </div>
-             
-             {/* Mock Dashboard Content */}
-             <div className="p-6 grid grid-cols-4 gap-6 h-[500px] bg-gray-50/50 dark:bg-gray-900/50">
-               {/* Sidebar */}
-               <div className="col-span-1 space-y-4">
-                 {[1, 2, 3, 4, 5].map(i => (
-                   <div key={i} className="h-10 bg-gray-100 dark:bg-gray-800 rounded-lg w-full"></div>
-                 ))}
-               </div>
-               
-               {/* Main Content */}
-               <div className="col-span-3 grid grid-cols-2 gap-6">
-                 <div className="col-span-2 h-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 shadow-xs">
-                   <div className="flex items-end justify-between h-32 gap-2">
-                     {[40, 70, 45, 90, 60, 80, 55, 85, 95, 75, 60, 90].map((h, i) => (
-                       <div key={i} className="w-full bg-blue-500/20 dark:bg-blue-500/20 rounded-t-sm relative group overflow-hidden">
-                         <div className="absolute bottom-0 w-full bg-blue-600 rounded-t-sm transition-all duration-1000 ease-out" style={{ height: `${h}%` }}></div>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-                 <div className="h-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 shadow-xs"></div>
-                 <div className="h-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 shadow-xs"></div>
-               </div>
-             </div>
+        <div className="relative mx-auto max-w-6xl perspective-1000 -mb-86">
+          <div
+            className="relative border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden transform rotate-x-12 translate-y-12 opacity-0 animate-fade-in-up"
+            style={{
+              animation: 'fade-in-up 1s ease-out forwards',
+              animationDelay: '0.2s',
+              transformStyle: 'preserve-3d',
+              transform: 'perspective(1000px) rotateX(10deg)',
+            }}
+          >
+            {/* Mock Dashboard Header */}
+            <div className="h-12 border-b border-gray-100 dark:border-gray-800 flex items-center px-4 gap-2">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div className="w-3 h-3 rounded-full bg-green-400"></div>
+              </div>
+              <div className="flex-1 bg-gray-50 dark:bg-gray-800 h-6 mx-4 rounded-md"></div>
+            </div>
+
+            {/* Mock Dashboard Content */}
+            <div className="p-6 grid grid-cols-4 gap-6 h-[500px] bg-gray-50/50 dark:bg-gray-900/50">
+              {/* Sidebar */}
+              <div className="col-span-1 space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div
+                    key={i}
+                    className="h-10 bg-gray-100 dark:bg-gray-800 rounded-lg w-full"
+                  ></div>
+                ))}
+              </div>
+
+              {/* Main Content */}
+              <div className="col-span-3 grid grid-cols-2 gap-6">
+                <div className="col-span-2 h-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 shadow-xs">
+                  <div className="flex items-end justify-between h-32 gap-2">
+                    {[40, 70, 45, 90, 60, 80, 55, 85, 95, 75, 60, 90].map(
+                      (h, i) => (
+                        <div
+                          key={i}
+                          className="w-full bg-blue-500/20 dark:bg-blue-500/20 rounded-t-sm relative group overflow-hidden"
+                        >
+                          <div
+                            className="absolute bottom-0 w-full bg-blue-600 rounded-t-sm transition-all duration-1000 ease-out"
+                            style={{ height: `${h}%` }}
+                          ></div>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </div>
+                <div className="h-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 shadow-xs"></div>
+                <div className="h-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 shadow-xs"></div>
+              </div>
+            </div>
           </div>
-          
+
           {/* Glow effect behind dashboard */}
           <div className="absolute -inset-4 bg-blue-500/20 blur-3xl -z-10 rounded-[3rem]"></div>
         </div>
