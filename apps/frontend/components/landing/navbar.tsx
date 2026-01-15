@@ -20,7 +20,17 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 border-b border-gray-100 dark:border-gray-800">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <Link 
+            href="/" 
+            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={(e) => {
+              // If already on homepage, scroll to top smoothly
+              if (window.location.pathname === '/') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+          >
             <div className="w-8 h-8 relative flex items-center justify-center">
               <Image 
                 src="/logo.png" 
@@ -32,7 +42,7 @@ export function Navbar() {
             <span className="text-xl font-bold text-gray-900 dark:text-white">
               SocialArch
             </span>
-          </div>
+          </Link>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
