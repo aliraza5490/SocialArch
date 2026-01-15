@@ -35,7 +35,7 @@ export function HeroSection() {
             <Link href="/auth/register">
               <Button
                 size="lg"
-                className="text-lg px-8 py-6 h-auto rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all"
+                className="text-lg px-8 py-4 h-auto rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all"
               >
                 Start Free Trial
                 <TrendingUp className="ml-2 h-5 w-5" />
@@ -45,7 +45,7 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="text-lg px-8 py-6 h-auto rounded-xl bg-white/50 backdrop-blur-xs hover:bg-white/80 dark:bg-gray-900/50 dark:hover:bg-gray-900/80"
+                className="text-lg px-8 py-4 h-auto rounded-xl bg-white/50 backdrop-blur-xs hover:bg-white/80 dark:bg-gray-900/50 dark:hover:bg-gray-900/80"
               >
                 View Demo
               </Button>
