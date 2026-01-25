@@ -16,10 +16,16 @@ import LoginLog from "./entities/LoginLog.entity";
     TypeOrmModule.forFeature([AuthToken, User, LoginLog]),
     JwtModule.registerAsync({
       imports: [],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>("JWT_SECRET") || "defaultSecret",
-        signOptions: { expiresIn: "1h" },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        const secret = configService.get<string>("JWT_SECRET");
+        if (!secret) {
+          throw new Error("JWT_SECRET environment variable is required");
+        }
+        return {
+          secret,
+          signOptions: { expiresIn: "1h" },
+        };
+      },
       inject: [ConfigService],
     }),
   ],

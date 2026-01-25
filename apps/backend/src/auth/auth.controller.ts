@@ -10,6 +10,7 @@ import {
   VerifyEmailInput,
 } from "./dto/auth.dto";
 import { Public } from "./decorators/public.decorator";
+import { JWTUser } from "./decorators/jwtUser.decorator";
 
 @Public()
 @Controller("auth")
@@ -56,5 +57,10 @@ export class AuthController {
     await this.authService.sendEmailVerification(input);
 
     return { message: "Check your mailbox to verify email" };
+  }
+
+  @Get("me")
+  async getCurrentUser(@JWTUser() user: any) {
+    return this.authService.getUserById(user.ID);
   }
 }

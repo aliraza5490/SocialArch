@@ -36,24 +36,8 @@ export class AuthService implements OnModuleInit {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async onModuleInit() {
-    const isExisting = await this.userRepository.findOne({
-      where: { email: this.configService.get("SUPER_USER_EMAIL") },
-    });
-    if (!isExisting) {
-      const adminUser = this.userRepository.create({
-        email: this.configService.get("SUPER_USER_EMAIL"),
-        password: this.configService.get("SUPER_USER_PASSWORD") as string,
-        firstName: "SUPER",
-        lastName: "ADMIN",
-        isEmailVerified: true,
-      });
-      await this.userRepository.save(adminUser);
-      console.log("Admin user created");
-    } else {
-      console.log("Admin user already exists");
-    }
-    console.log("AuthService initialized");
+  onModuleInit() {
+    // Module initialization logic here if needed
   }
 
   async register(input: RegistrationInput) {
@@ -64,13 +48,26 @@ export class AuthService implements OnModuleInit {
       throw new ConflictException("Email already in use");
     }
 
+    // Delete only if previous registration is older than 24 hours
     if (userExist && !userExist.isEmailVerified) {
-      await this.userRepository.delete({ email: input.email });
+      const createdAt = new Date(userExist.createdAt);
+      const now = new Date();
+      const hoursDiff =
+        (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+
+      if (hoursDiff > 24) {
+        await this.userRepository.delete({ email: input.email });
+      } else {
+        throw new ConflictException(
+          "Email already registered. Please check your mailbox or request a new verification link.",
+        );
+      }
     }
 
+    const hashedPassword = await generatePasswordHash(input.password);
     const user = this.userRepository.create({
       email: input.email,
-      password: input.password,
+      password: hashedPassword,
       firstName: input.firstName,
       lastName: input.lastName,
     });
@@ -196,5 +193,16 @@ export class AuthService implements OnModuleInit {
       firstName: user.firstName,
       token,
     });
+  }
+
+  async getUserById(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { ID: id },
+    });
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }

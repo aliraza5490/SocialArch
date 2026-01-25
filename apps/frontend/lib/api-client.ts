@@ -1,10 +1,15 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
-import { getAccessToken, getRefreshToken, setTokens, clearTokens } from './utils/jwt';
+import {
+  getAccessToken,
+  getRefreshToken,
+  setTokens,
+  clearTokens,
+} from './utils/jwt';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 class ApiClient {
-  private axiosInstance: AxiosInstance;
+  axiosInstance: AxiosInstance;
 
   constructor() {
     this.axiosInstance = axios.create({
@@ -25,7 +30,7 @@ class ApiClient {
       },
       (error) => {
         return Promise.reject(error);
-      }
+      },
     );
 
     // Response interceptor to handle token refresh
@@ -40,11 +45,15 @@ class ApiClient {
           try {
             const refreshToken = getRefreshToken();
             if (refreshToken) {
-              const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-                refreshToken,
-              });
+              const response = await axios.post(
+                `${API_BASE_URL}/auth/refresh`,
+                {
+                  refreshToken,
+                },
+              );
 
-              const { accessToken, refreshToken: newRefreshToken } = response.data;
+              const { accessToken, refreshToken: newRefreshToken } =
+                response.data;
               setTokens(accessToken, newRefreshToken);
 
               originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -59,26 +68,40 @@ class ApiClient {
         }
 
         return Promise.reject(error);
-      }
+      },
     );
   }
 
   // Token management methods now use JWT utility functions
 
   // Auth endpoints
-  async login(data: { email: string; password: string; rememberMe: boolean }): Promise<AxiosResponse> {
+  async login(data: {
+    email: string;
+    password: string;
+    rememberMe: boolean;
+  }): Promise<AxiosResponse> {
     return this.axiosInstance.post('/auth/login', data);
   }
 
-  async register(data: { firstName: string; lastName: string; email: string; password: string }): Promise<AxiosResponse> {
+  async register(data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }): Promise<AxiosResponse> {
     return this.axiosInstance.post('/auth/register', data);
   }
 
   async requestPasswordReset(data: { email: string }): Promise<AxiosResponse> {
-    return this.axiosInstance.get('/auth/request-reset-password', { params: data });
+    return this.axiosInstance.get('/auth/request-reset-password', {
+      params: data,
+    });
   }
 
-  async resetPassword(data: { password: string; token: string }): Promise<AxiosResponse> {
+  async resetPassword(data: {
+    password: string;
+    token: string;
+  }): Promise<AxiosResponse> {
     return this.axiosInstance.post('/auth/reset-password', data);
   }
 
@@ -91,7 +114,9 @@ class ApiClient {
   }
 
   async sendEmailVerification(data: { email: string }): Promise<AxiosResponse> {
-    return this.axiosInstance.get('/auth/send-email-verification', { params: data });
+    return this.axiosInstance.get('/auth/send-email-verification', {
+      params: data,
+    });
   }
 
   async refreshToken(data: { refreshToken: string }): Promise<AxiosResponse> {
@@ -103,15 +128,26 @@ class ApiClient {
     return this.axiosInstance.get(url, config);
   }
 
-  async post(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+  async post(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse> {
     return this.axiosInstance.post(url, data, config);
   }
 
-  async put(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+  async put(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse> {
     return this.axiosInstance.put(url, data, config);
   }
 
-  async delete(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+  async delete(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse> {
     return this.axiosInstance.delete(url, config);
   }
 }

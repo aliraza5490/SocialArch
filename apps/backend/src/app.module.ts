@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { JwtModule } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AppController } from "./app.controller";
@@ -9,6 +9,7 @@ import { AuthGuard } from "@/auth/guards/auth.guard";
 import { AuthModule } from "./auth/auth.module";
 import { SharedModule } from "./shared/shared.module";
 import { validate } from "./config";
+import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.interceptor";
 
 @Module({
   imports: [
@@ -22,7 +23,9 @@ import { validate } from "./config";
         type: "postgres",
         url: configService.get<string>("PG_CONNECTION_STRING"),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
-        synchronize: configService.get("NODE_ENV") !== "production",
+        synchronize: false,
+        migrations: [__dirname + "/migrations/*.{ts,js}"],
+        migrationsRun: true,
         logging: configService.get("NODE_ENV") !== "production",
       }),
       inject: [ConfigService],
@@ -36,6 +39,10 @@ import { validate } from "./config";
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RateLimitInterceptor,
     },
   ],
 })

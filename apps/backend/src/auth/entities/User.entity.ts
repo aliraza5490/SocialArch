@@ -1,6 +1,5 @@
 import { AppEntity } from "@/shared/entities/App.entity";
-import { generatePasswordHash } from "@/shared/utils/bcrypt";
-import { BeforeInsert, Column, Entity } from "typeorm";
+import { Column, Entity } from "typeorm";
 
 @Entity()
 export class User extends AppEntity {
@@ -18,9 +17,4 @@ export class User extends AppEntity {
 
   @Column({ type: "boolean", default: false })
   isEmailVerified: boolean;
-
-  @BeforeInsert()
-  async beforeInsert() {
-    this.password = await generatePasswordHash(this.password);
-  }
 }

@@ -1,8 +1,19 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
 import { useRouter } from 'next/navigation';
-import { AuthContextType, AuthState, LoginRequest, RegisterRequest } from '../types/auth';
+import {
+  AuthContextType,
+  AuthState,
+  LoginRequest,
+  RegisterRequest,
+} from '../types/auth';
 import { getValidAccessToken, setTokens, clearTokens } from '../utils/jwt';
 import { apiClient } from '../api-client';
 
@@ -28,22 +39,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const tokenPayload = getValidAccessToken();
 
         if (tokenPayload) {
-          // Token is valid, extract user info from payload
-          const user = tokenPayload.email && tokenPayload.ID ? {
-            ID: tokenPayload.ID,
-            email: tokenPayload.email,
-            firstName: '', // We don't store name in JWT, could fetch from API if needed
-            lastName: '',
-            isEmailVerified: true, // Assume verified if token exists
-            createdAt: '',
-            updatedAt: '',
-          } : null;
+          // Token is valid, fetch full user data from /me endpoint
+          try {
+            const response = await apiClient.axiosInstance.get('/auth/me');
+            setState({
+              user: response.data,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } catch (error) {
+            console.error('Failed to fetch user data:', error);
+            // Fallback: use JWT payload if /me endpoint fails
+            const user =
+              tokenPayload.email && tokenPayload.ID
+                ? {
+                    ID: tokenPayload.ID,
+                    email: tokenPayload.email,
+                    firstName: '',
+                    lastName: '',
+                    isEmailVerified: true,
+                    createdAt: '',
+                    updatedAt: '',
+                  }
+                : null;
 
-          setState({
-            user,
-            isAuthenticated: true,
-            isLoading: false,
-          });
+            setState({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          }
         } else {
           setState({
             user: null,
@@ -66,7 +91,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (credentials: LoginRequest) => {
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
+      setState((prev) => ({ ...prev, isLoading: true }));
 
       const response = await apiClient.login(credentials);
       const { accessToken, refreshToken, user } = response.data;
@@ -82,22 +107,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       router.push('/');
     } catch (error) {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setState((prev) => ({ ...prev, isLoading: false }));
       throw error;
     }
   };
 
   const register = async (userData: RegisterRequest) => {
     try {
-      setState(prev => ({ ...prev, isLoading: true }));
+      setState((prev) => ({ ...prev, isLoading: true }));
 
       const response = await apiClient.register(userData);
 
-      setState(prev => ({ ...prev, isLoading: false }));
+      setState((prev) => ({ ...prev, isLoading: false }));
 
       return response.data;
     } catch (error) {
-      setState(prev => ({ ...prev, isLoading: false }));
+      setState((prev) => ({ ...prev, isLoading: false }));
       throw error;
     }
   };
@@ -128,7 +153,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', newRefreshToken);
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isAuthenticated: true,
       }));

@@ -15,14 +15,19 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigin = configService.get<string>("FRONTEND_URL");
-      if (!origin || !allowedOrigin) {
+      if (!allowedOrigin) {
+        logger.error("FRONTEND_URL is not configured");
+        return callback(
+          new BadRequestException(
+            "Server misconfiguration: FRONTEND_URL not set",
+          ),
+        );
+      }
+      if (!origin || allowedOrigin.indexOf(origin) !== -1) {
         return callback(null, true);
       }
-      if (allowedOrigin.indexOf(origin) === -1) {
-        logger.warn(`CORS request from disallowed origin: ${origin}`);
-        return callback(new BadRequestException("Not allowed by CORS"));
-      }
-      return callback(null, true);
+      logger.warn(`CORS request from disallowed origin: ${origin}`);
+      return callback(new BadRequestException("Not allowed by CORS"));
     },
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
@@ -30,7 +35,23 @@ async function bootstrap() {
     allowedHeaders: ["Content-Type", "Authorization"],
   });
   app.disable("x-powered-by");
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", "data:", "https:"],
+        },
+      },
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+    }),
+  );
   app.use(compression());
 
   app.useGlobalPipes(

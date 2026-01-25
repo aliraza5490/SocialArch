@@ -19,14 +19,14 @@ export class TokenService {
     private readonly authTokenRepository: Repository<AuthToken>,
   ) {}
 
-  async signAuthTokens(user: User, rememberME: boolean) {
+  async signAuthTokens(user: User, rememberMe: boolean) {
     const tokens = {
       accessToken: "",
       refreshToken: "",
     };
 
     tokens.accessToken = this.signAccessToken(user);
-    if (rememberME) {
+    if (rememberMe) {
       tokens.refreshToken = await this.signRefreshToken(user);
     }
 
