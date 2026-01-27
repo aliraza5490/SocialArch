@@ -1,7 +1,6 @@
 import {
   CanActivate,
   ExecutionContext,
-  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -43,18 +42,7 @@ export class AuthGuard implements CanActivate {
       // so that we can access it in our route handlers
       request["user"] = payload;
 
-      const roles: string[] = this.reflector.getAllAndOverride("roles", [
-        context.getHandler(),
-        context.getClass(),
-      ]);
-      if (!roles || !roles.length) {
-        return true;
-      }
-
-      const hasRole = !!payload?.role && roles.includes(payload.role);
-      if (!payload?.role || !hasRole) {
-        throw new ForbiddenException("You do not have permission (Roles)");
-      }
+      // TODO: Add role-based authorization when roles are implemented
       return true;
     } catch {
       throw new UnauthorizedException();

@@ -5,7 +5,7 @@ import { JWTPayload } from "./shared/types";
 export class AppService {
   getHello(JWTPayload?: JWTPayload): string {
     return JWTPayload
-      ? `Hello ${JWTPayload.id ? JWTPayload.role : "stranger"}!`
+      ? `Hello ${JWTPayload.email || "stranger"}!`
       : "Hello World!";
   }
 }

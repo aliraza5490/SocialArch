@@ -9,6 +9,6 @@ export enum UserRole {
 }
 
 export interface JWTPayload {
-  id: string;
-  role: string;
+  email: string;
+  ID: string;
 }

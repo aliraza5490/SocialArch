@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -78,6 +78,15 @@
   --sidebar-accent-foreground: oklch(0.65 0.2 230);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.65 0.2 230);
+
+  /* Custom gradients and shadows */
+  --gradient-primary: linear-gradient(
+    135deg,
+    oklch(0.65 0.2 230),
+    oklch(0.6 0.15 250)
+  );
+  --shadow-glow:
+    0 0 20px oklch(0.65 0.2 230 / 0.3), 0 0 40px oklch(0.65 0.2 230 / 0.1);
 }
 
 .dark {
@@ -112,6 +121,15 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.7 0.15 220);
+
+  /* Custom gradients and shadows - dark */
+  --gradient-primary: linear-gradient(
+    135deg,
+    oklch(0.7 0.15 220),
+    oklch(0.6 0.15 240)
+  );
+  --shadow-glow:
+    0 0 30px oklch(0.7 0.15 220 / 0.25), 0 0 60px oklch(0.7 0.15 220 / 0.1);
 }
 
 @layer base {
@@ -120,5 +138,21 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .shadow-glow-lg {
+    box-shadow:
+      0 0 30px oklch(var(--primary) / 0.4),
+      0 0 60px oklch(var(--primary) / 0.2);
   }
 }
