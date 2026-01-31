@@ -15,6 +15,7 @@ import {
   Home,
   ChevronLeft,
   ChevronRight,
+  Plus,
 } from 'lucide-react';
 import Image from 'next/image';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -151,7 +152,11 @@ export default function AssetsPage() {
               Manage and organize your assets
             </p>
           </div>
-          <Button className="gradient-primary shadow-glow hover:opacity-90 transition-opacity">
+          <Button 
+            size="lg"
+            className="hidden md:flex px-10 gradient-primary shadow-glow hover:opacity-90 transition-opacity"
+          >
+            <Plus className="mr-2 h-5 w-5" />
             Upload
           </Button>
         </div>

@@ -60,7 +60,10 @@ export function AppSidebar({
           collapsed && !isMobile && 'flex justify-center',
         )}
       >
-        <div className="flex items-center justify-between w-full">
+        <div className={cn(
+          "flex items-center w-full",
+          collapsed && !isMobile ? "justify-center" : "justify-between"
+        )}>
           <Link
             href="/dashboard"
             onClick={() => isMobile && setOpenMobile(false)}
