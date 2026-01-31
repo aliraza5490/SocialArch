@@ -120,6 +120,59 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
   );
 
   if (variant === 'sidebar') {
+    if (isMobile) {
+      return (
+        <SidebarMenu className="mt-4 space-y-1">
+          <div className="flex items-center gap-3 px-2 py-2 mb-2">
+            <Avatar className="h-9 w-9 rounded-lg border border-border">
+              <AvatarImage src={user.avatar} alt={fullName} />
+              <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-medium">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left leading-tight">
+              <span className="truncate font-semibold text-sm">{fullName}</span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            </div>
+          </div>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/billing" onClick={() => setOpenMobile(false)}>
+                <CreditCard className="h-4 w-4" />
+                <span>Billing</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/notifications" onClick={() => setOpenMobile(false)}>
+                <Bell className="h-4 w-4" />
+                <span>Notifications</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/settings" onClick={() => setOpenMobile(false)}>
+                <Settings className="h-4 w-4" />
+                <span>Settings</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={logout} className="text-destructive hover:text-destructive">
+              <LogOut className="h-4 w-4" />
+              <span>Log out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      );
+    }
+
     return (
       <SidebarMenu
         className={collapsed ? 'flex items-center justify-center' : ''}

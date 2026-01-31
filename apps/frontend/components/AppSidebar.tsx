@@ -60,37 +60,40 @@ export function AppSidebar({
           collapsed && !isMobile && 'flex justify-center',
         )}
       >
-        <Link
-          href="/dashboard"
-          onClick={() => isMobile && setOpenMobile(false)}
-          className={cn(
-            'flex items-center',
-            collapsed && !isMobile ? 'justify-center' : 'gap-2',
-          )}
-        >
-          <div className={cn(
-            'relative shrink-0',
-            isMobile ? 'h-10 w-10' : 'h-8 w-8',
-            'group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7',
-          )}>
-            <Image
-              src="/logo.png"
-              alt="SocialArch"
-              fill
-              className="object-cover"
-            />
-          </div>
-          {(!collapsed || isMobile) && (
-            <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                SocialArch
-              </span>
-              <span className="text-[10px] text-muted-foreground -mt-0.5">
-                AI-Powered Studio
-              </span>
+        <div className="flex items-center justify-between w-full">
+          <Link
+            href="/dashboard"
+            onClick={() => isMobile && setOpenMobile(false)}
+            className={cn(
+              'flex items-center',
+              collapsed && !isMobile ? 'justify-center' : 'gap-2',
+            )}
+          >
+            <div className={cn(
+              'relative shrink-0',
+              isMobile ? 'h-10 w-10' : 'h-8 w-8',
+              'group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7',
+            )}>
+              <Image
+                src="/logo.png"
+                alt="SocialArch"
+                fill
+                className="object-cover"
+              />
             </div>
-          )}
-        </Link>
+            {(!collapsed || isMobile) && (
+              <div className="flex flex-col">
+                <span className="font-bold text-lg tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  SocialArch
+                </span>
+                <span className="text-[10px] text-muted-foreground -mt-0.5">
+                  AI-Powered Studio
+                </span>
+              </div>
+            )}
+          </Link>
+          {isMobile && <ThemeToggle />}
+        </div>
       </SidebarHeader>
 
       {/* Create Content Button */}
@@ -216,16 +219,6 @@ export function AppSidebar({
           collapsed && !isMobile ? 'p-2' : 'flex justify-center',
         )}
       >
-        {isMobile && (
-          <div className="flex items-center gap-2 mb-3 px-2">
-            <Button variant="ghost" size="icon" asChild className="h-9 w-9">
-              <Link href="/notifications" onClick={() => isMobile && setOpenMobile(false)}>
-                <Bell className="h-4 w-4" />
-              </Link>
-            </Button>
-            <ThemeToggle />
-          </div>
-        )}
         <NavUser user={data.user} logout={logout} />
       </SidebarFooter>
       <SidebarRail className="hover:bg-primary/5 transition-colors" />
