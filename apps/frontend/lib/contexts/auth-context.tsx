@@ -105,7 +105,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isLoading: false,
       });
 
-      router.push('/');
+      router.push('/dashboard');
     } catch (error) {
       setState((prev) => ({ ...prev, isLoading: false }));
       throw error;
