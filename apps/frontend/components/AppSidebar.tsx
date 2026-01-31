@@ -43,7 +43,7 @@ export function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar> & { logout: () => void }) {
   const pathname = usePathname();
-  const { state, isMobile } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === 'collapsed';
 
   return (
@@ -62,6 +62,7 @@ export function AppSidebar({
       >
         <Link
           href="/dashboard"
+          onClick={() => isMobile && setOpenMobile(false)}
           className={cn(
             'flex items-center',
             collapsed && !isMobile ? 'justify-center' : 'gap-2',
@@ -109,6 +110,7 @@ export function AppSidebar({
         >
           <Link
             href="/create"
+            onClick={() => isMobile && setOpenMobile(false)}
             className="flex items-center justify-center gap-2"
           >
             <Plus
@@ -172,7 +174,11 @@ export function AppSidebar({
                       tooltip={collapsed ? item.title : undefined}
                       className={menuButtonClass}
                     >
-                      <Link href={item.url} className={navLinkClass}>
+                      <Link
+                        href={item.url}
+                        className={navLinkClass}
+                        onClick={() => isMobile && setOpenMobile(false)}
+                      >
                         <div
                           className={cn(
                             'flex items-center justify-center transition-transform duration-200 group-hover/item:scale-110',
@@ -213,7 +219,7 @@ export function AppSidebar({
         {isMobile && (
           <div className="flex items-center gap-2 mb-3 px-2">
             <Button variant="ghost" size="icon" asChild className="h-9 w-9">
-              <Link href="/notifications">
+              <Link href="/notifications" onClick={() => isMobile && setOpenMobile(false)}>
                 <Bell className="h-4 w-4" />
               </Link>
             </Button>

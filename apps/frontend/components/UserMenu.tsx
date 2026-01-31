@@ -41,7 +41,7 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
-  const { isMobile, state } = useSidebar();
+  const { isMobile, state, setOpenMobile } = useSidebar();
   const collapsed = state === 'collapsed';
 
   // Generate initials for fallback
@@ -78,7 +78,11 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuItem asChild>
-          <Link href="/billing" className="flex items-center cursor-pointer">
+          <Link
+            href="/billing"
+            className="flex items-center cursor-pointer"
+            onClick={() => isMobile && setOpenMobile(false)}
+          >
             <CreditCard className="mr-2 h-4 w-4" />
             Billing
           </Link>
@@ -87,13 +91,18 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
           <Link
             href="/notifications"
             className="flex items-center cursor-pointer"
+            onClick={() => isMobile && setOpenMobile(false)}
           >
             <Bell className="mr-2 h-4 w-4" />
             Notifications
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/settings" className="flex items-center cursor-pointer">
+          <Link
+            href="/settings"
+            className="flex items-center cursor-pointer"
+            onClick={() => isMobile && setOpenMobile(false)}
+          >
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </Link>
