@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Home, FolderOpen, Settings, Plus, CreditCard } from 'lucide-react';
+import { Home, FolderOpen, Plus } from 'lucide-react';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -34,11 +34,12 @@ const data = {
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
   { title: 'Assets', url: '/assets', icon: FolderOpen },
-  { title: 'Billing', url: '/billing', icon: CreditCard },
-  { title: 'Settings', url: '/settings', icon: Settings },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  logout,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { logout: () => void }) {
   const pathname = usePathname();
   const { state, isMobile } = useSidebar();
   const collapsed = state === 'collapsed';
@@ -202,7 +203,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           collapsed && !isMobile ? 'p-2' : 'flex justify-center',
         )}
       >
-        <NavUser user={data.user} />
+        <NavUser user={data.user} logout={logout} />
       </SidebarFooter>
       <SidebarRail className="hover:bg-primary/5 transition-colors" />
     </Sidebar>
