@@ -16,9 +16,9 @@ export default function LoginPage() {
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center space-x-2">
           <div className="w-10 h-10 relative flex items-center justify-center">
-            <Image 
-              src="/logo.png" 
-              alt="SocialArch Logo" 
+            <Image
+              src="/logo.png"
+              alt="SocialArch Logo"
               fill
               className="object-contain"
             />

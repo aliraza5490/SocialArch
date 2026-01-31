@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,8 +10,21 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -20,7 +34,28 @@ import { formatLoginBlockTime } from '@/lib/utils/date';
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <Card className="w-full max-w-md">
+        <CardContent className="flex items-center justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isAuthenticated) {
+    return null; // Will redirect via useEffect
+  }
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -36,14 +71,20 @@ export function LoginForm() {
       await login(data);
       toast.success('Login successful!');
     } catch (err) {
-      const errorMessage = (err as Error & { response?: { data?: { message?: string } } })?.response?.data?.message || 'Login failed. Please try again.';
+      const errorMessage =
+        (err as Error & { response?: { data?: { message?: string } } })
+          ?.response?.data?.message || 'Login failed. Please try again.';
 
       // Handle specific case of too many failed login attempts
       if (errorMessage.includes('Too many failed login attempts')) {
-        const timestampMatch = errorMessage.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
+        const timestampMatch = errorMessage.match(
+          /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/,
+        );
         if (timestampMatch) {
           const formattedTime = formatLoginBlockTime(timestampMatch[1]);
-          toast.error(`Too many failed login attempts. Try again ${formattedTime}.`);
+          toast.error(
+            `Too many failed login attempts. Try again ${formattedTime}.`,
+          );
           return;
         }
       }
@@ -56,15 +97,17 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
+        <CardTitle className="text-2xl font-bold text-center">
+          Sign In
+        </CardTitle>
         <CardDescription className="text-center">
           Enter your email and password to access your account
         </CardDescription>
       </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
