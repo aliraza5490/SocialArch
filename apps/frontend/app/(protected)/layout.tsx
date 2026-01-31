@@ -16,7 +16,8 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Loader2, Bell } from 'lucide-react';
+import { LoadingScreen } from '@/components/LoadingScreen';
+import { Bell } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -38,11 +39,7 @@ export default function DashboardLayout({
   }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!isAuthenticated) return null;
