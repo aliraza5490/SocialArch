@@ -90,7 +90,7 @@ export default function CreatePage() {
     toast.success('Copied to clipboard!');
   };
 
-  const regenerate = (messageId: string) => {
+  const regenerate = () => {
     toast.info('Regenerating response...');
     // In a real app, this would trigger a new AI response
   };
@@ -118,15 +118,19 @@ export default function CreatePage() {
             <div
               className={cn(
                 'fixed inset-0 z-40 bg-black/50 transition-opacity duration-300',
-                chatSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                chatSidebarOpen
+                  ? 'opacity-100'
+                  : 'opacity-0 pointer-events-none',
               )}
               onClick={() => setChatSidebarOpen(false)}
             />
             {/* Drawer */}
-            <div className={cn(
-              'fixed inset-y-0 left-0 z-50 w-80 bg-background border-r border-border transition-transform duration-300 ease-in-out',
-              chatSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            )}>
+            <div
+              className={cn(
+                'fixed inset-y-0 left-0 z-50 w-80 bg-background border-r border-border transition-transform duration-300 ease-in-out',
+                chatSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+              )}
+            >
               <ChatHistorySidebar
                 isOpen={chatSidebarOpen}
                 onToggle={() => setChatSidebarOpen(false)}
@@ -160,7 +164,11 @@ export default function CreatePage() {
               onClick={() => setChatSidebarOpen(!chatSidebarOpen)}
               className="h-8 w-8 shrink-0"
             >
-              {chatSidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
+              {chatSidebarOpen ? (
+                <PanelLeftClose className="h-4 w-4" />
+              ) : (
+                <PanelLeft className="h-4 w-4" />
+              )}
             </Button>
             <div className="min-w-0">
               <h1 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2">
@@ -225,7 +233,7 @@ export default function CreatePage() {
                         variant="ghost"
                         size="sm"
                         className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
-                        onClick={() => regenerate(message.id)}
+                        onClick={() => regenerate()}
                       >
                         <RefreshCw className="h-3 w-3 mr-1" />
                         Regenerate

@@ -162,7 +162,7 @@ export default function BillingPage() {
     toast.success(`Upgrading to ${planId} plan...`);
   };
 
-  const handleDownloadInvoice = (transactionId: string) => {
+  const handleDownloadInvoice = () => {
     toast.success('Downloading invoice...');
   };
 
@@ -372,7 +372,7 @@ export default function BillingPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDownloadInvoice(transaction.id)}
+                        onClick={() => handleDownloadInvoice()}
                       >
                         <Download className="h-4 w-4" />
                       </Button>

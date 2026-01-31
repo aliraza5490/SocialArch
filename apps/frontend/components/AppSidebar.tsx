@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Home, FolderOpen, Plus } from 'lucide-react';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { NavUser } from '@/components/NavUser';
 import { Button } from '@/components/ui/button';
@@ -66,10 +67,11 @@ export function AppSidebar({
           )}
         >
           <div className="relative h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7">
-            <img
+            <Image
               src="/logo.png"
               alt="SocialArch"
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
             />
           </div>
           {(!collapsed || isMobile) && (

@@ -37,6 +37,15 @@ export function LoginForm() {
   const { login, isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
+  const form = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
+  });
+
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
       router.push('/dashboard');
@@ -56,15 +65,6 @@ export function LoginForm() {
   if (isAuthenticated) {
     return null; // Will redirect via useEffect
   }
-
-  const form = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      rememberMe: false,
-    },
-  });
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {

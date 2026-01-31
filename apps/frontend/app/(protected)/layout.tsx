@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/contexts/auth-context';
+import { User } from '@/lib/types/auth';
 import { AppSidebar } from '@/components/AppSidebar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { UserMenu } from '@/components/UserMenu';
@@ -14,7 +15,6 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import { Loader2, Bell } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -62,7 +62,7 @@ function DashboardShell({
   pathname,
 }: {
   children: React.ReactNode;
-  user: any;
+  user: User | null;
   logout: () => void;
   pathname: string;
 }) {
@@ -81,14 +81,6 @@ function DashboardShell({
       hasCollapsedForCreatePage.current = false;
     }
   }, [pathname, setOpen]);
-
-  // Generate initials
-  const userInitials =
-    user?.firstName && user?.lastName
-      ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
-      : user?.email
-        ? user.email.charAt(0).toUpperCase()
-        : 'JD';
 
   return (
     <div className="flex min-h-screen w-full">

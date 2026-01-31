@@ -7,7 +7,7 @@ import {
   List,
   Search,
   MoreVertical,
-  Image,
+  Image as ImageIcon,
   FileVideo,
   File,
   Download,
@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import Image from 'next/image';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -112,7 +113,7 @@ export default function AssetsPage() {
       case 'folder':
         return <FolderOpen className="h-8 w-8 text-primary" />;
       case 'image':
-        return <Image className="h-8 w-8 text-emerald-500" />;
+        return <ImageIcon className="h-8 w-8 text-emerald-500" />;
       case 'video':
         return <FileVideo className="h-8 w-8 text-rose-500" />;
       default:
@@ -135,7 +136,7 @@ export default function AssetsPage() {
     setSelectedAssets((prev) => prev.filter((assetId) => assetId !== id));
   };
 
-  const handleDownload = (id: string) => {
+  const handleDownload = () => {
     toast.success('Download started!');
   };
 
@@ -266,7 +267,7 @@ export default function AssetsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handleDownload(selectedAssets[0])}
+                onClick={() => handleDownload()}
               >
                 <Download className="h-4 w-4 mr-1" />
                 Download
@@ -306,9 +307,11 @@ export default function AssetsPage() {
                 <div className="flex flex-col items-center text-center">
                   {asset.thumbnail ? (
                     <div className="h-16 w-16 rounded-lg overflow-hidden mb-3 bg-muted">
-                      <img
+                      <Image
                         src={asset.thumbnail}
                         alt={asset.name}
+                        width={64}
+                        height={64}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -338,7 +341,7 @@ export default function AssetsPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleDownload(asset.id)}>
+                    <DropdownMenuItem onClick={() => handleDownload()}>
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </DropdownMenuItem>
@@ -396,9 +399,11 @@ export default function AssetsPage() {
                       <div className="flex items-center gap-3">
                         {asset.thumbnail ? (
                           <div className="h-8 w-8 rounded overflow-hidden bg-muted">
-                            <img
+                            <Image
                               src={asset.thumbnail}
                               alt={asset.name}
+                              width={32}
+                              height={32}
                               className="h-full w-full object-cover"
                             />
                           </div>
@@ -440,9 +445,7 @@ export default function AssetsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleDownload(asset.id)}
-                          >
+                          <DropdownMenuItem onClick={() => handleDownload()}>
                             <Download className="h-4 w-4 mr-2" />
                             Download
                           </DropdownMenuItem>
