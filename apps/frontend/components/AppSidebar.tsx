@@ -1,12 +1,13 @@
 'use client';
 
 import * as React from 'react';
-import { Home, FolderOpen, Plus } from 'lucide-react';
+import { Home, FolderOpen, Plus, Bell } from 'lucide-react';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { NavUser } from '@/components/NavUser';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import {
   Sidebar,
@@ -66,7 +67,11 @@ export function AppSidebar({
             collapsed && !isMobile ? 'justify-center' : 'gap-2',
           )}
         >
-          <div className="relative h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7">
+          <div className={cn(
+            'relative shrink-0',
+            isMobile ? 'h-10 w-10' : 'h-8 w-8',
+            'group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7',
+          )}>
             <Image
               src="/logo.png"
               alt="SocialArch"
@@ -205,6 +210,16 @@ export function AppSidebar({
           collapsed && !isMobile ? 'p-2' : 'flex justify-center',
         )}
       >
+        {isMobile && (
+          <div className="flex items-center gap-2 mb-3 px-2">
+            <Button variant="ghost" size="icon" asChild className="h-9 w-9">
+              <Link href="/notifications">
+                <Bell className="h-4 w-4" />
+              </Link>
+            </Button>
+            <ThemeToggle />
+          </div>
+        )}
         <NavUser user={data.user} logout={logout} />
       </SidebarFooter>
       <SidebarRail className="hover:bg-primary/5 transition-colors" />

@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const weeklyData = [
   { name: 'Mon', videos: 4, posts: 12 },
@@ -56,6 +57,7 @@ interface ActivityChartProps {
 
 export function ActivityChart({ title, type }: ActivityChartProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>('weekly');
+  const isMobile = useIsMobile();
 
   const data =
     timeRange === 'weekly'
@@ -67,34 +69,36 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
   const timeRanges: TimeRange[] = ['weekly', 'monthly', 'yearly'];
 
   return (
-    <div className="bg-card border border-border rounded-xl px-6 py-6 pl-0 shadow-card animate-slide-up">
-      <div className="flex items-center justify-between mb-6 pl-6">
-        <h3 className="font-semibold text-lg">{title}</h3>
-        <div className="flex gap-1 bg-muted rounded-lg p-1">
-          {timeRanges.map((range) => (
-            <Button
-              key={range}
-              variant="ghost"
-              size="sm"
-              onClick={() => setTimeRange(range)}
-              className={cn(
-                'text-xs capitalize px-3 h-7',
-                timeRange === range &&
-                  'bg-background shadow-sm text-foreground',
-              )}
-            >
-              {range}
-            </Button>
-          ))}
+    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-card animate-slide-up">
+      <div className="px-4 py-3 sm:px-6 sm:py-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-4 gap-2">
+          <h3 className="font-semibold text-lg">{title}</h3>
+          <div className="flex gap-1 bg-muted rounded-lg p-1">
+            {timeRanges.map((range) => (
+              <Button
+                key={range}
+                variant="ghost"
+                size="sm"
+                onClick={() => setTimeRange(range)}
+                className={cn(
+                  'text-xs capitalize px-3 h-7',
+                  timeRange === range &&
+                    'bg-background shadow-sm text-foreground',
+                )}
+              >
+                {range}
+              </Button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="h-[280px]">
+      <div className="w-full h-[160px] sm:h-[220px] md:h-[280px]">
         <ResponsiveContainer width="100%" height="100%">
           {type === 'area' ? (
             <AreaChart
               data={data}
-              margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+              margin={{ top: 10, right: 24, left: isMobile ? 24 : 0, bottom: 4 }}
             >
               <defs>
                 <linearGradient id="colorVideos" x1="0" y1="0" x2="0" y2="1">
@@ -138,6 +142,8 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
+                tick={!isMobile}
+                {...(isMobile ? { width: 0 } : {})}
               />
               <Tooltip
                 contentStyle={{
@@ -167,7 +173,7 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
           ) : (
             <BarChart
               data={data}
-              margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+              margin={{ top: 10, right: 24, left: isMobile ? 24 : 0, bottom: 4 }}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
@@ -185,6 +191,8 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
+                tick={!isMobile}
+                {...(isMobile ? { width: 0 } : {})}
               />
               <Tooltip
                 contentStyle={{
@@ -209,7 +217,7 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-4">
+      <div className="px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-center gap-4 sm:gap-6 mt-0">
         <div className="flex items-center gap-2">
           <div className="h-3 w-3 rounded-full bg-chart-1" />
           <span className="text-sm text-muted-foreground">Videos</span>
