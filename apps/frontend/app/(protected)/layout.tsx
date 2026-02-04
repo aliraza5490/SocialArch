@@ -110,12 +110,12 @@ function DashboardShell({
             </div>
           </Link>
           <div className="absolute right-4 flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild className={`h-9 w-9 ${isSidebarOpen ? 'hidden lg:flex' : ''}`}>
+            <Button variant="ghost" size="icon" asChild className={`h-9 w-9 ${isSidebarOpen ? 'hidden lg:flex' : 'hidden md:flex'}`}>
               <Link href="/notifications">
                 <Bell className="h-4 w-4" />
               </Link>
             </Button>
-            <div className={isSidebarOpen ? 'hidden lg:block' : ''}>
+            <div className={isSidebarOpen ? 'hidden lg:block' : 'hidden md:block'}>
               <ThemeToggle />
             </div>
             <UserMenu
