@@ -27,7 +27,14 @@ interface Message {
 
 export default function CreatePage() {
   const isMobile = useIsMobile();
-  const [chatSidebarOpen, setChatSidebarOpen] = useState(!isMobile);
+  const [chatSidebarOpen, setChatSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    // Only open by default on desktop once we are SURE it's desktop
+    if (isMobile === false) {
+      setChatSidebarOpen(true);
+    }
+  }, [isMobile]);
   const [activeSessionId, setActiveSessionId] = useState('1');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -41,12 +48,17 @@ export default function CreatePage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     scrollToBottom();
   }, [messages]);
 
@@ -110,7 +122,7 @@ export default function CreatePage() {
 
   return (
     <DashboardLayout>
-      <div className="h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex animate-fade-in overflow-hidden rounded-2xl md:border md:border-border bg-card/20">
+      <div className="h-[calc(100vh-8rem)] flex animate-fade-in overflow-hidden rounded-2xl md:border md:border-border bg-card/20">
         {/* Mobile: Chat History as Side Drawer */}
         {isMobile && (
           <>
