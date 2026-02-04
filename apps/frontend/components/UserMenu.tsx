@@ -164,7 +164,13 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
           </SidebarMenuItem>
 
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={logout} className="text-destructive hover:text-destructive">
+            <SidebarMenuButton
+              onClick={() => {
+                if (isMobile) setOpenMobile(false);
+                logout();
+              }}
+              className="text-destructive hover:text-destructive"
+            >
               <LogOut className="h-4 w-4" />
               <span>Log out</span>
             </SidebarMenuButton>

@@ -98,7 +98,7 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
           {type === 'area' ? (
             <AreaChart
               data={data}
-              margin={{ top: 10, right: 24, left: isMobile ? 24 : 0, bottom: 4 }}
+              margin={{ top: 10, right: 24, left: isMobile ? 24 : 30, bottom: 4 }}
             >
               <defs>
                 <linearGradient id="colorVideos" x1="0" y1="0" x2="0" y2="1">
@@ -143,7 +143,8 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
                 tickLine={false}
                 axisLine={false}
                 tick={!isMobile}
-                {...(isMobile ? { width: 0 } : {})}
+                hide={isMobile}
+                width={isMobile ? 0 : 20}
               />
               <Tooltip
                 contentStyle={{
@@ -173,7 +174,7 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
           ) : (
             <BarChart
               data={data}
-              margin={{ top: 10, right: 24, left: isMobile ? 24 : 0, bottom: 4 }}
+              margin={{ top: 10, right: 24, left: isMobile ? 24 : 30, bottom: 4 }}
             >
               <CartesianGrid
                 strokeDasharray="3 3"
@@ -192,7 +193,8 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
                 tickLine={false}
                 axisLine={false}
                 tick={!isMobile}
-                {...(isMobile ? { width: 0 } : {})}
+                hide={isMobile}
+                width={isMobile ? 0 : 20}
               />
               <Tooltip
                 contentStyle={{

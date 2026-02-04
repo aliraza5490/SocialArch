@@ -16,8 +16,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { LoadingScreen } from '@/components/LoadingScreen';
-import { Bell } from 'lucide-react';
+import { Loader2, Bell } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -39,7 +38,11 @@ export default function DashboardLayout({
   }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   if (!isAuthenticated) return null;
@@ -88,7 +91,7 @@ function DashboardShell({
           <div className="absolute left-4">
             <SidebarTrigger />
           </div>
-          <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
+          <Link href="/dashboard" className="flex lg:hidden items-center gap-2">
             <div className="relative h-8 w-8 shrink-0">
               <Image
                 src="/logo.png"
@@ -107,12 +110,12 @@ function DashboardShell({
             </div>
           </Link>
           <div className="absolute right-4 flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild className="hidden md:flex h-9 w-9">
+            <Button variant="ghost" size="icon" asChild className={`h-9 w-9 ${isSidebarOpen ? 'hidden lg:flex' : ''}`}>
               <Link href="/notifications">
                 <Bell className="h-4 w-4" />
               </Link>
             </Button>
-            <div className="hidden md:block">
+            <div className={isSidebarOpen ? 'hidden lg:block' : ''}>
               <ThemeToggle />
             </div>
             <UserMenu
