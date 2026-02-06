@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Home, FolderOpen, Plus, Bell } from 'lucide-react';
+import { Home, FolderOpen, Plus, Bell, Sparkles } from 'lucide-react';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,6 +35,7 @@ const data = {
 
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
+  { title: 'AI Agent', url: '/create', icon: Sparkles },
   { title: 'Assets', url: '/assets', icon: FolderOpen },
 ];
 

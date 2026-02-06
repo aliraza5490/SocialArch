@@ -24,6 +24,8 @@ interface ChatHistorySidebarProps {
   onToggle: () => void;
   onNewChat: () => void;
   onSelectChat: (id: string) => void;
+  onDeleteChat: (id: string) => void;
+  onUpdateTitle: (id: string, title: string) => void;
   activeSessionId?: string;
   isMobileOverlay?: boolean;
 }
@@ -68,9 +70,13 @@ export function ChatHistorySidebar({
   onSelectChat,
   activeSessionId = "1",
   isMobileOverlay = false,
-}: ChatHistorySidebarProps) {
+  sessions = [],
+  onDeleteChat,
+  onUpdateTitle,
+}: ChatHistorySidebarProps & { sessions: ChatSession[] }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sessions] = useState<ChatSession[]>(mockSessions);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
 
   const filteredSessions = sessions.filter(
     (session) =>
@@ -206,7 +212,24 @@ export function ChatHistorySidebar({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-40">
-                      <DropdownMenuItem className="text-destructive focus:text-destructive text-sm">
+                      <DropdownMenuItem 
+                        className="text-sm"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingId(session.id);
+                            setEditTitle(session.title);
+                        }}
+                      >
+                        <Sparkles className="h-3.5 w-3.5 mr-2" />
+                        Rename
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-destructive focus:text-destructive text-sm"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteChat(session.id);
+                        }}
+                      >
                         <Trash2 className="h-3.5 w-3.5 mr-2" />
                         Delete
                       </DropdownMenuItem>

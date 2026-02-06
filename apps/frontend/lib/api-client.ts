@@ -144,6 +144,14 @@ class ApiClient {
     return this.axiosInstance.put(url, data, config);
   }
 
+  async patch(
+    url: string,
+    data?: unknown,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse> {
+    return this.axiosInstance.patch(url, data, config);
+  }
+
   async delete(
     url: string,
     config?: AxiosRequestConfig,

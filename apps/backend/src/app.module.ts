@@ -8,6 +8,8 @@ import { AppService } from "./app.service";
 import { AuthGuard } from "@/auth/guards/auth.guard";
 import { AuthModule } from "./auth/auth.module";
 import { SharedModule } from "./shared/shared.module";
+import { ChatModule } from "./chat/chat.module";
+import { AiModule } from "./ai/ai.module";
 import { validate } from "./config";
 import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.interceptor";
 
@@ -23,7 +25,7 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
         type: "postgres",
         url: configService.get<string>("PG_CONNECTION_STRING"),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
-        synchronize: false,
+        synchronize: configService.get("NODE_ENV") !== "production",
         migrations: [__dirname + "/migrations/*.{ts,js}"],
         migrationsRun: true,
         logging: configService.get("NODE_ENV") !== "production",
@@ -32,6 +34,8 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
     }),
     AuthModule,
     SharedModule,
+    ChatModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [

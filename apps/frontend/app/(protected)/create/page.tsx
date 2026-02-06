@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Send,
   Sparkles,
@@ -9,6 +10,12 @@ import {
   User,
   PanelLeftClose,
   PanelLeft,
+  Edit2,
+  X,
+  Check,
+  Share2,
+  Image as ImageIcon,
+  Zap,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -17,36 +24,89 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { ChatHistorySidebar } from '@/components/chat/ChatHistorySidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useChats, useDeleteChat, useUpdateChat, useChatMessages, useRegenerateResponse } from '@/hooks/use-chat-api';
 
 interface Message {
   id: string;
+  ID?: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  parentMessageId?: string | null;
 }
 
+
 export default function CreatePage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const chatIdFromUrl = searchParams.get('chat');
+  
   const isMobile = useIsMobile();
   const [chatSidebarOpen, setChatSidebarOpen] = useState(false);
 
+  // Fetch real chats from API
+  const { data: chatsData, refetch: refetchChats } = useChats();
+  const deleteChat = useDeleteChat();
+  const updateChat = useUpdateChat();
+  const regenerateMutation = useRegenerateResponse();
+
+  // Load messages for the current chat
+  const { data: chatMessagesData, refetch: refetchMessages } = useChatMessages(chatIdFromUrl || '');
+
+  // Transform API data to ChatSession format
+  const chatSessions = useMemo(() => {
+    if (!chatsData) return [];
+    return chatsData.map((chat: any) => ({
+      id: chat.ID || chat.id,
+      title: chat.title || 'Untitled Chat',
+      preview: chat.preview || 'No messages yet...',
+      timestamp: new Date(chat.CreatedAt || chat.createdAt || Date.now()),
+    }));
+  }, [chatsData]);
+
+  const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
+
+  // Clear optimistic messages when switching chats
   useEffect(() => {
-    // Only open by default on desktop once we are SURE it's desktop
+    setOptimisticMessages([]);
+  }, [chatIdFromUrl]);
+
+  // Transform API messages to local format
+  const messages: Message[] = useMemo(() => {
+    const apiMessages: Message[] = (!chatIdFromUrl || !chatMessagesData || chatMessagesData.length === 0) 
+      ? [] 
+      : chatMessagesData.map((msg: any) => ({
+          id: msg.ID || msg.id,
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.CreatedAt || msg.createdAt || Date.now()),
+          parentMessageId: msg.parentMessageId,
+        }));
+
+    // Merge API messages with optimistic ones
+    // We filter out any optimistic messages that have been received from the API (deduplication)
+    const filteredOptimistic = optimisticMessages.filter(
+      optMsg => !apiMessages.some((apiMsg: Message) => 
+        apiMsg.role === optMsg.role && 
+        apiMsg.content === optMsg.content
+      )
+    );
+    return [...apiMessages, ...filteredOptimistic];
+  }, [chatIdFromUrl, chatMessagesData, optimisticMessages]);
+
+  // Editing state
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+
+  useEffect(() => {
     if (isMobile === false) {
       setChatSidebarOpen(true);
     }
   }, [isMobile]);
-  const [activeSessionId, setActiveSessionId] = useState('1');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content:
-        "Hello! I'm your AI content assistant. I can help you generate engaging content for social media, videos, blogs, and more. What would you like to create today?",
-      timestamp: new Date(),
-    },
-  ]);
+
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [streamingContent, setStreamingContent] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
 
@@ -60,41 +120,187 @@ export default function CreatePage() {
       return;
     }
     scrollToBottom();
-  }, [messages]);
+  }, [messages, streamingContent]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, editedContent?: string) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    const content = editedContent || input;
+    if (!content.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input.trim(),
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    setStreamingContent('');
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponses = [
-        'Here\'s a compelling social media post for your brand:\n\n"🚀 Ready to transform your workflow? Our latest update brings game-changing features that will boost your productivity by 200%!\n\n✨ Smart automation\n📊 Real-time analytics\n🎯 Personalized insights\n\nTry it free today! Link in bio. #Productivity #Innovation #Tech"',
-        'I\'ve crafted this engaging video script for you:\n\n**HOOK (0-3s):** "What if I told you there\'s a better way?"\n\n**PROBLEM (3-10s):** Show the frustration of manual content creation\n\n**SOLUTION (10-25s):** Introduce your AI-powered platform with smooth transitions\n\n**CTA (25-30s):** "Start creating in seconds. Try it free!"',
-        "Here's a catchy caption for your Instagram post:\n\n\"Behind every great brand is a great story ✨\n\nOurs started in a tiny apartment with one laptop and a dream to make content creation accessible to everyone.\n\nToday, we're helping 10,000+ creators bring their visions to life.\n\nWhat's your story? Share below 👇\"",
-      ];
+    // Add optimistic message
+    const optimisticMsgId = `temp-${Date.now()}`;
+    const optimisticMsg: Message = {
+      id: optimisticMsgId,
+      role: 'user',
+      content: content.trim(),
+      timestamp: new Date(),
+    };
+    setOptimisticMessages(prev => [...prev, optimisticMsg]);
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+    try {
+      let currentChatId = chatIdFromUrl;
+      
+      // Create a new chat if we don't have one
+      if (!currentChatId) {
+        const createResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+          body: JSON.stringify({ title: content.trim().slice(0, 50) }),
+        });
+        if (createResponse.ok) {
+          const chat = await createResponse.json();
+          currentChatId = chat.ID;
+          router.push(`/create?chat=${currentChatId}`);
+          await refetchChats();
+        }
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/ai/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+        body: JSON.stringify({ chatId: currentChatId, content: content.trim() }),
+      });
+
+      if (!response.ok) throw new Error('Failed to send message');
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let fullContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
+        
+        for (const line of lines) {
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.content) {
+              fullContent += parsed.content;
+              setStreamingContent(fullContent);
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        }
+      }
+
+      // Add assistant response to optimistic messages instead of refetching
+      const assistantMsg: Message = {
+        id: `temp-ast-${Date.now()}`,
         role: 'assistant',
-        content: aiResponses[Math.floor(Math.random() * aiResponses.length)],
+        content: fullContent,
         timestamp: new Date(),
       };
-
-      setMessages((prev) => [...prev, assistantMessage]);
+      setOptimisticMessages(prev => [...prev, assistantMsg]);
+      setStreamingContent('');
+    } catch (error) {
+      // Remove optimistic message on error (e.g. 500)
+      setOptimisticMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')));
+      toast.error('Failed to send message');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
+  };
+
+  const handleRegenerate = async (message: Message) => {
+    if (!chatIdFromUrl || !message.parentMessageId || regenerateMutation.isPending) return;
+    
+    setIsLoading(true);
+    setStreamingContent('');
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/ai/regenerate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+        body: JSON.stringify({ chatId: chatIdFromUrl, parentMessageId: message.parentMessageId }),
+      });
+
+      if (!response.ok) throw new Error('Failed to regenerate');
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let fullContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
+        
+        for (const line of lines) {
+          const data = line.slice(6);
+          if (data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.content) {
+              fullContent += parsed.content;
+              setStreamingContent(fullContent);
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        }
+      }
+
+      // Add assistant response to optimistic messages instead of refetching
+      const assistantMsg: Message = {
+        id: `temp-ast-${Date.now()}`,
+        role: 'assistant',
+        content: fullContent,
+        timestamp: new Date(),
+      };
+      setOptimisticMessages(prev => [...prev, assistantMsg]);
+      setStreamingContent('');
+      toast.success('Response regenerated');
+    } catch (error) {
+      toast.error('Failed to regenerate response');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditSubmit = async (message: Message) => {
+    if (!editContent.trim() || !chatIdFromUrl) return;
+    
+    setEditingMessageId(null);
+    // For edit, we'll send a new message with the edited content
+    // This creates a new branch in the conversation
+    const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+    await handleSubmit(fakeEvent, editContent);
+    setEditContent('');
+  };
+
+  const startEditing = (message: Message) => {
+    setEditingMessageId(message.id);
+    setEditContent(message.content);
+  };
+
+  const cancelEditing = () => {
+    setEditingMessageId(null);
+    setEditContent('');
   };
 
   const copyToClipboard = (content: string) => {
@@ -102,22 +308,13 @@ export default function CreatePage() {
     toast.success('Copied to clipboard!');
   };
 
-  const regenerate = () => {
-    toast.info('Regenerating response...');
-    // In a real app, this would trigger a new AI response
+  const handleNewChat = () => {
+    router.push('/create');
+    toast.success('Started new chat');
   };
 
-  const handleNewChat = () => {
-    setMessages([
-      {
-        id: '1',
-        role: 'assistant',
-        content:
-          "Hello! I'm your AI content assistant. What would you like to create today?",
-        timestamp: new Date(),
-      },
-    ]);
-    toast.success('Started new chat');
+  const handleSelectChat = (id: string) => {
+    router.push(`/create?chat=${id}`);
   };
 
   return (
@@ -147,8 +344,22 @@ export default function CreatePage() {
                 isOpen={chatSidebarOpen}
                 onToggle={() => setChatSidebarOpen(false)}
                 onNewChat={handleNewChat}
-                onSelectChat={(id) => setActiveSessionId(id)}
-                activeSessionId={activeSessionId}
+                onSelectChat={handleSelectChat}
+                onDeleteChat={async (id) => {
+                  try {
+                    await deleteChat.mutateAsync(id);
+                    toast.success('Chat deleted');
+                    if (chatIdFromUrl === id) router.push('/create');
+                  } catch { toast.error('Failed to delete chat'); }
+                }}
+                onUpdateTitle={async (id, title) => {
+                  try {
+                    await updateChat.mutateAsync({ id, title });
+                    toast.success('Title updated');
+                  } catch { toast.error('Failed to update title'); }
+                }}
+                sessions={chatSessions}
+                activeSessionId={chatIdFromUrl || undefined}
                 isMobileOverlay={true}
               />
             </div>
@@ -161,8 +372,22 @@ export default function CreatePage() {
             isOpen={chatSidebarOpen}
             onToggle={() => setChatSidebarOpen(!chatSidebarOpen)}
             onNewChat={handleNewChat}
-            onSelectChat={(id) => setActiveSessionId(id)}
-            activeSessionId={activeSessionId}
+            onSelectChat={handleSelectChat}
+            onDeleteChat={async (id) => {
+              try {
+                await deleteChat.mutateAsync(id);
+                toast.success('Chat deleted');
+                if (chatIdFromUrl === id) router.push('/create');
+              } catch { toast.error('Failed to delete chat'); }
+            }}
+            onUpdateTitle={async (id, title) => {
+              try {
+                await updateChat.mutateAsync({ id, title });
+                toast.success('Title updated');
+              } catch { toast.error('Failed to update title'); }
+            }}
+            sessions={chatSessions}
+            activeSessionId={chatIdFromUrl || undefined}
           />
         )}
 
@@ -195,6 +420,59 @@ export default function CreatePage() {
 
           {/* Messages */}
           <div className="flex-1 overflow-auto rounded-xl border border-border bg-card/50 p-3 md:p-4 space-y-3 md:space-y-4">
+            {messages.length === 0 && !streamingContent && !isLoading && (
+              <div className="h-full flex flex-col items-center justify-center p-4 text-center">
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight mb-1">
+                  How can I help you today?
+                </h2>
+                <p className="text-muted-foreground max-w-sm mb-6 text-sm">
+                  I'm your AI creative partner for social media and content generation.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl px-2">
+                  <div className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Share2 className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold text-sm">Social Content</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
+                      Captions, posts, and threads for any platform.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group">
+                    <div className="flex items-center gap-2 mb-1">
+                      <ImageIcon className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold text-sm">Media Ideas</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
+                      Image prompts and visual content strategies.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Zap className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold text-sm">Optimization</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
+                      Refine your scripts to maximize engagement.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group">
+                    <div className="flex items-center gap-2 mb-1">
+                      <User className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold text-sm">Brand Voice</h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
+                      Maintain a consistent tone across all platforms.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -226,37 +504,91 @@ export default function CreatePage() {
                       : 'bg-primary text-primary-foreground',
                   )}
                 >
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {message.content}
-                  </div>
-
-                  {message.role === 'assistant' && (
-                    <div className="flex gap-1 mt-2 md:mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
-                        onClick={() => copyToClipboard(message.content)}
-                      >
-                        <Copy className="h-3 w-3 mr-1" />
-                        Copy
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
-                        onClick={() => regenerate()}
-                      >
-                        <RefreshCw className="h-3 w-3 mr-1" />
-                        Regenerate
-                      </Button>
+                  {/* Edit Mode */}
+                  {editingMessageId === message.id && message.role === 'user' ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        className="min-h-[60px] bg-background/50 text-foreground"
+                        autoFocus
+                      />
+                      <div className="flex gap-2 justify-end">
+                        <Button size="sm" variant="ghost" onClick={cancelEditing}>
+                          <X className="h-3 w-3 mr-1" /> Cancel
+                        </Button>
+                        <Button size="sm" onClick={() => handleEditSubmit(message)}>
+                          <Check className="h-3 w-3 mr-1" /> Send
+                        </Button>
+                      </div>
                     </div>
+                  ) : (
+                    <>
+                      <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                        {message.content}
+                      </div>
+
+                      {/* User Actions - Edit */}
+                      {message.role === 'user' && message.id !== 'welcome' && (
+                        <div className="flex gap-1 mt-2 md:mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
+                            onClick={() => startEditing(message)}
+                          >
+                            <Edit2 className="h-3 w-3 mr-1" />
+                            Edit
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Assistant Actions - Copy & Regenerate */}
+                      {message.role === 'assistant' && message.id !== 'welcome' && (
+                        <div className="flex gap-1 mt-2 md:mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
+                            onClick={() => copyToClipboard(message.content)}
+                          >
+                            <Copy className="h-3 w-3 mr-1" />
+                            Copy
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
+                            onClick={() => handleRegenerate(message)}
+                            disabled={isLoading || !message.parentMessageId}
+                          >
+                            <RefreshCw className={cn("h-3 w-3 mr-1", isLoading && "animate-spin")} />
+                            Regenerate
+                          </Button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
             ))}
 
-            {isLoading && (
+            {/* Streaming Response */}
+            {streamingContent && (
+              <div className="flex gap-2 md:gap-3 animate-slide-up">
+                <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
+                  <Sparkles className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <div className="bg-muted/50 rounded-xl p-3 md:p-4 max-w-[85%] sm:max-w-[75%]">
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {streamingContent}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Loading Indicator */}
+            {isLoading && !streamingContent && (
               <div className="flex gap-2 md:gap-3 animate-slide-up">
                 <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
                   <Sparkles className="h-4 w-4 text-primary-foreground animate-pulse" />
