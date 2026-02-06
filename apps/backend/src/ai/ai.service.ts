@@ -23,9 +23,9 @@ export class AiService {
     });
   }
 
-  async createChatCompletion(chatId: string, userId: string, content: string, res: Response) {
+  async createChatCompletion(chatId: string, userId: string, content: string, parentMessageId: string, res: Response) {
     // 1. Save user message
-    const userMessage = await this.chatService.addMessage(chatId, "user", content);
+    const userMessage = await this.chatService.addMessage(chatId, "user", content, parentMessageId);
 
     // 2. Get history for context
     const history = await this.chatService.getMessageHistory(chatId);

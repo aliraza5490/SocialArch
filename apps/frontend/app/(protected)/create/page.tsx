@@ -16,6 +16,12 @@ import {
   Share2,
   Image as ImageIcon,
   Zap,
+  ChevronLeft,
+  ChevronRight,
+  ThumbsUp,
+  ThumbsDown,
+  Upload,
+  MoreHorizontal,
 } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -33,6 +39,7 @@ interface Message {
   content: string;
   timestamp: Date;
   parentMessageId?: string | null;
+  chatId?: string;
 }
 
 
@@ -65,14 +72,23 @@ export default function CreatePage() {
   }, [chatsData]);
 
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
+  // Track active version for each branch point (parentMessageId -> childMessageId)
+  const [activeVersions, setActiveVersions] = useState<Record<string, string>>({});
 
-  // Clear optimistic messages when switching chats
+  // Clear optimistic messages and versions when switching chats
   useEffect(() => {
+    // If we just created this chat (transitioning from null -> new ID), 
+    // don't clear the optimistic messages we just added.
+    if (chatIdFromUrl && chatIdFromUrl === justCreatedChatIdRef.current) {
+      justCreatedChatIdRef.current = null; // Reset for next time
+      return;
+    }
     setOptimisticMessages([]);
+    setActiveVersions({});
   }, [chatIdFromUrl]);
 
   // Transform API messages to local format
-  const messages: Message[] = useMemo(() => {
+  const allMessages: Message[] = useMemo(() => {
     const apiMessages: Message[] = (!chatIdFromUrl || !chatMessagesData || chatMessagesData.length === 0) 
       ? [] 
       : chatMessagesData.map((msg: any) => ({
@@ -81,18 +97,83 @@ export default function CreatePage() {
           content: msg.content,
           timestamp: new Date(msg.CreatedAt || msg.createdAt || Date.now()),
           parentMessageId: msg.parentMessageId,
+          chatId: (msg.chatId || msg.chatID || chatIdFromUrl) ?? undefined,
         }));
 
+    // Create a mapping of optimistic IDs that have been replaced by API messages
+    const mapping = new Map<string, string>();
+    optimisticMessages.forEach(opt => {
+      const match = apiMessages.find(api => 
+        api.role === opt.role && api.content === opt.content
+      );
+      if (match) mapping.set(opt.id, match.id);
+    });
+
     // Merge API messages with optimistic ones
-    // We filter out any optimistic messages that have been received from the API (deduplication)
     const filteredOptimistic = optimisticMessages.filter(
       optMsg => !apiMessages.some((apiMsg: Message) => 
-        apiMsg.role === optMsg.role && 
-        apiMsg.content === optMsg.content
+        apiMsg.id === optMsg.id || (apiMsg.role === optMsg.role && apiMsg.content === optMsg.content)
       )
     );
-    return [...apiMessages, ...filteredOptimistic];
+
+    // Normalize parentMessageId for all messages to use the mapped API ID if available
+    return [...apiMessages, ...filteredOptimistic].map(msg => {
+      if (msg.parentMessageId && mapping.has(msg.parentMessageId)) {
+        return { ...msg, parentMessageId: mapping.get(msg.parentMessageId)! };
+      }
+      return msg;
+    });
   }, [chatIdFromUrl, chatMessagesData, optimisticMessages]);
+
+  const messagesMap = useMemo(() => new Map(allMessages.map(m => [m.id, m])), [allMessages]);
+
+  // Derived messages for the current active branch
+  const messages = useMemo(() => {
+    if (allMessages.length === 0) return [];
+
+    const result: Message[] = [];
+    const messagesByParent = new Map<string, Message[]>();
+    
+    allMessages.forEach(msg => {
+      const parentId = msg.parentMessageId || 'root';
+      if (!messagesByParent.has(parentId)) {
+        messagesByParent.set(parentId, []);
+      }
+      messagesByParent.get(parentId)!.push(msg);
+    });
+
+    // Traverse from root following active versions
+    let currentParentId = 'root';
+    while (true) {
+      const versions = messagesByParent.get(currentParentId);
+      if (!versions || versions.length === 0) break;
+
+      // Select active version: either from state or the last one (most recent)
+      let activeId = activeVersions[currentParentId];
+      let activeMsg = activeId ? versions.find(m => m.id === activeId) : null;
+      
+      if (!activeMsg) {
+        // Default to latest version if not set or not found
+        activeMsg = versions[versions.length - 1];
+      }
+
+      result.push(activeMsg);
+      currentParentId = activeMsg.id;
+    }
+
+    return result;
+  }, [allMessages, activeVersions]);
+
+  // Helper to get versions for a parent
+  const getVersions = (parentMessageId: string | null | undefined) => {
+    const parentId = parentMessageId || 'root';
+    return allMessages.filter(m => (m.parentMessageId || 'root') === parentId);
+  };
+
+  const setVersion = (parentMessageId: string | null | undefined, messageId: string) => {
+    const parentId = parentMessageId || 'root';
+    setActiveVersions(prev => ({ ...prev, [parentId]: messageId }));
+  };
 
   // Editing state
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -109,6 +190,7 @@ export default function CreatePage() {
   const [streamingContent, setStreamingContent] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
+  const justCreatedChatIdRef = useRef<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -120,9 +202,9 @@ export default function CreatePage() {
       return;
     }
     scrollToBottom();
-  }, [messages, streamingContent]);
+  }, [messages]);
 
-  const handleSubmit = async (e: React.FormEvent, editedContent?: string) => {
+  const handleSubmit = async (e: React.FormEvent, editedContent?: string, overrideParentId?: string | null) => {
     e.preventDefault();
     const content = editedContent || input;
     if (!content.trim() || isLoading) return;
@@ -131,18 +213,45 @@ export default function CreatePage() {
     setIsLoading(true);
     setStreamingContent('');
 
-    // Add optimistic message
+    const lastMessageInBranch = messages[messages.length - 1];
     const optimisticMsgId = `temp-${Date.now()}`;
+    const parentId = overrideParentId !== undefined ? overrideParentId : (lastMessageInBranch ? lastMessageInBranch.id : null);
+    
     const optimisticMsg: Message = {
       id: optimisticMsgId,
       role: 'user',
       content: content.trim(),
       timestamp: new Date(),
+      parentMessageId: parentId,
     };
-    setOptimisticMessages(prev => [...prev, optimisticMsg]);
+
+    const assistantTempId = `temp-ast-${Date.now()}`;
+    const assistantMsg: Message = {
+      id: assistantTempId,
+      role: 'assistant',
+      content: '', // Empty while streaming
+      timestamp: new Date(),
+      parentMessageId: optimisticMsgId,
+    };
+
+    setOptimisticMessages(prev => [...prev, optimisticMsg, assistantMsg]);
+
+    // Update active version for the parent to point to this new message
+    setActiveVersions(prev => ({ 
+      ...prev, 
+      [parentId || 'root']: optimisticMsgId,
+      [optimisticMsgId]: assistantTempId
+    }));
 
     try {
-      let currentChatId = chatIdFromUrl;
+      // Fallback: check window URL and local ref to avoid stale state/closures
+      const urlParams = new URLSearchParams(window.location.search);
+      let currentChatId = chatIdFromUrl || urlParams.get('chat') || justCreatedChatIdRef.current;
+      
+      // Secondary Fallback: If we have messages, we are in a chat. Use the chatId from the messages.
+      if (!currentChatId && messages.length > 0) {
+        currentChatId = messages[0].chatId;
+      }
       
       // Create a new chat if we don't have one
       if (!currentChatId) {
@@ -157,6 +266,7 @@ export default function CreatePage() {
         if (createResponse.ok) {
           const chat = await createResponse.json();
           currentChatId = chat.ID;
+          justCreatedChatIdRef.current = currentChatId; // Mark this ID as "just created" to prevent clearing state
           router.push(`/create?chat=${currentChatId}`);
           await refetchChats();
         }
@@ -168,9 +278,8 @@ export default function CreatePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
-        body: JSON.stringify({ chatId: currentChatId, content: content.trim() }),
+        body: JSON.stringify({ chatId: currentChatId, content: content.trim(), parentMessageId: parentId }),
       });
-
       if (!response.ok) throw new Error('Failed to send message');
 
       const reader = response.body?.getReader();
@@ -193,26 +302,27 @@ export default function CreatePage() {
             const parsed = JSON.parse(data);
             if (parsed.content) {
               fullContent += parsed.content;
-              setStreamingContent(fullContent);
+              // Update optimistic message content directly
+              setOptimisticMessages(prev => prev.map(m => 
+                m.id === assistantTempId ? { ...m, content: fullContent } : m
+              ));
             }
           } catch {
             // Ignore parse errors
           }
         }
       }
+      
+      // Refresh messages to get real IDs from server
+      await refetchMessages();
 
       // Add assistant response to optimistic messages instead of refetching
-      const assistantMsg: Message = {
-        id: `temp-ast-${Date.now()}`,
-        role: 'assistant',
-        content: fullContent,
-        timestamp: new Date(),
-      };
-      setOptimisticMessages(prev => [...prev, assistantMsg]);
-      setStreamingContent('');
+      // The assistant message was already added, now its content is finalized.
+      // No need to add a new message, just ensure the content is updated.
+      // The previous streaming updates already handled this.
     } catch (error) {
-      // Remove optimistic message on error (e.g. 500)
-      setOptimisticMessages(prev => prev.filter(msg => !msg.id.startsWith('temp-')));
+      // Remove optimistic messages on error (e.g. 500)
+      setOptimisticMessages(prev => prev.filter(msg => msg.id !== optimisticMsgId && msg.id !== assistantTempId));
       toast.error('Failed to send message');
     } finally {
       setIsLoading(false);
@@ -223,7 +333,18 @@ export default function CreatePage() {
     if (!chatIdFromUrl || !message.parentMessageId || regenerateMutation.isPending) return;
     
     setIsLoading(true);
-    setStreamingContent('');
+
+    const assistantTempId = `temp-ast-${Date.now()}`;
+    const assistantMsg: Message = {
+      id: assistantTempId,
+      role: 'assistant',
+      content: '', // Empty while streaming
+      timestamp: new Date(),
+      parentMessageId: message.parentMessageId,
+    };
+
+    setOptimisticMessages(prev => [...prev, assistantMsg]);
+    setActiveVersions(prev => ({ ...prev, [message.parentMessageId || 'root']: assistantTempId }));
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/ai/regenerate`, {
@@ -257,26 +378,24 @@ export default function CreatePage() {
             const parsed = JSON.parse(data);
             if (parsed.content) {
               fullContent += parsed.content;
-              setStreamingContent(fullContent);
+              // Update optimistic message content directly
+              setOptimisticMessages(prev => prev.map(m => 
+                m.id === assistantTempId ? { ...m, content: fullContent } : m
+              ));
             }
           } catch {
             // Ignore parse errors
           }
         }
       }
+      
+      // Refresh messages to get real IDs from server
+      await refetchMessages();
 
-      // Add assistant response to optimistic messages instead of refetching
-      const assistantMsg: Message = {
-        id: `temp-ast-${Date.now()}`,
-        role: 'assistant',
-        content: fullContent,
-        timestamp: new Date(),
-      };
-      setOptimisticMessages(prev => [...prev, assistantMsg]);
-      setStreamingContent('');
       toast.success('Response regenerated');
     } catch (error) {
       toast.error('Failed to regenerate response');
+      setOptimisticMessages(prev => prev.filter(msg => msg.id !== assistantTempId));
     } finally {
       setIsLoading(false);
     }
@@ -289,7 +408,7 @@ export default function CreatePage() {
     // For edit, we'll send a new message with the edited content
     // This creates a new branch in the conversation
     const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-    await handleSubmit(fakeEvent, editContent);
+    await handleSubmit(fakeEvent, editContent, message.parentMessageId);
     setEditContent('');
   };
 
@@ -477,140 +596,207 @@ export default function CreatePage() {
               <div
                 key={message.id}
                 className={cn(
-                  'flex gap-2 md:gap-3 animate-slide-up',
-                  message.role === 'user' && 'flex-row-reverse',
+                  'flex flex-col gap-2 md:gap-3 animate-slide-up',
+                  message.role === 'user' ? 'items-end' : 'items-start',
                 )}
               >
                 <div
                   className={cn(
-                    'h-8 w-8 rounded-lg flex items-center justify-center shrink-0',
-                    message.role === 'assistant'
-                      ? 'gradient-primary shadow-glow'
-                      : 'bg-muted',
+                    'flex gap-2 md:gap-3 w-full',
+                    message.role === 'user' && 'flex-row-reverse',
                   )}
                 >
-                  {message.role === 'assistant' ? (
-                    <Sparkles className="h-4 w-4 text-primary-foreground" />
-                  ) : (
-                    <User className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </div>
+                  <div
+                    className={cn(
+                      'h-8 w-8 rounded-lg flex items-center justify-center shrink-0',
+                      message.role === 'assistant'
+                        ? 'gradient-primary shadow-glow'
+                        : 'bg-muted',
+                    )}
+                  >
+                    {message.role === 'assistant' ? (
+                      <Sparkles className={cn("h-4 w-4 text-primary-foreground", (isLoading && !message.content) && "animate-pulse")} />
+                    ) : (
+                      <User className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
 
-                <div
-                  className={cn(
-                    'group relative max-w-[85%] sm:max-w-[75%] rounded-xl p-3 md:p-4',
-                    message.role === 'assistant'
-                      ? 'bg-muted/50'
-                      : 'bg-primary text-primary-foreground',
-                  )}
-                >
-                  {/* Edit Mode */}
-                  {editingMessageId === message.id && message.role === 'user' ? (
-                    <div className="space-y-2">
-                      <Textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        className="min-h-[60px] bg-background/50 text-foreground"
-                        autoFocus
-                      />
-                      <div className="flex gap-2 justify-end">
-                        <Button size="sm" variant="ghost" onClick={cancelEditing}>
-                          <X className="h-3 w-3 mr-1" /> Cancel
-                        </Button>
-                        <Button size="sm" onClick={() => handleEditSubmit(message)}>
-                          <Check className="h-3 w-3 mr-1" /> Send
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {message.content}
-                      </div>
-
-                      {/* User Actions - Edit */}
-                      {message.role === 'user' && message.id !== 'welcome' && (
-                        <div className="flex gap-1 mt-2 md:mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
-                            onClick={() => startEditing(message)}
-                          >
-                            <Edit2 className="h-3 w-3 mr-1" />
-                            Edit
+                  <div
+                    className={cn(
+                      'group relative max-w-[85%] sm:max-w-[75%] rounded-xl p-3 md:p-4',
+                      message.role === 'assistant'
+                        ? 'bg-muted/50'
+                        : 'bg-primary text-primary-foreground',
+                    )}
+                  >
+                    {/* Edit Mode */}
+                    {editingMessageId === message.id && message.role === 'user' ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="min-h-[60px] bg-background/50 text-foreground"
+                          autoFocus
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <Button size="sm" variant="ghost" onClick={cancelEditing}>
+                            <X className="h-3 w-3 mr-1" /> Cancel
+                          </Button>
+                          <Button size="sm" onClick={() => handleEditSubmit(message)}>
+                            <Check className="h-3 w-3 mr-1" /> Send
                           </Button>
                         </div>
-                      )}
-
-                      {/* Assistant Actions - Copy & Regenerate */}
-                      {message.role === 'assistant' && message.id !== 'welcome' && (
-                        <div className="flex gap-1 mt-2 md:mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
-                            onClick={() => copyToClipboard(message.content)}
-                          >
-                            <Copy className="h-3 w-3 mr-1" />
-                            Copy
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs"
-                            onClick={() => handleRegenerate(message)}
-                            disabled={isLoading || !message.parentMessageId}
-                          >
-                            <RefreshCw className={cn("h-3 w-3 mr-1", isLoading && "animate-spin")} />
-                            Regenerate
-                          </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                          {message.content || (message.role === 'assistant' && isLoading && (
+                            <div className="flex gap-1 py-2">
+                              <div
+                                className="h-2 w-2 rounded-full bg-primary animate-bounce"
+                                style={{ animationDelay: '0ms' }}
+                              />
+                              <div
+                                className="h-2 w-2 rounded-full bg-primary animate-bounce"
+                                style={{ animationDelay: '150ms' }}
+                              />
+                              <div
+                                className="h-2 w-2 rounded-full bg-primary animate-bounce"
+                                style={{ animationDelay: '300ms' }}
+                              />
+                            </div>
+                          ))}
                         </div>
-                      )}
-                    </>
-                  )}
+
+                        {/* Actions Bar */}
+                        <div className="flex items-center gap-1 mt-2 md:mt-3 opacity-0 group-hover:opacity-100 transition-opacity min-h-[32px]">
+                          {/* Version Nav (Only for Assistant) */}
+                          {message.role === 'assistant' && (() => {
+                            const siblings = getVersions(message.parentMessageId);
+                            const parentMsg = messagesMap.get(message.parentMessageId || '');
+                            const parentSiblings = parentMsg ? getVersions(parentMsg.parentMessageId) : [];
+                            
+                            const navSiblings = siblings.length > 1 ? siblings : (parentSiblings.length > 1 ? parentSiblings : []);
+                            const navParentId = siblings.length > 1 ? (message.parentMessageId || 'root') : (parentMsg?.parentMessageId || 'root');
+                            const navActiveId = siblings.length > 1 ? message.id : (parentMsg?.id || '');
+                            
+                            if (navSiblings.length <= 1) return null;
+                            
+                            const currentIndex = navSiblings.findIndex(v => v.id === navActiveId);
+                            
+                            return (
+                              <div className="flex items-center text-xs text-muted-foreground mr-2">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => {
+                                    if (currentIndex > 0) {
+                                      setVersion(navParentId, navSiblings[currentIndex - 1].id);
+                                    }
+                                  }}
+                                  disabled={currentIndex <= 0}
+                                >
+                                  <ChevronLeft className="h-3.5 w-3.5" />
+                                </Button>
+                                <span className="font-bold whitespace-nowrap px-1 text-foreground">
+                                  {currentIndex + 1}
+                                  <span className="text-muted-foreground font-normal">/{navSiblings.length}</span>
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => {
+                                    if (currentIndex < navSiblings.length - 1) {
+                                      setVersion(navParentId, navSiblings[currentIndex + 1].id);
+                                    }
+                                  }}
+                                  disabled={currentIndex >= navSiblings.length - 1}
+                                >
+                                  <ChevronRight className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            );
+                          })()}
+
+                          {/* Assistant Utilities */}
+                          {message.role === 'assistant' && message.id !== 'welcome' && (
+                            <div className="flex items-center gap-0.5">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                onClick={() => copyToClipboard(message.content)}
+                                title="Copy"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                title="Good Response"
+                              >
+                                <ThumbsUp className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                title="Bad Response"
+                              >
+                                <ThumbsDown className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                title="Export"
+                              >
+                                <Upload className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                onClick={() => handleRegenerate(message)}
+                                disabled={isLoading || !message.parentMessageId}
+                                title="Regenerate"
+                              >
+                                <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                title="More"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* User Utilities */}
+                          {message.role === 'user' && message.id !== 'welcome' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs text-primary-foreground hover:bg-primary-foreground/10"
+                              onClick={() => startEditing(message)}
+                            >
+                              <Edit2 className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
 
-            {/* Streaming Response */}
-            {streamingContent && (
-              <div className="flex gap-2 md:gap-3 animate-slide-up">
-                <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-                  <Sparkles className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <div className="bg-muted/50 rounded-xl p-3 md:p-4 max-w-[85%] sm:max-w-[75%]">
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {streamingContent}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Loading Indicator */}
-            {isLoading && !streamingContent && (
-              <div className="flex gap-2 md:gap-3 animate-slide-up">
-                <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
-                  <Sparkles className="h-4 w-4 text-primary-foreground animate-pulse" />
-                </div>
-                <div className="bg-muted/50 rounded-xl p-4">
-                  <div className="flex gap-1">
-                    <div
-                      className="h-2 w-2 rounded-full bg-primary animate-bounce"
-                      style={{ animationDelay: '0ms' }}
-                    />
-                    <div
-                      className="h-2 w-2 rounded-full bg-primary animate-bounce"
-                      style={{ animationDelay: '150ms' }}
-                    />
-                    <div
-                      className="h-2 w-2 rounded-full bg-primary animate-bounce"
-                      style={{ animationDelay: '300ms' }}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div ref={messagesEndRef} />
           </div>

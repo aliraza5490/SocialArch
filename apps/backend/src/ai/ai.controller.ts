@@ -15,9 +15,10 @@ export class AiController {
     @JWTUser() user: any,
     @Body("chatId") chatId: string,
     @Body("content") content: string,
+    @Body("parentMessageId") parentMessageId: string,
     @Res() res: Response,
   ) {
-    return this.aiService.createChatCompletion(chatId, user.ID, content, res);
+    return this.aiService.createChatCompletion(chatId, user.ID, content, parentMessageId, res);
   }
 
   @Post("regenerate")
