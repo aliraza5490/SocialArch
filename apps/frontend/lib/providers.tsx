@@ -6,6 +6,9 @@ import { AuthProvider } from '@/lib/contexts/auth-context';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { useState } from 'react';
 
+import { store } from '@/store';
+import { Provider } from 'react-redux';
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -27,9 +30,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
         enableSystem
         disableTransitionOnChange
       >
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
-        </QueryClientProvider>
+        <Provider store={store}>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>{children}</AuthProvider>
+          </QueryClientProvider>
+        </Provider>
       </ThemeProvider>
     </ErrorBoundary>
   );

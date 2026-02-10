@@ -63,8 +63,8 @@ export const useDeleteChat = () => {
 export const useRegenerateResponse = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ chatId, parentMessageId }: { chatId: string; parentMessageId: string }) => {
-      const response = await apiClient.post("/ai/regenerate", { chatId, parentMessageId });
+    mutationFn: async ({ chatId, position, selectedVersions }: { chatId: string; position: number; selectedVersions?: Record<number, number> }) => {
+      const response = await apiClient.post("/ai/regenerate", { chatId, position, selectedVersions });
       return response.data;
     },
     onSuccess: (_, { chatId }) => {

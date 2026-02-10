@@ -15,19 +15,21 @@ export class AiController {
     @JWTUser() user: any,
     @Body("chatId") chatId: string,
     @Body("content") content: string,
-    @Body("parentMessageId") parentMessageId: string,
     @Res() res: Response,
+    @Body("position") position?: number,
+    @Body("selectedVersions") selectedVersions?: Record<number, number>,
   ) {
-    return this.aiService.createChatCompletion(chatId, user.ID, content, parentMessageId, res);
+    return this.aiService.createChatCompletion(chatId, user.ID, content, res, position, selectedVersions);
   }
 
   @Post("regenerate")
   async regenerate(
     @JWTUser() user: any,
     @Body("chatId") chatId: string,
-    @Body("parentMessageId") parentMessageId: string,
+    @Body("position") position: number,
+    @Body("selectedVersions") selectedVersions: Record<number, number>,
     @Res() res: Response,
   ) {
-    return this.aiService.regenerateResponse(chatId, user.ID, parentMessageId, res);
+    return this.aiService.regenerateResponse(chatId, user.ID, position, res, selectedVersions);
   }
 }

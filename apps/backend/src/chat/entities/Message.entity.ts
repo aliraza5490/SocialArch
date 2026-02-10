@@ -16,15 +16,9 @@ export class Message extends AppEntity {
   @Column({ type: "text" })
   content: string;
 
+  @Column({ type: "int", default: 0 })
+  position: number;
+
   @Column({ type: "int", default: 1 })
   version: number;
-
-  @Column({ type: "uuid", nullable: true })
-  parentMessageId: string | null;
-
-  @ManyToOne(() => Message, (message) => message.children)
-  parent: Message | null;
-
-  @OneToMany(() => Message, (message) => message.parent)
-  children: Message[];
 }

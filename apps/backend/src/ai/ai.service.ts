@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import { ChatService } from "@/chat/chat.service";
+import { Message } from "@/chat/entities/Message.entity";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
 
@@ -23,15 +24,34 @@ export class AiService {
     });
   }
 
-  async createChatCompletion(chatId: string, userId: string, content: string, parentMessageId: string, res: Response) {
-    // 1. Save user message
-    const userMessage = await this.chatService.addMessage(chatId, "user", content, parentMessageId);
+  async createChatCompletion(
+    chatId: string,
+    userId: string,
+    content: string,
+    res: Response,
+    position?: number,
+    selectedVersions?: Record<number, number>,
+  ) {
+    // 1. Save user message at the specified position or end of chat
+    const userMessage = await this.chatService.addMessage(chatId, "user", content, position);
 
-    // 2. Get history for context
-    const history = await this.chatService.getMessageHistory(chatId);
+    const finalPosition = userMessage.position;
+
+    // 2. Get history for context.
+    const fullHistory = await this.chatService.getMessageHistory(chatId);
     
+    // Filter history to only include the correct versions leading up to the new message
+    const historyForContext = this.filterHistoryByVersion(fullHistory, selectedVersions || {});
+    
+    // Ensure we only include messages with position <= finalPosition
+    const filteredHistory = historyForContext.filter(m => m.position < finalPosition);
+    filteredHistory.push(userMessage);
+
+    // Sort to ensure correct order for AI
+    filteredHistory.sort((a, b) => a.position - b.position);
+
     // 3. Convert history to LangChain messages
-    const messages = history.map((msg) => {
+    const messages = (filteredHistory as Message[]).map((msg) => {
       if (msg.role === "user") return new HumanMessage(msg.content);
       return new AIMessage(msg.content);
     });
@@ -55,25 +75,31 @@ export class AiService {
         }
       }
     } finally {
-      // Save assistant message when stream completes
-      await this.chatService.addMessage(chatId, "assistant", fullContent, userMessage.ID);
+      // Save assistant message at the next position
+      await this.chatService.addMessage(chatId, "assistant", fullContent, finalPosition + 1);
       res.write("data: [DONE]\n\n");
       res.end();
     }
   }
 
-  async regenerateResponse(chatId: string, userId: string, parentMessageId: string, res: Response) {
-    // 1. Get history up to the parent message
+  async regenerateResponse(
+    chatId: string,
+    userId: string,
+    position: number,
+    res: Response,
+    selectedVersions?: Record<number, number>,
+  ) {
+    // 1. Get history up to the message at 'position'
     const fullHistory = await this.chatService.getMessageHistory(chatId);
     
-    // Find the index of the parent message (which should be a user message)
-    const parentIndex = fullHistory.findIndex(m => m.ID === parentMessageId);
-    if (parentIndex === -1) throw new Error("Parent message not found");
-
-    const historyForContext = fullHistory.slice(0, parentIndex + 1);
+    // Filter history to only include the correct versions leading up to this position
+    const historyForContext = this.filterHistoryByVersion(fullHistory, selectedVersions || {});
+    
+    // We want the context up to the message BEFORE this position
+    const filteredHistory = historyForContext.filter(m => m.position < position);
 
     // 2. Convert to LangChain messages
-    const messages = historyForContext.map((msg) => {
+    const messages = (filteredHistory as Message[]).map((msg) => {
       if (msg.role === "user") return new HumanMessage(msg.content);
       return new AIMessage(msg.content);
     });
@@ -97,10 +123,37 @@ export class AiService {
         }
       }
     } finally {
-      // Save assistant message as a new version
-      await this.chatService.addMessage(chatId, "assistant", fullContent, parentMessageId);
+      // Save assistant message as a new version for this position
+      await this.chatService.addMessage(chatId, "assistant", fullContent, position);
       res.write("data: [DONE]\n\n");
       res.end();
     }
+  }
+
+  private filterHistoryByVersion(messages: Message[], selectedVersions: Record<number, number>): Message[] {
+    const messagesByPosition = new Map<number, Message[]>();
+    messages.forEach(m => {
+      if (!messagesByPosition.has(m.position)) {
+        messagesByPosition.set(m.position, []);
+      }
+      messagesByPosition.get(m.position)!.push(m);
+    });
+
+    const result: Message[] = [];
+    messagesByPosition.forEach((versions, position) => {
+      const selectedV = selectedVersions[position];
+      let chosen: Message | undefined;
+      if (selectedV !== undefined) {
+        chosen = versions.find(v => v.version === selectedV);
+      }
+      if (!chosen) {
+        // Default to latest
+        versions.sort((a, b) => b.version - a.version);
+        chosen = versions[0];
+      }
+      result.push(chosen);
+    });
+
+    return result.sort((a, b) => a.position - b.position);
   }
 }

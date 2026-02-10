@@ -57,14 +57,33 @@ export class ChatService {
     chatId: string,
     role: "user" | "assistant",
     content: string,
-    parentMessageId?: string,
+    position?: number,
   ): Promise<Message> {
-    // Basic implementation, versioning logic can be added here or in AI service
+    let finalPosition = position;
+    let finalVersion = 1;
+
+    if (position !== undefined) {
+      // Adding a new version for an existing position
+      const maxVersionMessage = await this.messageRepository.findOne({
+        where: { chatId, position },
+        order: { version: "DESC" },
+      });
+      finalVersion = (maxVersionMessage?.version || 0) + 1;
+    } else {
+      // Adding a new message to the end of the chat
+      const lastMessage = await this.messageRepository.findOne({
+        where: { chatId },
+        order: { position: "DESC" },
+      });
+      finalPosition = (lastMessage?.position ?? -1) + 1;
+    }
+
     const message = this.messageRepository.create({
       chatId,
       role,
       content,
-      parentMessageId,
+      position: finalPosition,
+      version: finalVersion,
     });
     return this.messageRepository.save(message);
   }

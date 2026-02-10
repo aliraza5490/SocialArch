@@ -32,15 +32,10 @@ import { ChatHistorySidebar } from '@/components/chat/ChatHistorySidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useChats, useDeleteChat, useUpdateChat, useChatMessages, useRegenerateResponse } from '@/hooks/use-chat-api';
 
-interface Message {
-  id: string;
-  ID?: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  parentMessageId?: string | null;
-  chatId?: string;
-}
+import { Message } from "@/types/chat";
+import { useMessageTree } from "@/hooks/use-message-tree";
+import { useAppDispatch } from "@/store/hooks";
+import { setSelectedVersion, clearSelectedVersion } from "@/store/features/chat/chatSlice";
 
 
 export default function CreatePage() {
@@ -72,108 +67,48 @@ export default function CreatePage() {
   }, [chatsData]);
 
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
-  // Track active version for each branch point (parentMessageId -> childMessageId)
-  const [activeVersions, setActiveVersions] = useState<Record<string, string>>({});
+  const dispatch = useAppDispatch();
 
-  // Clear optimistic messages and versions when switching chats
+  // Clear optimistic messages when switching chats
   useEffect(() => {
-    // If we just created this chat (transitioning from null -> new ID), 
-    // don't clear the optimistic messages we just added.
     if (chatIdFromUrl && chatIdFromUrl === justCreatedChatIdRef.current) {
-      justCreatedChatIdRef.current = null; // Reset for next time
+      justCreatedChatIdRef.current = null;
       return;
     }
     setOptimisticMessages([]);
-    setActiveVersions({});
   }, [chatIdFromUrl]);
 
   // Transform API messages to local format
-  const allMessages: Message[] = useMemo(() => {
-    const apiMessages: Message[] = (!chatIdFromUrl || !chatMessagesData || chatMessagesData.length === 0) 
-      ? [] 
-      : chatMessagesData.map((msg: any) => ({
-          id: msg.ID || msg.id,
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date(msg.CreatedAt || msg.createdAt || Date.now()),
-          parentMessageId: msg.parentMessageId,
-          chatId: (msg.chatId || msg.chatID || chatIdFromUrl) ?? undefined,
-        }));
+  const apiMessages: Message[] = useMemo(() => {
+    if (!chatIdFromUrl || !chatMessagesData) return [];
+    return chatMessagesData.map((msg: any) => ({
+      id: msg.ID || msg.id,
+      role: msg.role,
+      content: msg.content,
+      position: msg.position,
+      version: msg.version,
+      createdAt: msg.CreatedAt || msg.createdAt,
+    }));
+  }, [chatIdFromUrl, chatMessagesData]);
 
-    // Create a mapping of optimistic IDs that have been replaced by API messages
-    const mapping = new Map<string, string>();
-    optimisticMessages.forEach(opt => {
-      const match = apiMessages.find(api => 
-        api.role === opt.role && api.content === opt.content
+  // Merge API and optimistic messages, removing duplicates
+  const allMessages = useMemo(() => {
+    const historyIds = new Set(apiMessages.map((m: Message) => m.id));
+    const filteredOptimistic = optimisticMessages.filter(opt => {
+      if (historyIds.has(opt.id)) return false;
+      return !apiMessages.some(api => 
+        api.position === opt.position && 
+        api.role === opt.role && 
+        api.version === opt.version
       );
-      if (match) mapping.set(opt.id, match.id);
     });
+    return [...apiMessages, ...filteredOptimistic];
+  }, [apiMessages, optimisticMessages]);
 
-    // Merge API messages with optimistic ones
-    const filteredOptimistic = optimisticMessages.filter(
-      optMsg => !apiMessages.some((apiMsg: Message) => 
-        apiMsg.id === optMsg.id || (apiMsg.role === optMsg.role && apiMsg.content === optMsg.content)
-      )
-    );
-
-    // Normalize parentMessageId for all messages to use the mapped API ID if available
-    return [...apiMessages, ...filteredOptimistic].map(msg => {
-      if (msg.parentMessageId && mapping.has(msg.parentMessageId)) {
-        return { ...msg, parentMessageId: mapping.get(msg.parentMessageId)! };
-      }
-      return msg;
-    });
-  }, [chatIdFromUrl, chatMessagesData, optimisticMessages]);
-
-  const messagesMap = useMemo(() => new Map(allMessages.map(m => [m.id, m])), [allMessages]);
-
-  // Derived messages for the current active branch
-  const messages = useMemo(() => {
-    if (allMessages.length === 0) return [];
-
-    const result: Message[] = [];
-    const messagesByParent = new Map<string, Message[]>();
-    
-    allMessages.forEach(msg => {
-      const parentId = msg.parentMessageId || 'root';
-      if (!messagesByParent.has(parentId)) {
-        messagesByParent.set(parentId, []);
-      }
-      messagesByParent.get(parentId)!.push(msg);
-    });
-
-    // Traverse from root following active versions
-    let currentParentId = 'root';
-    while (true) {
-      const versions = messagesByParent.get(currentParentId);
-      if (!versions || versions.length === 0) break;
-
-      // Select active version: either from state or the last one (most recent)
-      let activeId = activeVersions[currentParentId];
-      let activeMsg = activeId ? versions.find(m => m.id === activeId) : null;
-      
-      if (!activeMsg) {
-        // Default to latest version if not set or not found
-        activeMsg = versions[versions.length - 1];
-      }
-
-      result.push(activeMsg);
-      currentParentId = activeMsg.id;
-    }
-
-    return result;
-  }, [allMessages, activeVersions]);
-
-  // Helper to get versions for a parent
-  const getVersions = (parentMessageId: string | null | undefined) => {
-    const parentId = parentMessageId || 'root';
-    return allMessages.filter(m => (m.parentMessageId || 'root') === parentId);
-  };
-
-  const setVersion = (parentMessageId: string | null | undefined, messageId: string) => {
-    const parentId = parentMessageId || 'root';
-    setActiveVersions(prev => ({ ...prev, [parentId]: messageId }));
-  };
+  const { thread: messages, getVersionInfo, selectVersion } = useMessageTree(
+    allMessages,
+    chatIdFromUrl || 'new'
+  );
 
   // Editing state
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
@@ -196,15 +131,21 @@ export default function CreatePage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const prevMessagesLength = useRef(messages.length);
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    scrollToBottom();
-  }, [messages]);
+    
+    if (messages.length > prevMessagesLength.current) {
+      scrollToBottom();
+    }
+    prevMessagesLength.current = messages.length;
+  }, [messages.length]);
 
-  const handleSubmit = async (e: React.FormEvent, editedContent?: string, overrideParentId?: string | null) => {
+  const handleSubmit = async (e: React.FormEvent, editedContent?: string, overridePosition?: number) => {
     e.preventDefault();
     const content = editedContent || input;
     if (!content.trim() || isLoading) return;
@@ -213,16 +154,25 @@ export default function CreatePage() {
     setIsLoading(true);
     setStreamingContent('');
 
-    const lastMessageInBranch = messages[messages.length - 1];
-    const optimisticMsgId = `temp-${Date.now()}`;
-    const parentId = overrideParentId !== undefined ? overrideParentId : (lastMessageInBranch ? lastMessageInBranch.id : null);
+    const nextPosition = overridePosition !== undefined ? overridePosition : messages.length;
     
+    // Calculate next optimistic version for this position
+    const getNextVersion = (pos: number) => {
+      const versions = allMessages.filter(m => m.position === pos).map(m => m.version);
+      return versions.length > 0 ? Math.max(...versions) + 1 : 1;
+    };
+
+    const userVersion = getNextVersion(nextPosition);
+    const assistantVersion = getNextVersion(nextPosition + 1);
+
+    const optimisticMsgId = `temp-${Date.now()}`;
     const optimisticMsg: Message = {
       id: optimisticMsgId,
       role: 'user',
       content: content.trim(),
-      timestamp: new Date(),
-      parentMessageId: parentId,
+      position: nextPosition,
+      version: userVersion,
+      createdAt: new Date().toISOString()
     };
 
     const assistantTempId = `temp-ast-${Date.now()}`;
@@ -230,18 +180,12 @@ export default function CreatePage() {
       id: assistantTempId,
       role: 'assistant',
       content: '', // Empty while streaming
-      timestamp: new Date(),
-      parentMessageId: optimisticMsgId,
+      position: nextPosition + 1,
+      version: assistantVersion,
+      createdAt: new Date().toISOString()
     };
 
     setOptimisticMessages(prev => [...prev, optimisticMsg, assistantMsg]);
-
-    // Update active version for the parent to point to this new message
-    setActiveVersions(prev => ({ 
-      ...prev, 
-      [parentId || 'root']: optimisticMsgId,
-      [optimisticMsgId]: assistantTempId
-    }));
 
     try {
       // Fallback: check window URL and local ref to avoid stale state/closures
@@ -250,7 +194,7 @@ export default function CreatePage() {
       
       // Secondary Fallback: If we have messages, we are in a chat. Use the chatId from the messages.
       if (!currentChatId && messages.length > 0) {
-        currentChatId = messages[0].chatId;
+        currentChatId = messages[0].chatId || null;
       }
       
       // Create a new chat if we don't have one
@@ -278,8 +222,17 @@ export default function CreatePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
-        body: JSON.stringify({ chatId: currentChatId, content: content.trim(), parentMessageId: parentId }),
+        body: JSON.stringify({ 
+          chatId: currentChatId, 
+          content: content.trim(),
+          position: overridePosition 
+        }),
       });
+      
+      if (overridePosition !== undefined && currentChatId) {
+        dispatch(clearSelectedVersion({ chatId: currentChatId, position: overridePosition }));
+        dispatch(clearSelectedVersion({ chatId: currentChatId, position: overridePosition + 1 }));
+      }
       if (!response.ok) throw new Error('Failed to send message');
 
       const reader = response.body?.getReader();
@@ -330,7 +283,7 @@ export default function CreatePage() {
   };
 
   const handleRegenerate = async (message: Message) => {
-    if (!chatIdFromUrl || !message.parentMessageId || regenerateMutation.isPending) return;
+    if (!chatIdFromUrl || regenerateMutation.isPending) return;
     
     setIsLoading(true);
 
@@ -339,12 +292,11 @@ export default function CreatePage() {
       id: assistantTempId,
       role: 'assistant',
       content: '', // Empty while streaming
-      timestamp: new Date(),
-      parentMessageId: message.parentMessageId,
+      position: message.position,
+      version: message.version + 1, // Will be corrected by backend
     };
 
     setOptimisticMessages(prev => [...prev, assistantMsg]);
-    setActiveVersions(prev => ({ ...prev, [message.parentMessageId || 'root']: assistantTempId }));
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/ai/regenerate`, {
@@ -353,8 +305,10 @@ export default function CreatePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
-        body: JSON.stringify({ chatId: chatIdFromUrl, parentMessageId: message.parentMessageId }),
+        body: JSON.stringify({ chatId: chatIdFromUrl, position: message.position }),
       });
+      
+      dispatch(clearSelectedVersion({ chatId: chatIdFromUrl, position: message.position }));
 
       if (!response.ok) throw new Error('Failed to regenerate');
 
@@ -405,10 +359,8 @@ export default function CreatePage() {
     if (!editContent.trim() || !chatIdFromUrl) return;
     
     setEditingMessageId(null);
-    // For edit, we'll send a new message with the edited content
-    // This creates a new branch in the conversation
     const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-    await handleSubmit(fakeEvent, editContent, message.parentMessageId);
+    await handleSubmit(fakeEvent, editContent, message.position);
     setEditContent('');
   };
 
@@ -653,15 +605,15 @@ export default function CreatePage() {
                           {message.content || (message.role === 'assistant' && isLoading && (
                             <div className="flex gap-1 py-2">
                               <div
-                                className="h-2 w-2 rounded-full bg-primary animate-bounce"
+                                className="h-2 w-2 rounded-full bg-white animate-bounce"
                                 style={{ animationDelay: '0ms' }}
                               />
                               <div
-                                className="h-2 w-2 rounded-full bg-primary animate-bounce"
+                                className="h-2 w-2 rounded-full bg-white animate-bounce"
                                 style={{ animationDelay: '150ms' }}
                               />
                               <div
-                                className="h-2 w-2 rounded-full bg-primary animate-bounce"
+                                className="h-2 w-2 rounded-full bg-white animate-bounce"
                                 style={{ animationDelay: '300ms' }}
                               />
                             </div>
@@ -672,17 +624,8 @@ export default function CreatePage() {
                         <div className="flex items-center gap-1 mt-2 md:mt-3 opacity-0 group-hover:opacity-100 transition-opacity min-h-[32px]">
                           {/* Version Nav (Only for Assistant) */}
                           {message.role === 'assistant' && (() => {
-                            const siblings = getVersions(message.parentMessageId);
-                            const parentMsg = messagesMap.get(message.parentMessageId || '');
-                            const parentSiblings = parentMsg ? getVersions(parentMsg.parentMessageId) : [];
-                            
-                            const navSiblings = siblings.length > 1 ? siblings : (parentSiblings.length > 1 ? parentSiblings : []);
-                            const navParentId = siblings.length > 1 ? (message.parentMessageId || 'root') : (parentMsg?.parentMessageId || 'root');
-                            const navActiveId = siblings.length > 1 ? message.id : (parentMsg?.id || '');
-                            
-                            if (navSiblings.length <= 1) return null;
-                            
-                            const currentIndex = navSiblings.findIndex(v => v.id === navActiveId);
+                            const info = getVersionInfo(message);
+                            if (info.total <= 1) return null;
                             
                             return (
                               <div className="flex items-center text-xs text-muted-foreground mr-2">
@@ -690,29 +633,21 @@ export default function CreatePage() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-7 w-7"
-                                  onClick={() => {
-                                    if (currentIndex > 0) {
-                                      setVersion(navParentId, navSiblings[currentIndex - 1].id);
-                                    }
-                                  }}
-                                  disabled={currentIndex <= 0}
+                                  onClick={() => selectVersion(message, 'prev')}
+                                  disabled={!info.hasPrev}
                                 >
                                   <ChevronLeft className="h-3.5 w-3.5" />
                                 </Button>
                                 <span className="font-bold whitespace-nowrap px-1 text-foreground">
-                                  {currentIndex + 1}
-                                  <span className="text-muted-foreground font-normal">/{navSiblings.length}</span>
+                                  {info.current}
+                                  <span className="text-muted-foreground font-normal">/{info.total}</span>
                                 </span>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="h-7 w-7"
-                                  onClick={() => {
-                                    if (currentIndex < navSiblings.length - 1) {
-                                      setVersion(navParentId, navSiblings[currentIndex + 1].id);
-                                    }
-                                  }}
-                                  disabled={currentIndex >= navSiblings.length - 1}
+                                  onClick={() => selectVersion(message, 'next')}
+                                  disabled={!info.hasNext}
                                 >
                                   <ChevronRight className="h-3.5 w-3.5" />
                                 </Button>
@@ -761,7 +696,7 @@ export default function CreatePage() {
                                 size="icon"
                                 className="h-7 w-7 text-muted-foreground hover:text-foreground"
                                 onClick={() => handleRegenerate(message)}
-                                disabled={isLoading || !message.parentMessageId}
+                                disabled={isLoading}
                                 title="Regenerate"
                               >
                                 <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
@@ -781,12 +716,12 @@ export default function CreatePage() {
                           {message.role === 'user' && message.id !== 'welcome' && (
                             <Button
                               variant="ghost"
-                              size="sm"
-                              className="h-8 md:h-7 px-3 md:px-2 text-sm md:text-xs text-primary-foreground hover:bg-primary-foreground/10"
+                              size="icon"
+                              className="h-8 w-8 md:h-7 md:w-7 text-primary-foreground hover:bg-primary-foreground/10"
                               onClick={() => startEditing(message)}
+                              title="Edit message"
                             >
-                              <Edit2 className="h-3 w-3 mr-1" />
-                              Edit
+                              <Edit2 className="h-4 w-4 md:h-3.5 md:w-3.5" />
                             </Button>
                           )}
                         </div>
