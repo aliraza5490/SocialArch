@@ -162,6 +162,16 @@ export function ChatHistorySidebar({
       {/* Chat List */}
       <ScrollArea className="flex-1 px-0">
         <div className="space-y-4 px-2 py-2">
+          {filteredSessions.length === 0 && (
+            <div className="mx-2 mt-4 rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-center">
+              <p className="text-sm font-medium text-foreground">
+                {searchQuery ? "No chats found" : "No conversations yet"}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {searchQuery ? "Try a different keyword." : "Start a new chat to see history here."}
+              </p>
+            </div>
+          )}
           {Object.entries(groupedSessions).map(([dateKey, dateSessions]) => (
             <div key={dateKey} className="space-y-1">
               <div className="flex items-center gap-2 px-3 py-1.5">
@@ -173,13 +183,22 @@ export function ChatHistorySidebar({
               {dateSessions.map((session) => (
                 <div
                   key={session.id}
+                  role="button"
+                  tabIndex={0}
                   className={cn(
-                    "group flex items-start gap-3 p-3 mx-1 rounded-xl cursor-pointer transition-all duration-200",
+                    "group mx-1 flex w-[calc(100%-0.5rem)] min-w-0 items-start gap-3 overflow-hidden rounded-xl p-3 text-left transition-all duration-200",
                     session.id === activeSessionId
                       ? "bg-primary/10 shadow-sm ring-1 ring-primary/10"
-                      : "hover:bg-muted/40"
+                      : "hover:bg-muted/40",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                   )}
                   onClick={() => onSelectChat(session.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelectChat(session.id);
+                    }
+                  }}
                 >
                   <div className={cn(
                     "h-8 w-8 rounded-lg flex items-center justify-center shrink-0 transition-colors",
@@ -189,14 +208,14 @@ export function ChatHistorySidebar({
                   )}>
                     <MessageSquare className="h-4 w-4" />
                   </div>
-                  <div className="flex-1 min-w-0 py-0.5">
+                  <div className="w-0 flex-1 min-w-0 overflow-hidden py-0.5">
                     <p className={cn(
-                      "text-sm font-medium truncate transition-colors",
+                      "block w-full whitespace-normal break-words [overflow-wrap:anywhere] text-sm font-medium leading-snug transition-colors",
                       session.id === activeSessionId ? "text-primary" : "text-foreground"
                     )}>
                       {session.title}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    <p className="mt-0.5 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-xs text-muted-foreground">
                       {session.preview}
                     </p>
                   </div>
@@ -227,7 +246,7 @@ export function ChatHistorySidebar({
                         className="text-destructive focus:text-destructive text-sm"
                         onClick={(e) => {
                             e.stopPropagation();
-                            onDeleteChat(session.id);
+                          onDeleteChat(session.id);
                         }}
                       >
                         <Trash2 className="h-3.5 w-3.5 mr-2" />

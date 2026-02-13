@@ -58,13 +58,44 @@ export default function CreatePage() {
   // Transform API data to ChatSession format
   const chatSessions = useMemo(() => {
     if (!chatsData) return [];
+    const activeChatLatestMessage = chatMessagesData && chatMessagesData.length > 0
+      ? chatMessagesData[chatMessagesData.length - 1]?.content
+      : '';
+    const toPreviewExcerpt = (text: string, maxLength = 55) => {
+      const normalized = text.replace(/\s+/g, ' ').trim();
+      if (!normalized) return '';
+      if (normalized.length <= maxLength) return normalized;
+      return `${normalized.slice(0, maxLength - 3)}...`;
+    };
+
+    const resolvePreview = (chat: any, isActiveChat: boolean) => {
+      if (isActiveChat && activeChatLatestMessage) {
+        return toPreviewExcerpt(activeChatLatestMessage);
+      }
+
+      if (chat.preview || chat.Preview) {
+        return toPreviewExcerpt(chat.preview || chat.Preview);
+      }
+
+      if (chat.lastMessage?.content || chat.lastMessageContent) {
+        return toPreviewExcerpt(chat.lastMessage?.content || chat.lastMessageContent);
+      }
+
+      if (Array.isArray(chat.messages) && chat.messages.length > 0) {
+        const latestMessage = chat.messages[chat.messages.length - 1];
+        return toPreviewExcerpt(latestMessage?.content || latestMessage?.Content || '');
+      }
+
+      return '';
+    };
+
     return chatsData.map((chat: any) => ({
       id: chat.ID || chat.id,
       title: chat.title || 'Untitled Chat',
-      preview: chat.preview || 'No messages yet...',
+      preview: resolvePreview(chat, (chat.ID || chat.id) === chatIdFromUrl) || 'No messages yet...',
       timestamp: new Date(chat.CreatedAt || chat.createdAt || Date.now()),
     }));
-  }, [chatsData]);
+  }, [chatsData, chatIdFromUrl, chatMessagesData]);
 
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
   const dispatch = useAppDispatch();
@@ -123,12 +154,44 @@ export default function CreatePage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
   const justCreatedChatIdRef = useRef<string | null>(null);
+  const promptExamples = [
+    {
+      title: 'Social Content',
+      description: 'Captions, posts, and threads for any platform.',
+      icon: Share2,
+    },
+    {
+      title: 'Media Ideas',
+      description: 'Image prompts and visual content strategies.',
+      icon: ImageIcon,
+    },
+    {
+      title: 'Optimization',
+      description: 'Refine your scripts to maximize engagement.',
+      icon: Zap,
+    },
+    {
+      title: 'Brand Voice',
+      description: 'Maintain a consistent tone across all platforms.',
+      icon: User,
+    },
+  ];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handlePromptExampleClick = (prompt: string) => {
+    setInput(prompt);
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      const length = prompt.length;
+      inputRef.current?.setSelectionRange(length, length);
+    });
   };
 
   const prevMessagesLength = useRef(messages.length);
@@ -268,6 +331,7 @@ export default function CreatePage() {
       
       // Refresh messages to get real IDs from server
       await refetchMessages();
+      await refetchChats();
 
       // Add assistant response to optimistic messages instead of refetching
       // The assistant message was already added, now its content is finalized.
@@ -345,6 +409,7 @@ export default function CreatePage() {
       
       // Refresh messages to get real IDs from server
       await refetchMessages();
+      await refetchChats();
 
       toast.success('Response regenerated');
     } catch (error) {
@@ -470,12 +535,14 @@ export default function CreatePage() {
               variant="ghost"
               size="icon"
               onClick={() => setChatSidebarOpen(!chatSidebarOpen)}
-              className="h-8 w-8 shrink-0"
+              className="h-12 w-12 md:h-14 md:w-14 shrink-0 rounded-xl"
+              title={chatSidebarOpen ? 'Collapse chat history' : 'Expand chat history'}
+              aria-label={chatSidebarOpen ? 'Collapse chat history sidebar' : 'Expand chat history sidebar'}
             >
               {chatSidebarOpen ? (
-                <PanelLeftClose className="h-4 w-4" />
+                <PanelLeftClose className="size-7 md:size-8" />
               ) : (
-                <PanelLeft className="h-4 w-4" />
+                <PanelLeft className="size-7 md:size-8" />
               )}
             </Button>
             <div className="min-w-0">
@@ -501,45 +568,25 @@ export default function CreatePage() {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl px-2">
-                  <div className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Share2 className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold text-sm">Social Content</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
-                      Captions, posts, and threads for any platform.
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group">
-                    <div className="flex items-center gap-2 mb-1">
-                      <ImageIcon className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold text-sm">Media Ideas</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
-                      Image prompts and visual content strategies.
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Zap className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold text-sm">Optimization</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
-                      Refine your scripts to maximize engagement.
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group">
-                    <div className="flex items-center gap-2 mb-1">
-                      <User className="h-4 w-4 text-primary" />
-                      <h3 className="font-semibold text-sm">Brand Voice</h3>
-                    </div>
-                    <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
-                      Maintain a consistent tone across all platforms.
-                    </p>
-                  </div>
+                  {promptExamples.map((example) => {
+                    const Icon = example.icon;
+                    return (
+                      <button
+                        key={example.title}
+                        type="button"
+                        onClick={() => handlePromptExampleClick(example.description)}
+                        className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Icon className="h-4 w-4 text-primary" />
+                          <h3 className="font-semibold text-sm">{example.title}</h3>
+                        </div>
+                        <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
+                          {example.description}
+                        </p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -740,6 +787,7 @@ export default function CreatePage() {
           <form onSubmit={handleSubmit} className="mt-3 md:mt-4">
             <div className="relative flex items-end gap-1 md:gap-2 bg-card border border-border rounded-xl p-2 shadow-card focus-within:ring-2 focus-within:ring-primary/20 transition-all">
               <Textarea
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {

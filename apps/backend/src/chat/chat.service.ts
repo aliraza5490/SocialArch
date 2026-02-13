@@ -6,6 +6,16 @@ import { Message } from "./entities/Message.entity";
 import { CreateChatDto } from "./dto/create-chat.dto";
 import { UpdateChatDto } from "./dto/update-chat.dto";
 
+type ChatListItem = {
+  ID: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+  title: string;
+  userId: string;
+  preview: string;
+};
+
 @Injectable()
 export class ChatService {
   constructor(
@@ -23,11 +33,32 @@ export class ChatService {
     return this.chatRepository.save(chat);
   }
 
-  async findAll(userId: string): Promise<Chat[]> {
-    return this.chatRepository.find({
+  async findAll(userId: string): Promise<ChatListItem[]> {
+    const chats = await this.chatRepository.find({
       where: { userId },
       order: { createdAt: "DESC" },
     });
+
+    const chatsWithPreview = await Promise.all(
+      chats.map(async (chat) => {
+        const latestMessage = await this.messageRepository.findOne({
+          where: { chatId: chat.ID },
+          order: { createdAt: "DESC", position: "DESC", version: "DESC" },
+        });
+
+        return {
+          ID: chat.ID,
+          createdAt: chat.createdAt,
+          updatedAt: chat.updatedAt,
+          deletedAt: chat.deletedAt ?? null,
+          title: chat.title,
+          userId: chat.userId,
+          preview: latestMessage?.content || "No messages yet...",
+        };
+      }),
+    );
+
+    return chatsWithPreview;
   }
 
   async findOne(id: string, userId: string): Promise<Chat> {
