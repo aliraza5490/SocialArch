@@ -1,14 +1,9 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import { ReactNode, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { AxiosError, AxiosResponse } from "axios";
+import { create } from "zustand";
 import {
   AuthContextType,
   AuthState,
@@ -33,109 +28,104 @@ type AuthErrorResponse = {
   message?: string;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-interface AuthProviderProps {
-  children: ReactNode;
+interface AuthStore extends AuthState {
+  initializeAuth: () => Promise<void>;
+  login: (credentials: LoginRequest) => Promise<void>;
+  register: (userData: RegisterRequest) => Promise<RegisterResponse>;
+  logout: () => void;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
-    isLoading: true,
-  });
+const initialAuthState: AuthState = {
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
+};
 
-  const router = useRouter();
+const useAuthStore = create<AuthStore>((set) => ({
+  ...initialAuthState,
 
-  // Initialize auth state on mount
-  useEffect(() => {
-    const initializeAuth = async (): Promise<void> => {
-      try {
-        let tokenPayload: JWTPayload | null = getValidAccessToken();
+  initializeAuth: async (): Promise<void> => {
+    try {
+      let tokenPayload: JWTPayload | null = getValidAccessToken();
 
-        // If access token is expired but refresh token exists, try to refresh
-        if (!tokenPayload && isTokenExpiredButRefreshable()) {
-          try {
-            const refreshTokenValue = getRefreshToken();
-            if (refreshTokenValue) {
-              const response: AxiosResponse<RefreshTokenResponse> =
-                await apiClient.refreshToken({
-                  refreshToken: refreshTokenValue,
-                });
-              const { accessToken, refreshToken: newRefreshToken } =
-                response.data;
-              setTokens(accessToken, newRefreshToken);
-              tokenPayload = getValidAccessToken();
-            }
-          } catch (refreshError) {
-            console.error("Failed to refresh token during init:", refreshError);
-            clearTokens();
-            setState({
-              user: null,
-              isAuthenticated: false,
-              isLoading: false,
-            });
-            return;
+      // If access token is expired but refresh token exists, try to refresh.
+      if (!tokenPayload && isTokenExpiredButRefreshable()) {
+        try {
+          const refreshTokenValue = getRefreshToken();
+          if (refreshTokenValue) {
+            const response: AxiosResponse<RefreshTokenResponse> =
+              await apiClient.refreshToken({
+                refreshToken: refreshTokenValue,
+              });
+            const { accessToken, refreshToken: newRefreshToken } = response.data;
+            setTokens(accessToken, newRefreshToken);
+            tokenPayload = getValidAccessToken();
           }
-        }
-
-        if (tokenPayload) {
-          // Token is valid, fetch full user data from /me endpoint
-          try {
-            const response = await apiClient.axiosInstance.get<User>(
-              "/auth/me",
-            );
-            setState({
-              user: response.data,
-              isAuthenticated: true,
-              isLoading: false,
-            });
-          } catch (error) {
-            console.error("Failed to fetch user data:", error);
-            // Fallback: use JWT payload if /me endpoint fails
-            const user: User | null =
-              tokenPayload.email && tokenPayload.ID
-                ? {
-                    ID: tokenPayload.ID,
-                    email: tokenPayload.email,
-                    firstName: "",
-                    lastName: "",
-                    isEmailVerified: true,
-                    createdAt: "",
-                    updatedAt: "",
-                  }
-                : null;
-
-            setState({
-              user,
-              isAuthenticated: true,
-              isLoading: false,
-            });
-          }
-        } else {
-          setState({
+        } catch (refreshError) {
+          console.error("Failed to refresh token during init:", refreshError);
+          clearTokens();
+          set({
             user: null,
             isAuthenticated: false,
             isLoading: false,
           });
+          return;
         }
-      } catch (error) {
-        console.error("Failed to initialize auth:", error);
-        setState({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
       }
-    };
 
-    initializeAuth();
-  }, []);
+      if (tokenPayload) {
+        // Token is valid, fetch full user data from /me endpoint.
+        try {
+          const response = await apiClient.axiosInstance.get<User>("/auth/me");
+          set({
+            user: response.data,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          return;
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+          // Fallback: use JWT payload if /me endpoint fails.
+          const user: User | null =
+            tokenPayload.email && tokenPayload.ID
+              ? {
+                  ID: tokenPayload.ID,
+                  email: tokenPayload.email,
+                  firstName: "",
+                  lastName: "",
+                  isEmailVerified: true,
+                  createdAt: "",
+                  updatedAt: "",
+                }
+              : null;
 
-  const login = async (credentials: LoginRequest): Promise<void> => {
+          set({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          return;
+        }
+      }
+
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Failed to initialize auth:", error);
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
+  },
+
+  login: async (credentials: LoginRequest): Promise<void> => {
     try {
-      setState((prev) => ({ ...prev, isLoading: true }));
+      set((prev) => ({ ...prev, isLoading: true }));
 
       const response: AxiosResponse<LoginResponse> = await apiClient.login(
         credentials,
@@ -144,73 +134,101 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setTokens(accessToken, refreshToken);
 
-      setState({
+      set({
         user,
         isAuthenticated: true,
         isLoading: false,
       });
-
-      router.push("/dashboard");
     } catch (error: unknown) {
       const axiosError = error as AxiosError<AuthErrorResponse>;
       const message =
         axiosError?.response?.data?.message ||
         "Login failed. Please try again.";
-      setState((prev) => ({ ...prev, isLoading: false }));
+
+      set((prev) => ({ ...prev, isLoading: false }));
       throw new Error(message);
     }
-  };
+  },
 
-  const register = async (
-    userData: RegisterRequest,
-  ): Promise<RegisterResponse> => {
+  register: async (userData: RegisterRequest): Promise<RegisterResponse> => {
     try {
-      setState((prev) => ({ ...prev, isLoading: true }));
+      set((prev) => ({ ...prev, isLoading: true }));
 
       const response: AxiosResponse<RegisterResponse> = await apiClient.register(
         userData,
       );
 
-      setState((prev) => ({ ...prev, isLoading: false }));
-
+      set((prev) => ({ ...prev, isLoading: false }));
       return response.data;
     } catch (error: unknown) {
       const axiosError = error as AxiosError<AuthErrorResponse>;
       const message =
         axiosError?.response?.data?.message ||
         "Registration failed. Please try again.";
-      setState((prev) => ({ ...prev, isLoading: false }));
+
+      set((prev) => ({ ...prev, isLoading: false }));
       throw new Error(message);
     }
-  };
+  },
 
-  const logout = () => {
-    // Clear tokens using utility function
+  logout: () => {
     clearTokens();
-
-    setState({
+    set({
       user: null,
       isAuthenticated: false,
       isLoading: false,
     });
+  },
+}));
 
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const initializeAuth = useAuthStore((state) => state.initializeAuth);
+  const hasInitialized = useRef(false);
+
+  useEffect(() => {
+    if (hasInitialized.current) {
+      return;
+    }
+
+    hasInitialized.current = true;
+    void initializeAuth();
+  }, [initializeAuth]);
+
+  return <>{children}</>;
+}
+
+export function useAuth(): AuthContextType {
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const storeLogin = useAuthStore((state) => state.login);
+  const register = useAuthStore((state) => state.register);
+  const storeLogout = useAuthStore((state) => state.logout);
+  const router = useRouter();
+
+  const login = useCallback(
+    async (credentials: LoginRequest): Promise<void> => {
+      await storeLogin(credentials);
+      router.push("/dashboard");
+    },
+    [storeLogin, router],
+  );
+
+  const logout = useCallback(() => {
+    storeLogout();
     router.push("/auth/login");
-  };
+  }, [storeLogout, router]);
 
-  const value: AuthContextType = {
-    ...state,
+  return {
+    user,
+    isAuthenticated,
+    isLoading,
     login,
     register,
     logout,
   };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }
