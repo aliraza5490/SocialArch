@@ -1,5 +1,14 @@
-import { Body, Controller, Get, Ip, Post, Query } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Ip,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { AuthService } from "./auth.service";
+import { TokenService } from "./token.service";
 import {
   EmailVerificationInput,
   LoginInput,
@@ -11,10 +20,15 @@ import {
 } from "./dto/auth.dto";
 import { Public } from "./decorators/public.decorator";
 import { JWTUser } from "./decorators/jwtUser.decorator";
+import { AuthGuard } from "./guards/auth.guard";
+import { RateLimit } from "./decorators/rate-limit.decorator";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly tokenService: TokenService,
+  ) {}
 
   @Public()
   @Post("register")
@@ -24,6 +38,7 @@ export class AuthController {
     return { message: "Check your mailbox to verify email" };
   }
 
+  @RateLimit()
   @Public()
   @Post("login")
   async login(@Body() loginDto: LoginInput, @Ip() ip: string) {
@@ -65,6 +80,13 @@ export class AuthController {
     return { message: "Check your mailbox to verify email" };
   }
 
+  @Public()
+  @Post("refresh")
+  async refresh(@Body() { refreshToken }: { refreshToken: string }) {
+    return this.tokenService.refreshAccessToken(refreshToken);
+  }
+
+  @UseGuards(AuthGuard)
   @Get("me")
   async getCurrentUser(@JWTUser() user: any) {
     return this.authService.getUserById(user.ID);

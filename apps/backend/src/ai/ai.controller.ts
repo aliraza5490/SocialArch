@@ -19,7 +19,14 @@ export class AiController {
     @Body("position") position?: number,
     @Body("selectedVersions") selectedVersions?: Record<number, number>,
   ) {
-    return this.aiService.createChatCompletion(chatId, user.ID, content, res, position, selectedVersions);
+    return this.aiService.createChatCompletion(
+      chatId,
+      user.ID,
+      content,
+      res,
+      position,
+      selectedVersions,
+    );
   }
 
   @Post("regenerate")
@@ -30,6 +37,12 @@ export class AiController {
     @Body("selectedVersions") selectedVersions: Record<number, number>,
     @Res() res: Response,
   ) {
-    return this.aiService.regenerateResponse(chatId, user.ID, position, res, selectedVersions);
+    return this.aiService.regenerateResponse(
+      chatId,
+      user.ID,
+      position,
+      res,
+      selectedVersions,
+    );
   }
 }

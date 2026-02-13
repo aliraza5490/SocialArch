@@ -1,6 +1,10 @@
 import { InvalidTokenException } from "@/shared/exceptions";
 import { User } from "./entities/User.entity";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -34,16 +38,28 @@ export class TokenService {
   }
 
   signAccessToken(user: User) {
+    const expiration = parseInt(
+      this.configService.get<string>("ACCESS_TOKEN_EXPIRATION") || "1800",
+      10,
+    );
     return this.jwtService.sign(
       { email: user.email, ID: user.ID },
-      { expiresIn: `${this.configService.get("ACCESS_TOKEN_EXPIRATION")}s` },
+      {
+        expiresIn: expiration,
+      },
     );
   }
 
   async signRefreshToken(user: User) {
+    const expiration = parseInt(
+      this.configService.get<string>("REFRESH_TOKEN_EXPIRATION") || "604800",
+      10,
+    );
     const token = this.jwtService.sign(
       { ID: user.ID },
-      { expiresIn: `${this.configService.get("REFRESH_TOKEN_EXPIRATION")}s` },
+      {
+        expiresIn: expiration,
+      },
     );
 
     await this.authTokenRepository.save(
@@ -51,10 +67,7 @@ export class TokenService {
         identifier: user.ID,
         token,
         type: AuthTokenType.refreshToken,
-        TTL: new Date(
-          Date.now() +
-            this.configService.get("REFRESH_TOKEN_EXPIRATION") * 1000,
-        ),
+        TTL: new Date(Date.now() + expiration * 1000),
       }),
     );
 
@@ -62,36 +75,51 @@ export class TokenService {
   }
 
   async refreshAccessToken(refreshToken: string) {
+    let decoded;
     try {
-      const decoded = this.jwtService.verify(refreshToken);
-
-      const storedToken = await this.authTokenRepository.findOne({
-        where: {
-          identifier: decoded.ID,
-          token: refreshToken,
-          type: AuthTokenType.refreshToken,
-        },
-      });
-
-      if (!storedToken) {
-        throw new InvalidTokenException("Invalid refresh token");
-      }
-
-      const user = await this.userRepository.findOne({
-        where: { ID: decoded.ID },
-      });
-
-      if (!user) {
-        throw new NotFoundException("User not found");
-      }
-
-      return {
-        accessToken: this.signAccessToken(user),
-        refreshToken: await this.signRefreshToken(user),
-      };
+      decoded = this.jwtService.verify(refreshToken);
     } catch {
-      throw new InvalidTokenException("Failed to refresh token");
+      throw new InvalidTokenException("Invalid or expired refresh token");
     }
+
+    const storedToken = await this.authTokenRepository.findOne({
+      where: {
+        identifier: decoded.ID,
+        token: refreshToken,
+        type: AuthTokenType.refreshToken,
+      },
+    });
+
+    if (!storedToken) {
+      throw new InvalidTokenException("Invalid refresh token");
+    }
+
+    const isExpired = storedToken.TTL <= new Date();
+    if (isExpired) {
+      await this.authTokenRepository.remove(storedToken);
+      throw new InvalidTokenException("Refresh token expired");
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { ID: decoded.ID },
+    });
+
+    if (!user) {
+      await this.authTokenRepository.remove(storedToken);
+      throw new NotFoundException("User not found");
+    }
+
+    if (!user.isEmailVerified) {
+      await this.authTokenRepository.remove(storedToken);
+      throw new ForbiddenException("Email not verified");
+    }
+
+    await this.authTokenRepository.remove(storedToken);
+
+    return {
+      accessToken: this.signAccessToken(user),
+      refreshToken: await this.signRefreshToken(user),
+    };
   }
 
   async signResetPasswordToken(email: string) {

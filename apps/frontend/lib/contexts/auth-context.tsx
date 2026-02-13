@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, {
   createContext,
@@ -6,16 +6,32 @@ import React, {
   useEffect,
   useState,
   ReactNode,
-} from 'react';
-import { useRouter } from 'next/navigation';
+} from "react";
+import { useRouter } from "next/navigation";
+import { AxiosError, AxiosResponse } from "axios";
 import {
   AuthContextType,
   AuthState,
   LoginRequest,
   RegisterRequest,
-} from '../types/auth';
-import { getValidAccessToken, setTokens, clearTokens } from '../utils/jwt';
-import { apiClient } from '../api-client';
+  LoginResponse,
+  RegisterResponse,
+  RefreshTokenResponse,
+  User,
+} from "../types/auth";
+import {
+  getValidAccessToken,
+  setTokens,
+  clearTokens,
+  getRefreshToken,
+  isTokenExpiredButRefreshable,
+  JWTPayload,
+} from "../utils/jwt";
+import { apiClient } from "../api-client";
+
+type AuthErrorResponse = {
+  message?: string;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -34,32 +50,60 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Initialize auth state on mount
   useEffect(() => {
-    const initializeAuth = async () => {
+    const initializeAuth = async (): Promise<void> => {
       try {
-        const tokenPayload = getValidAccessToken();
+        let tokenPayload: JWTPayload | null = getValidAccessToken();
+
+        // If access token is expired but refresh token exists, try to refresh
+        if (!tokenPayload && isTokenExpiredButRefreshable()) {
+          try {
+            const refreshTokenValue = getRefreshToken();
+            if (refreshTokenValue) {
+              const response: AxiosResponse<RefreshTokenResponse> =
+                await apiClient.refreshToken({
+                  refreshToken: refreshTokenValue,
+                });
+              const { accessToken, refreshToken: newRefreshToken } =
+                response.data;
+              setTokens(accessToken, newRefreshToken);
+              tokenPayload = getValidAccessToken();
+            }
+          } catch (refreshError) {
+            console.error("Failed to refresh token during init:", refreshError);
+            clearTokens();
+            setState({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
+            return;
+          }
+        }
 
         if (tokenPayload) {
           // Token is valid, fetch full user data from /me endpoint
           try {
-            const response = await apiClient.axiosInstance.get('/auth/me');
+            const response = await apiClient.axiosInstance.get<User>(
+              "/auth/me",
+            );
             setState({
               user: response.data,
               isAuthenticated: true,
               isLoading: false,
             });
           } catch (error) {
-            console.error('Failed to fetch user data:', error);
+            console.error("Failed to fetch user data:", error);
             // Fallback: use JWT payload if /me endpoint fails
-            const user =
+            const user: User | null =
               tokenPayload.email && tokenPayload.ID
                 ? {
                     ID: tokenPayload.ID,
                     email: tokenPayload.email,
-                    firstName: '',
-                    lastName: '',
+                    firstName: "",
+                    lastName: "",
                     isEmailVerified: true,
-                    createdAt: '',
-                    updatedAt: '',
+                    createdAt: "",
+                    updatedAt: "",
                   }
                 : null;
 
@@ -77,7 +121,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           });
         }
       } catch (error) {
-        console.error('Failed to initialize auth:', error);
+        console.error("Failed to initialize auth:", error);
         setState({
           user: null,
           isAuthenticated: false,
@@ -89,14 +133,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initializeAuth();
   }, []);
 
-  const login = async (credentials: LoginRequest) => {
+  const login = async (credentials: LoginRequest): Promise<void> => {
     try {
       setState((prev) => ({ ...prev, isLoading: true }));
 
-      const response = await apiClient.login(credentials);
+      const response: AxiosResponse<LoginResponse> = await apiClient.login(
+        credentials,
+      );
       const { accessToken, refreshToken, user } = response.data;
 
-      // Store tokens using utility function
       setTokens(accessToken, refreshToken);
 
       setState({
@@ -105,25 +150,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isLoading: false,
       });
 
-      router.push('/dashboard');
-    } catch (error) {
+      router.push("/dashboard");
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<AuthErrorResponse>;
+      const message =
+        axiosError?.response?.data?.message ||
+        "Login failed. Please try again.";
       setState((prev) => ({ ...prev, isLoading: false }));
-      throw error;
+      throw new Error(message);
     }
   };
 
-  const register = async (userData: RegisterRequest) => {
+  const register = async (
+    userData: RegisterRequest,
+  ): Promise<RegisterResponse> => {
     try {
       setState((prev) => ({ ...prev, isLoading: true }));
 
-      const response = await apiClient.register(userData);
+      const response: AxiosResponse<RegisterResponse> = await apiClient.register(
+        userData,
+      );
 
       setState((prev) => ({ ...prev, isLoading: false }));
 
       return response.data;
-    } catch (error) {
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<AuthErrorResponse>;
+      const message =
+        axiosError?.response?.data?.message ||
+        "Registration failed. Please try again.";
       setState((prev) => ({ ...prev, isLoading: false }));
-      throw error;
+      throw new Error(message);
     }
   };
 
@@ -137,30 +194,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isLoading: false,
     });
 
-    router.push('/auth/login');
-  };
-
-  const refreshToken = async () => {
-    try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      const response = await apiClient.refreshToken({ refreshToken });
-      const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', newRefreshToken);
-
-      setState((prev) => ({
-        ...prev,
-        isAuthenticated: true,
-      }));
-    } catch (error) {
-      console.error('Failed to refresh token:', error);
-      logout(); // Logout if refresh fails
-    }
+    router.push("/auth/login");
   };
 
   const value: AuthContextType = {
@@ -168,7 +202,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
-    refreshToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -177,7 +210,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

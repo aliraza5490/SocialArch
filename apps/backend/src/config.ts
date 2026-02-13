@@ -57,6 +57,9 @@ class EnvironmentVariables {
 
   @IsString()
   SUPER_USER_PASSWORD: string;
+
+  @IsString()
+  REDIS_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {

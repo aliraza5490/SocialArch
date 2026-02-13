@@ -105,14 +105,15 @@ export class AuthService implements OnModuleInit {
       throw new ForbiddenException("Email not verified");
     }
 
-    const { password, ...userWithoutPassword } = user;
-
-    if (!(await comparePassword(password, input.password))) {
+    if (!(await comparePassword(user.password, input.password))) {
       await this.logService.create(ip, loginLog);
       throw new UnauthorizedException("Invalid Credentials");
     }
 
     await this.logService.resetByIP(ip, loginLog);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...userWithoutPassword } = user;
 
     const tokens = await this.tokenService.signAuthTokens(
       user,

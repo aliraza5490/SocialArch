@@ -23,7 +23,6 @@ import LoginLog from "./entities/LoginLog.entity";
         }
         return {
           secret,
-          signOptions: { expiresIn: "1h" },
         };
       },
       inject: [ConfigService],

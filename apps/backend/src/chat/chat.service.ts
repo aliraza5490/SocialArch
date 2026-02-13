@@ -42,7 +42,11 @@ export class ChatService {
     return chat;
   }
 
-  async update(id: string, userId: string, updateChatDto: UpdateChatDto): Promise<Chat> {
+  async update(
+    id: string,
+    userId: string,
+    updateChatDto: UpdateChatDto,
+  ): Promise<Chat> {
     const chat = await this.findOne(id, userId);
     Object.assign(chat, updateChatDto);
     return this.chatRepository.save(chat);
