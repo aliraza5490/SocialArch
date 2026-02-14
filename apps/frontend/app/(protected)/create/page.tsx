@@ -99,7 +99,7 @@ export default function CreatePage() {
 
   const selectedChatTitle = useMemo(() => {
     if (!chatIdFromUrl) return null;
-    const activeChat = chatSessions.find((chat) => chat.id === chatIdFromUrl);
+    const activeChat = chatSessions.find((chat: { id: string }) => chat.id === chatIdFromUrl);
     return activeChat?.title || 'Untitled Chat';
   }, [chatIdFromUrl, chatSessions]);
 
