@@ -186,7 +186,7 @@ export function ChatHistorySidebar({
                   role="button"
                   tabIndex={0}
                   className={cn(
-                    "group mx-1 flex w-[calc(100%-0.5rem)] min-w-0 items-start gap-3 overflow-hidden rounded-xl p-3 text-left transition-all duration-200",
+                    "group mx-1 flex w-[calc(100%-0.5rem)] min-w-0 cursor-pointer items-start gap-3 overflow-hidden rounded-xl p-3 text-left transition-all duration-200",
                     session.id === activeSessionId
                       ? "bg-primary/10 shadow-sm ring-1 ring-primary/10"
                       : "hover:bg-muted/40",

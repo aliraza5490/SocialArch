@@ -97,6 +97,12 @@ export default function CreatePage() {
     }));
   }, [chatsData, chatIdFromUrl, chatMessagesData]);
 
+  const selectedChatTitle = useMemo(() => {
+    if (!chatIdFromUrl) return null;
+    const activeChat = chatSessions.find((chat) => chat.id === chatIdFromUrl);
+    return activeChat?.title || 'Untitled Chat';
+  }, [chatIdFromUrl, chatSessions]);
+
   const [optimisticMessages, setOptimisticMessages] = useState<Message[]>([]);
   const dispatch = useAppDispatch();
 
@@ -548,7 +554,9 @@ export default function CreatePage() {
             <div className="min-w-0">
               <h1 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2">
                 <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-primary shrink-0" />
-                <span className="truncate">Content Creator</span>
+                <span className="whitespace-normal break-words">
+                  {selectedChatTitle || 'Content Creator'}
+                </span>
               </h1>
               <p className="text-muted-foreground text-xs md:text-sm mt-1">
                 Generate engaging content with AI assistance
