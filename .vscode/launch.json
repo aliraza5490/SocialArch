@@ -2,7 +2,31 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run All Dev Servers (Turbo)",
+            "name": "Run Backend Dev Server",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": [
+                "run",
+                "dev:backend"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Run Frontend Dev Server",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "pnpm",
+            "runtimeArgs": [
+                "run",
+                "dev:frontend"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Run All Dev Servers (Parallel)",
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -13,11 +37,11 @@
             ],
             "console": "integratedTerminal",
             "presentation": {
-                "group": "turbo"
+                "group": "dev"
             }
         },
         {
-            "name": "Build All Projects (Turbo)",
+            "name": "Build All Projects",
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -28,11 +52,11 @@
             ],
             "console": "integratedTerminal",
             "presentation": {
-                "group": "turbo"
+                "group": "build"
             }
         },
         {
-            "name": "Lint All Projects (Turbo)",
+            "name": "Lint All Projects",
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -43,11 +67,11 @@
             ],
             "console": "integratedTerminal",
             "presentation": {
-                "group": "turbo"
+                "group": "lint"
             }
         },
         {
-            "name": "Check Types All Projects (Turbo)",
+            "name": "Check Types All Projects",
             "type": "node",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -58,7 +82,7 @@
             ],
             "console": "integratedTerminal",
             "presentation": {
-                "group": "turbo"
+                "group": "check-types"
             }
         },
         {
@@ -73,8 +97,17 @@
             ],
             "console": "integratedTerminal",
             "presentation": {
-                "group": "turbo"
+                "group": "format"
             }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Run Dev Servers (Separate Terminals)",
+            "configurations": [
+                "Run Backend Dev Server",
+                "Run Frontend Dev Server"
+            ]
         }
     ]
 }
