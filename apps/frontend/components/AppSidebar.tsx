@@ -56,7 +56,7 @@ export function AppSidebar({
     >
       <SidebarHeader
         className={cn(
-          'h-20 px-4 flex items-center shrink-0',
+          'h-20 px-4 flex flex-row items-center shrink-0',
           collapsed && !isMobile && 'justify-center',
         )}
       >

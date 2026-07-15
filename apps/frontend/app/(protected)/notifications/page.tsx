@@ -22,7 +22,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -148,8 +147,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="animate-fade-in">
+    <div className="animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -374,6 +372,5 @@ export default function NotificationsPage() {
           )}
         </div>
       </div>
-    </DashboardLayout>
   );
 }

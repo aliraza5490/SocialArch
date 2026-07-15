@@ -1,14 +1,12 @@
 'use client';
 
 import { Video, FileText, TrendingUp, Zap } from 'lucide-react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { ActivityChart } from '@/components/dashboard/ActivityChart';
 
 function Dashboard() {
   return (
-    <DashboardLayout>
-      <div className="space-y-8">
+    <div className="space-y-8">
         {/* Header */}
         <div className="animate-fade-in">
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
@@ -102,7 +100,6 @@ function Dashboard() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   );
 }
 

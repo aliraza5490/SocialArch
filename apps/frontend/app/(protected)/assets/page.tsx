@@ -18,7 +18,6 @@ import {
   Plus,
 } from 'lucide-react';
 import Image from 'next/image';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -142,8 +141,7 @@ export default function AssetsPage() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -472,6 +470,5 @@ export default function AssetsPage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 }

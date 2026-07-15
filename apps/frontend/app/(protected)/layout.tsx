@@ -87,29 +87,29 @@ function DashboardShell({
     <div className="flex min-h-screen w-full">
       <AppSidebar logout={logout} />
       <SidebarInset>
-        <header className="h-20 border-b border-border flex items-center justify-center px-4 bg-card/50 backdrop-blur-sm sticky top-0 z-10 gap-3">
-          <div className="absolute left-4 inset-y-0 flex items-center">
+        <header className="h-20 border-b border-border flex items-center justify-between px-4 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="flex items-center gap-3">
             <SidebarTrigger />
+            <Link href="/dashboard" className="flex lg:hidden items-center gap-2">
+              <div className="relative h-8 w-8 shrink-0">
+                <Image
+                  src="/logo.png"
+                  alt="SocialArch"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-base tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  SocialArch
+                </span>
+                <span className="text-[9px] text-muted-foreground -mt-0.5">
+                  AI-Powered Studio
+                </span>
+              </div>
+            </Link>
           </div>
-          <Link href="/dashboard" className="flex lg:hidden items-center gap-2">
-            <div className="relative h-8 w-8 shrink-0">
-              <Image
-                src="/logo.png"
-                alt="SocialArch"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-base tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                SocialArch
-              </span>
-              <span className="text-[9px] text-muted-foreground -mt-0.5">
-                AI-Powered Studio
-              </span>
-            </div>
-          </Link>
-          <div className="absolute right-4 inset-y-0 flex items-center bg-muted/15 dark:bg-card/25 border border-border/40 px-3.5 rounded-full gap-3.5 shadow-sm my-auto h-12">
+          <div className="flex items-center bg-muted/15 dark:bg-card/25 border border-border/40 px-3.5 rounded-full gap-3.5 shadow-sm h-12">
             <Button variant="ghost" size="icon" asChild className={`h-9 w-9 ${isSidebarOpen ? 'hidden lg:flex' : 'hidden md:flex'}`}>
               <Link href="/notifications">
                 <Bell className="h-4 w-4" />

@@ -23,7 +23,6 @@ import {
   Upload,
   MoreHorizontal,
 } from 'lucide-react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
@@ -460,8 +459,7 @@ export default function CreatePage() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="h-[calc(100vh-8rem)] flex animate-fade-in overflow-hidden rounded-2xl md:border md:border-border bg-card/20">
+    <div className="h-[calc(100vh-8rem)] flex animate-fade-in overflow-hidden rounded-2xl md:border md:border-border bg-card/20">
         {/* Mobile: Chat History as Side Drawer */}
         {isMobile && (
           <>
@@ -823,6 +821,5 @@ export default function CreatePage() {
           </form>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

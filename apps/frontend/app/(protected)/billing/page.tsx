@@ -11,7 +11,6 @@ import {
   ArrowUpRight,
   Calendar,
 } from 'lucide-react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -167,8 +166,7 @@ export default function BillingPage() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="animate-fade-in space-y-8">
+    <div className="animate-fade-in space-y-8">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
@@ -384,6 +382,5 @@ export default function BillingPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import {
   Card,
   CardContent,
@@ -103,8 +102,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <SettingsIcon className="h-6 w-6 text-primary" />
@@ -430,6 +428,5 @@ export default function SettingsPage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 }
