@@ -42,7 +42,7 @@ export default function CreatePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const chatIdFromUrl = searchParams.get('chat');
-  
+
   const isMobile = useIsMobile();
   const [chatSidebarOpen, setChatSidebarOpen] = useState(false);
 
@@ -133,9 +133,9 @@ export default function CreatePage() {
     const historyIds = new Set(apiMessages.map((m: Message) => m.id));
     const filteredOptimistic = optimisticMessages.filter(opt => {
       if (historyIds.has(opt.id)) return false;
-      return !apiMessages.some(api => 
-        api.position === opt.position && 
-        api.role === opt.role && 
+      return !apiMessages.some(api =>
+        api.position === opt.position &&
+        api.role === opt.role &&
         api.version === opt.version
       );
     });
@@ -207,7 +207,7 @@ export default function CreatePage() {
       isFirstRender.current = false;
       return;
     }
-    
+
     if (messages.length > prevMessagesLength.current) {
       scrollToBottom();
     }
@@ -224,7 +224,7 @@ export default function CreatePage() {
     setStreamingContent('');
 
     const nextPosition = overridePosition !== undefined ? overridePosition : messages.length;
-    
+
     // Calculate next optimistic version for this position
     const getNextVersion = (pos: number) => {
       const versions = allMessages.filter(m => m.position === pos).map(m => m.version);
@@ -260,12 +260,12 @@ export default function CreatePage() {
       // Fallback: check window URL and local ref to avoid stale state/closures
       const urlParams = new URLSearchParams(window.location.search);
       let currentChatId = chatIdFromUrl || urlParams.get('chat') || justCreatedChatIdRef.current;
-      
+
       // Secondary Fallback: If we have messages, we are in a chat. Use the chatId from the messages.
       if (!currentChatId && messages.length > 0) {
         currentChatId = messages[0].chatId || null;
       }
-      
+
       // Create a new chat if we don't have one
       if (!currentChatId) {
         const createResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/chat`, {
@@ -291,13 +291,13 @@ export default function CreatePage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
-        body: JSON.stringify({ 
-          chatId: currentChatId, 
+        body: JSON.stringify({
+          chatId: currentChatId,
           content: content.trim(),
-          position: overridePosition 
+          position: overridePosition
         }),
       });
-      
+
       if (overridePosition !== undefined && currentChatId) {
         dispatch(clearSelectedVersion({ chatId: currentChatId, position: overridePosition }));
         dispatch(clearSelectedVersion({ chatId: currentChatId, position: overridePosition + 1 }));
@@ -316,7 +316,7 @@ export default function CreatePage() {
 
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
-        
+
         for (const line of lines) {
           const data = line.slice(6);
           if (data === '[DONE]') continue;
@@ -325,7 +325,7 @@ export default function CreatePage() {
             if (parsed.content) {
               fullContent += parsed.content;
               // Update optimistic message content directly
-              setOptimisticMessages(prev => prev.map(m => 
+              setOptimisticMessages(prev => prev.map(m =>
                 m.id === assistantTempId ? { ...m, content: fullContent } : m
               ));
             }
@@ -334,7 +334,7 @@ export default function CreatePage() {
           }
         }
       }
-      
+
       // Refresh messages to get real IDs from server
       await refetchMessages();
       await refetchChats();
@@ -354,7 +354,7 @@ export default function CreatePage() {
 
   const handleRegenerate = async (message: Message) => {
     if (!chatIdFromUrl || regenerateMutation.isPending) return;
-    
+
     setIsLoading(true);
 
     const assistantTempId = `temp-ast-${Date.now()}`;
@@ -377,7 +377,7 @@ export default function CreatePage() {
         },
         body: JSON.stringify({ chatId: chatIdFromUrl, position: message.position }),
       });
-      
+
       dispatch(clearSelectedVersion({ chatId: chatIdFromUrl, position: message.position }));
 
       if (!response.ok) throw new Error('Failed to regenerate');
@@ -394,7 +394,7 @@ export default function CreatePage() {
 
         const chunk = decoder.decode(value);
         const lines = chunk.split('\n').filter(line => line.startsWith('data: '));
-        
+
         for (const line of lines) {
           const data = line.slice(6);
           if (data === '[DONE]') continue;
@@ -403,7 +403,7 @@ export default function CreatePage() {
             if (parsed.content) {
               fullContent += parsed.content;
               // Update optimistic message content directly
-              setOptimisticMessages(prev => prev.map(m => 
+              setOptimisticMessages(prev => prev.map(m =>
                 m.id === assistantTempId ? { ...m, content: fullContent } : m
               ));
             }
@@ -412,7 +412,7 @@ export default function CreatePage() {
           }
         }
       }
-      
+
       // Refresh messages to get real IDs from server
       await refetchMessages();
       await refetchChats();
@@ -428,9 +428,9 @@ export default function CreatePage() {
 
   const handleEditSubmit = async (message: Message) => {
     if (!editContent.trim() || !chatIdFromUrl) return;
-    
+
     setEditingMessageId(null);
-    const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+    const fakeEvent = { preventDefault: () => { } } as React.FormEvent;
     await handleSubmit(fakeEvent, editContent, message.position);
     setEditContent('');
   };
@@ -687,7 +687,7 @@ export default function CreatePage() {
                     {message.role === 'assistant' && (() => {
                       const info = getVersionInfo(message);
                       if (info.total <= 1) return null;
-                      
+
                       return (
                         <div className="flex items-center text-[10px] text-muted-foreground mr-2">
                           <Button
@@ -820,9 +820,6 @@ export default function CreatePage() {
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              Press Enter to send, Shift + Enter for new line
-            </p>
           </form>
         </div>
       </div>
