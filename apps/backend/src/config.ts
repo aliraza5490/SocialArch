@@ -60,6 +60,12 @@ class EnvironmentVariables {
 
   @IsString()
   REDIS_URL: string;
+
+  @IsString()
+  FRONTEND_URL: string;
+
+  @IsEmail()
+  MAIL_FROM_ADDRESS: string;
 }
 
 export function validate(config: Record<string, unknown>) {

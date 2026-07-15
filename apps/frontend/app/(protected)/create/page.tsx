@@ -478,7 +478,7 @@ export default function CreatePage() {
             {/* Drawer */}
             <div
               className={cn(
-                'fixed inset-y-0 left-0 z-50 w-80 bg-background border-r border-border transition-transform duration-300 ease-in-out',
+                'fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border transition-transform duration-300 ease-in-out',
                 chatSidebarOpen ? 'translate-x-0' : '-translate-x-full',
               )}
             >
@@ -541,24 +541,24 @@ export default function CreatePage() {
               variant="ghost"
               size="icon"
               onClick={() => setChatSidebarOpen(!chatSidebarOpen)}
-              className="h-12 w-12 md:h-14 md:w-14 shrink-0 rounded-xl"
+              className="h-9 w-9 md:h-10 md:w-10 shrink-0 rounded-lg"
               title={chatSidebarOpen ? 'Collapse chat history' : 'Expand chat history'}
               aria-label={chatSidebarOpen ? 'Collapse chat history sidebar' : 'Expand chat history sidebar'}
             >
               {chatSidebarOpen ? (
-                <PanelLeftClose className="size-7 md:size-8" />
+                <PanelLeftClose className="h-4.5 w-4.5 md:h-5 md:w-5" />
               ) : (
-                <PanelLeft className="size-7 md:size-8" />
+                <PanelLeft className="h-4.5 w-4.5 md:h-5 md:w-5" />
               )}
             </Button>
             <div className="min-w-0">
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight flex items-center gap-2">
-                <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-primary shrink-0" />
+              <h1 className="text-base md:text-lg font-bold tracking-tight flex items-center gap-2">
+                <Sparkles className="h-4 w-4 md:h-4.5 md:w-4.5 text-primary shrink-0" />
                 <span className="whitespace-normal break-words">
                   {selectedChatTitle || 'Content Creator'}
                 </span>
               </h1>
-              <p className="text-muted-foreground text-xs md:text-sm mt-1">
+              <p className="text-muted-foreground text-[10px] md:text-xs mt-0.5">
                 Generate engaging content with AI assistance
               </p>
             </div>
@@ -567,15 +567,15 @@ export default function CreatePage() {
           {/* Messages */}
           <div className="flex-1 overflow-auto rounded-xl border border-border bg-card/50 p-3 md:p-4 space-y-3 md:space-y-4">
             {messages.length === 0 && !streamingContent && !isLoading && (
-              <div className="h-full flex flex-col items-center justify-center p-4 text-center">
+              <div className="min-h-full flex flex-col items-center justify-start pt-12 md:pt-20 pb-8 md:pb-12 px-4 text-center">
                 <h2 className="text-xl md:text-2xl font-bold tracking-tight mb-1">
                   How can I help you today?
                 </h2>
-                <p className="text-muted-foreground max-w-sm mb-6 text-sm">
-                  I'm your AI creative partner for social media and content generation.
+                <p className="text-muted-foreground max-w-sm mb-8 text-sm">
+                  I&apos;m your AI creative partner for social media and content generation.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl px-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl px-2">
                   {promptExamples.map((example) => {
                     const Icon = example.icon;
                     return (
@@ -583,13 +583,13 @@ export default function CreatePage() {
                         key={example.title}
                         type="button"
                         onClick={() => handlePromptExampleClick(example.description)}
-                        className="p-3 rounded-lg border border-border bg-card/30 hover:bg-card/50 transition-colors text-left group cursor-pointer"
+                        className="p-5 rounded-xl border border-border/80 bg-card/30 hover:bg-primary/[0.04] hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 text-left group cursor-pointer"
                       >
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1.5">
                           <Icon className="h-4 w-4 text-primary" />
                           <h3 className="font-semibold text-sm">{example.title}</h3>
                         </div>
-                        <p className="text-xs text-muted-foreground whitespace-normal leading-relaxed">
+                        <p className="text-xs text-muted-foreground/90 whitespace-normal leading-relaxed">
                           {example.description}
                         </p>
                       </button>
@@ -603,7 +603,7 @@ export default function CreatePage() {
               <div
                 key={message.id}
                 className={cn(
-                  'flex flex-col gap-2 md:gap-3 animate-slide-up',
+                  'flex flex-col gap-1 md:gap-1.5 animate-slide-up group/msg',
                   message.role === 'user' ? 'items-end' : 'items-start',
                 )}
               >
@@ -630,9 +630,9 @@ export default function CreatePage() {
 
                   <div
                     className={cn(
-                      'group relative max-w-[85%] sm:max-w-[75%] rounded-xl p-3 md:p-4',
+                      'group relative max-w-[85%] sm:max-w-[75%] rounded-2xl py-2 px-3.5 md:py-2.5 md:px-4.5',
                       message.role === 'assistant'
-                        ? 'bg-muted/50'
+                        ? 'bg-muted/40'
                         : 'bg-primary text-primary-foreground',
                     )}
                   >
@@ -655,135 +655,138 @@ export default function CreatePage() {
                         </div>
                       </div>
                     ) : (
-                      <>
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {message.content || (message.role === 'assistant' && isLoading && (
-                            <div className="flex gap-1 py-2">
-                              <div
-                                className="h-2 w-2 rounded-full bg-white animate-bounce"
-                                style={{ animationDelay: '0ms' }}
-                              />
-                              <div
-                                className="h-2 w-2 rounded-full bg-white animate-bounce"
-                                style={{ animationDelay: '150ms' }}
-                              />
-                              <div
-                                className="h-2 w-2 rounded-full bg-white animate-bounce"
-                                style={{ animationDelay: '300ms' }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Actions Bar */}
-                        <div className="flex items-center gap-1 mt-2 md:mt-3 opacity-0 group-hover:opacity-100 transition-opacity min-h-[32px]">
-                          {/* Version Nav (Only for Assistant) */}
-                          {message.role === 'assistant' && (() => {
-                            const info = getVersionInfo(message);
-                            if (info.total <= 1) return null;
-                            
-                            return (
-                              <div className="flex items-center text-xs text-muted-foreground mr-2">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7"
-                                  onClick={() => selectVersion(message, 'prev')}
-                                  disabled={!info.hasPrev}
-                                >
-                                  <ChevronLeft className="h-3.5 w-3.5" />
-                                </Button>
-                                <span className="font-bold whitespace-nowrap px-1 text-foreground">
-                                  {info.current}
-                                  <span className="text-muted-foreground font-normal">/{info.total}</span>
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7"
-                                  onClick={() => selectVersion(message, 'next')}
-                                  disabled={!info.hasNext}
-                                >
-                                  <ChevronRight className="h-3.5 w-3.5" />
-                                </Button>
-                              </div>
-                            );
-                          })()}
-
-                          {/* Assistant Utilities */}
-                          {message.role === 'assistant' && message.id !== 'welcome' && (
-                            <div className="flex items-center gap-0.5">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                                onClick={() => copyToClipboard(message.content)}
-                                title="Copy"
-                              >
-                                <Copy className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                                title="Good Response"
-                              >
-                                <ThumbsUp className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                                title="Bad Response"
-                              >
-                                <ThumbsDown className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                                title="Export"
-                              >
-                                <Upload className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                                onClick={() => handleRegenerate(message)}
-                                disabled={isLoading}
-                                title="Regenerate"
-                              >
-                                <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                                title="More"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          )}
-
-                          {/* User Utilities */}
-                          {message.role === 'user' && message.id !== 'welcome' && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 md:h-7 md:w-7 text-primary-foreground hover:bg-primary-foreground/10"
-                              onClick={() => startEditing(message)}
-                              title="Edit message"
-                            >
-                              <Edit2 className="h-4 w-4 md:h-3.5 md:w-3.5" />
-                            </Button>
-                          )}
-                        </div>
-                      </>
+                      <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                        {message.content || (message.role === 'assistant' && isLoading && (
+                          <div className="flex gap-1 py-2">
+                            <div
+                              className="h-2 w-2 rounded-full bg-white animate-bounce"
+                              style={{ animationDelay: '0ms' }}
+                            />
+                            <div
+                              className="h-2 w-2 rounded-full bg-white animate-bounce"
+                              style={{ animationDelay: '150ms' }}
+                            />
+                            <div
+                              className="h-2 w-2 rounded-full bg-white animate-bounce"
+                              style={{ animationDelay: '300ms' }}
+                            />
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
+
+                {/* Actions Bar (outside of bubble) */}
+                {editingMessageId !== message.id && (
+                  <div className={cn(
+                    "flex items-center gap-1 mt-1 opacity-0 group-hover/msg:opacity-100 transition-opacity min-h-[24px]",
+                    message.role === 'user' ? "mr-[40px] md:mr-[44px]" : "ml-[40px] md:ml-[44px]"
+                  )}>
+                    {/* Version Nav (Only for Assistant) */}
+                    {message.role === 'assistant' && (() => {
+                      const info = getVersionInfo(message);
+                      if (info.total <= 1) return null;
+                      
+                      return (
+                        <div className="flex items-center text-[10px] text-muted-foreground mr-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => selectVersion(message, 'prev')}
+                            disabled={!info.hasPrev}
+                          >
+                            <ChevronLeft className="h-3.5 w-3.5" />
+                          </Button>
+                          <span className="font-bold whitespace-nowrap px-1 text-foreground">
+                            {info.current}
+                            <span className="text-muted-foreground font-normal">/{info.total}</span>
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => selectVersion(message, 'next')}
+                            disabled={!info.hasNext}
+                          >
+                            <ChevronRight className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Assistant Utilities */}
+                    {message.role === 'assistant' && message.id !== 'welcome' && (
+                      <div className="flex items-center gap-0.5">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                          onClick={() => copyToClipboard(message.content)}
+                          title="Copy"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                          title="Good Response"
+                        >
+                          <ThumbsUp className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                          title="Bad Response"
+                        >
+                          <ThumbsDown className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                          title="Export"
+                        >
+                          <Upload className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                          onClick={() => handleRegenerate(message)}
+                          disabled={isLoading}
+                          title="Regenerate"
+                        >
+                          <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                          title="More"
+                        >
+                          <MoreHorizontal className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* User Utilities */}
+                    {message.role === 'user' && message.id !== 'welcome' && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 md:h-6 md:w-6 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        onClick={() => startEditing(message)}
+                        title="Edit message"
+                      >
+                        <Edit2 className="h-3.5 w-3.5 md:h-3 md:w-3" />
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
 

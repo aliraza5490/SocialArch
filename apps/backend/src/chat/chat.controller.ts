@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
 } from "@nestjs/common";
 import { ChatService } from "./chat.service";
 import { CreateChatDto } from "./dto/create-chat.dto";
@@ -50,8 +49,9 @@ export class ChatController {
   }
 
   @Get(":id/messages")
-  getMessages(@Param("id") id: string, @JWTUser() user: any) {
+  async getMessages(@Param("id") id: string, @JWTUser() user: any) {
     // Basic verification that user owns the chat
+    await this.chatService.findOne(id, user.ID);
     return this.chatService.getMessageHistory(id);
   }
 }

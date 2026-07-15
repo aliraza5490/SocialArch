@@ -112,7 +112,7 @@ export function ChatHistorySidebar({
         isMobileOverlay
           ? "w-full bg-card/30 backdrop-blur-sm"
           : "bg-card/30 backdrop-blur-sm border-r border-border/50",
-        !isMobileOverlay && (isOpen ? "w-64 sm:w-72 lg:w-80" : "w-0 overflow-hidden border-r-0")
+        !isMobileOverlay && (isOpen ? "w-64 lg:w-72" : "w-0 overflow-hidden border-r-0")
       )}
     >
       {/* Header */}
@@ -163,14 +163,37 @@ export function ChatHistorySidebar({
       <ScrollArea className="flex-1 px-0">
         <div className="space-y-4 px-2 py-2">
           {filteredSessions.length === 0 && (
-            <div className="mx-2 mt-4 rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-center">
-              <p className="text-sm font-medium text-foreground">
-                {searchQuery ? "No chats found" : "No conversations yet"}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {searchQuery ? "Try a different keyword." : "Start a new chat to see history here."}
-              </p>
-            </div>
+            searchQuery ? (
+              <div className="mx-2 mt-4 rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-center">
+                <p className="text-sm font-medium text-foreground">No chats found</p>
+                <p className="mt-1 text-xs text-muted-foreground">Try a different keyword.</p>
+              </div>
+            ) : (
+              <div className="mx-3 mt-4 rounded-2xl border border-border/60 bg-card/40 p-5 text-center flex flex-col items-center justify-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-glow-sm">
+                  <MessageSquare className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">
+                    No conversations yet
+                  </p>
+                  <p className="mt-1 text-[11px] text-muted-foreground/80 leading-relaxed">
+                    Start a conversation to generate content, write copy, or plan campaigns.
+                  </p>
+                </div>
+                <div className="w-full mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onNewChat}
+                    className="w-full text-xs h-8 border-border/80 hover:bg-muted/50 hover:text-foreground transition-all duration-200 cursor-pointer"
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    New Chat
+                  </Button>
+                </div>
+              </div>
+            )
           )}
           {Object.entries(groupedSessions).map(([dateKey, dateSessions]) => (
             <div key={dateKey} className="space-y-1">

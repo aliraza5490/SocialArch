@@ -109,7 +109,7 @@ function DashboardShell({
               </span>
             </div>
           </Link>
-          <div className="absolute right-4 inset-y-0 flex items-center gap-2">
+          <div className="absolute right-4 inset-y-0 flex items-center bg-muted/15 dark:bg-card/25 border border-border/40 px-3.5 rounded-full gap-3.5 shadow-sm my-auto h-12">
             <Button variant="ghost" size="icon" asChild className={`h-9 w-9 ${isSidebarOpen ? 'hidden lg:flex' : 'hidden md:flex'}`}>
               <Link href="/notifications">
                 <Bell className="h-4 w-4" />

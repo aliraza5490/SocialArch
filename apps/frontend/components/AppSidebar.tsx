@@ -54,11 +54,10 @@ export function AppSidebar({
       style={{ '--sidebar-width-icon': '5rem' } as React.CSSProperties}
       {...props}
     >
-      {/* Logo Header */}
       <SidebarHeader
         className={cn(
-          'p-4 pb-2',
-          collapsed && !isMobile && 'flex justify-center',
+          'h-20 px-4 flex items-center shrink-0',
+          collapsed && !isMobile && 'justify-center',
         )}
       >
         <Link
@@ -137,7 +136,7 @@ export function AppSidebar({
           <SidebarGroupContent>
             <SidebarMenu
               className={cn(
-                'space-y-1',
+                'space-y-2',
                 (!collapsed || isMobile) && 'items-start',
               )}
             >

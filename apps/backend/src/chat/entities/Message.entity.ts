@@ -1,5 +1,5 @@
 import { AppEntity } from "@/shared/entities/App.entity";
-import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { Chat } from "./Chat.entity";
 
 @Entity()
