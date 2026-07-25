@@ -73,7 +73,7 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 8000);
   logger.log(
-    `Application is running on: http://localhost:${process.env.PORT ?? 3000}/docs`,
+    `Application is running on: http://localhost:${process.env.PORT ?? 8000}/docs`,
   );
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
