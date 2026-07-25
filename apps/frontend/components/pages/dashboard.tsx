@@ -6,11 +6,11 @@ import { ActivityChart } from '@/components/dashboard/ActivityChart';
 
 function Dashboard() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
         {/* Header */}
         <div className="animate-fade-in">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
             Track your content creation progress
           </p>
         </div>
@@ -22,28 +22,30 @@ function Dashboard() {
             value="124"
             change="+12% from last month"
             changeType="positive"
-            icon={<Video className="h-6 w-6 text-primary" />}
+            icon={<Video className="h-5 w-5 text-primary" />}
           />
           <StatCard
             title="Social Posts"
             value="856"
             change="+23% from last month"
             changeType="positive"
-            icon={<FileText className="h-6 w-6 text-primary" />}
+            icon={<FileText className="h-5 w-5 text-primary" />}
           />
           <StatCard
             title="Engagement Rate"
             value="4.8%"
             change="+0.5% from last month"
             changeType="positive"
-            icon={<TrendingUp className="h-6 w-6 text-primary" />}
+            icon={<TrendingUp className="h-5 w-5 text-primary" />}
           />
           <StatCard
             title="AI Credits Used"
             value="2,340"
             change="560 remaining"
             changeType="neutral"
-            icon={<Zap className="h-6 w-6 text-primary" />}
+            progress={80.7}
+            creditStatus="healthy"
+            icon={<Zap className="h-5 w-5 text-primary" />}
           />
         </div>
 

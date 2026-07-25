@@ -219,10 +219,10 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 p-1.5 rounded-full hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring">
-          <Avatar className="h-8 w-8">
+        <button className="flex items-center gap-2 p-0.5 rounded-full hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring">
+          <Avatar className="h-7 w-7">
             <AvatarImage src={user.avatar} alt={fullName} />
-            <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
               {userInitials}
             </AvatarFallback>
           </Avatar>

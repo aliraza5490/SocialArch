@@ -87,11 +87,11 @@ function DashboardShell({
     <div className="flex min-h-screen w-full">
       <AppSidebar logout={logout} />
       <SidebarInset>
-        <header className="h-20 border-b border-border flex items-center justify-between px-4 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <SidebarTrigger />
             <Link href="/dashboard" className="flex lg:hidden items-center gap-2">
-              <div className="relative h-8 w-8 shrink-0">
+              <div className="relative h-7 w-7 shrink-0">
                 <Image
                   src="/logo.png"
                   alt="SocialArch"
@@ -100,7 +100,7 @@ function DashboardShell({
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-base tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                <span className="font-bold text-sm tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   SocialArch
                 </span>
                 <span className="text-[9px] text-muted-foreground -mt-0.5">
@@ -109,10 +109,10 @@ function DashboardShell({
               </div>
             </Link>
           </div>
-          <div className="flex items-center bg-muted/15 dark:bg-card/25 border border-border/40 px-3.5 rounded-full gap-3.5 shadow-sm h-12">
-            <Button variant="ghost" size="icon" asChild className={`h-9 w-9 ${isSidebarOpen ? 'hidden lg:flex' : 'hidden md:flex'}`}>
+          <div className="flex items-center bg-muted/15 dark:bg-card/25 border border-border/40 px-2.5 rounded-full gap-2 shadow-xs h-9">
+            <Button variant="ghost" size="icon" asChild className={`h-7.5 w-7.5 ${isSidebarOpen ? 'hidden lg:flex' : 'hidden md:flex'}`}>
               <Link href="/notifications">
-                <Bell className="h-4 w-4" />
+                <Bell className="h-3.5 w-3.5" />
               </Link>
             </Button>
             <div className={isSidebarOpen ? 'hidden lg:block' : 'hidden md:block'}>
@@ -134,7 +134,7 @@ function DashboardShell({
             />
           </div>
         </header>
-        <div className="flex-1 overflow-auto p-6">{children}</div>
+        <div className="flex-1 overflow-auto p-4 sm:p-5">{children}</div>
       </SidebarInset>
     </div>
   );

@@ -6,7 +6,6 @@ import { Home, FolderOpen, Plus, Bell, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { NavUser } from '@/components/NavUser';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,14 +24,6 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
-const data = {
-  user: {
-    name: 'John Doe',
-    email: 'john@example.com',
-    avatar: '',
-  },
-};
-
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
   { title: 'AI Agent', url: '/create', icon: Sparkles },
@@ -40,7 +31,7 @@ const menuItems = [
 ];
 
 export function AppSidebar({
-  logout,
+  logout: _logout,
   ...props
 }: React.ComponentProps<typeof Sidebar> & { logout: () => void }) {
   const pathname = usePathname();
@@ -56,22 +47,20 @@ export function AppSidebar({
     >
       <SidebarHeader
         className={cn(
-          'h-20 px-4 flex flex-row items-center shrink-0',
-          collapsed && !isMobile && 'justify-center',
+          'h-14 px-4 flex flex-row items-center justify-center shrink-0 w-full',
         )}
       >
         <Link
           href="/dashboard"
           onClick={() => isMobile && setOpenMobile(false)}
           className={cn(
-            'flex items-center',
-            collapsed && !isMobile ? 'justify-center' : 'gap-2',
+            'flex items-center justify-center gap-2 w-full',
           )}
         >
           <div className={cn(
             'relative shrink-0',
-            isMobile ? 'h-10 w-10' : 'h-8 w-8',
-            'group-data-[collapsible=icon]:h-7 group-data-[collapsible=icon]:w-7',
+            isMobile ? 'h-8 w-8' : 'h-7 w-7',
+            'group-data-[collapsible=icon]:h-6.5 group-data-[collapsible=icon]:w-6.5',
           )}>
             <Image
               src="/logo.png"
@@ -96,8 +85,8 @@ export function AppSidebar({
       {/* Create Content Button */}
       <div
         className={cn(
-          'px-3 mt-4 pb-2',
-          collapsed && !isMobile && 'px-2 flex justify-center',
+          'px-3 mt-3 pb-1',
+          collapsed && !isMobile && 'px-2 pb-3.5 flex justify-center',
         )}
       >
         <Button
@@ -105,30 +94,30 @@ export function AppSidebar({
           size={collapsed && !isMobile ? 'icon' : 'sm'}
           className={cn(
             'gradient-primary shadow-glow hover:shadow-glow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200',
-            collapsed && !isMobile ? 'h-8 w-8' : 'px-3 py-2 h-9 w-full text-sm',
+            collapsed && !isMobile ? 'h-7 w-7' : 'px-3 py-1.5 h-8 w-full text-xs font-medium',
           )}
         >
           <Link
             href="/create"
             onClick={() => isMobile && setOpenMobile(false)}
-            className="flex items-center justify-center gap-2"
+            className="flex items-center justify-center gap-1.5"
           >
             <Plus
-              className={cn('h-3.5 w-3.5', (!collapsed || isMobile) && '-ml-1')}
+              className={cn('h-3.5 w-3.5', (!collapsed || isMobile) && '-ml-0.5')}
             />
             {(!collapsed || isMobile) && (
-              <span className="font-medium text-sm">Create Content</span>
+              <span className="font-medium text-xs">Create Content</span>
             )}
           </Link>
         </Button>
       </div>
 
       <SidebarContent className="px-2">
-        <SidebarGroup>
+        <SidebarGroup className="py-1">
           <SidebarGroupLabel
             className={cn(
-              'text-xs uppercase tracking-wider text-muted-foreground/70 mb-1',
-              collapsed && !isMobile ? 'sr-only' : 'px-3',
+              'text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-1 h-6',
+              collapsed && !isMobile ? 'sr-only' : 'px-2.5',
             )}
           >
             Menu
@@ -136,7 +125,7 @@ export function AppSidebar({
           <SidebarGroupContent>
             <SidebarMenu
               className={cn(
-                'space-y-2',
+                'space-y-1',
                 (!collapsed || isMobile) && 'items-start',
               )}
             >
@@ -148,20 +137,18 @@ export function AppSidebar({
                   (!collapsed || isMobile) && 'flex justify-start',
                 );
                 const navLinkClass = cn(
-                  'flex items-center gap-3 w-full',
-                  collapsed && !isMobile ? 'px-3' : 'pr-3',
+                  'flex items-center gap-2.5 w-full',
+                  collapsed && !isMobile ? 'px-2.5' : 'pr-2.5 pl-2',
                   collapsed && !isMobile ? 'justify-center' : 'justify-start',
                 );
                 const menuButtonClass = cn(
-                  'h-10 transition-all duration-200 rounded-lg group/item',
+                  'h-8.5 transition-all duration-200 rounded-md group/item border border-transparent',
                   collapsed ? 'w-full' : 'w-full',
-                  // Remove max-w-xs to prevent centering on mobile
                   !collapsed && 'max-w-full',
-                  // Override shadcn default size-8 constraint for collapsed state
-                  'group-data-[collapsible=icon]:!size-auto group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!h-10 group-data-[collapsible=icon]:!p-0',
+                  'group-data-[collapsible=icon]:!size-auto group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!h-8.5 group-data-[collapsible=icon]:!p-0',
                   isActive
-                    ? 'bg-primary/10 text-primary shadow-sm'
-                    : 'hover:bg-muted/50 text-muted-foreground hover:text-foreground',
+                    ? 'bg-primary/15 dark:bg-primary/25 text-primary border-primary/30 shadow-xs font-semibold'
+                    : 'text-muted-foreground/75 hover:text-foreground hover:bg-muted/60',
                 );
 
                 return (
@@ -182,23 +169,23 @@ export function AppSidebar({
                         <div
                           className={cn(
                             'flex items-center justify-center transition-transform duration-200 group-hover/item:scale-110',
-                            isActive && 'text-primary',
+                            isActive ? 'text-primary font-bold' : 'text-muted-foreground/80 group-hover/item:text-foreground',
                           )}
                         >
-                          <item.icon className="h-[18px] w-[18px]" />
+                          <item.icon className="h-4 w-4" />
                         </div>
                         {(!collapsed || isMobile) && (
                           <span
                             className={cn(
-                              'font-medium text-sm',
-                              isActive && 'text-primary',
+                              'text-xs transition-colors',
+                              isActive ? 'font-semibold text-primary' : 'font-medium text-muted-foreground/80 group-hover/item:text-foreground',
                             )}
                           >
                             {item.title}
                           </span>
                         )}
                         {isActive && (!collapsed || isMobile) && (
-                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(var(--primary),0.8)] animate-pulse" />
                         )}
                       </Link>
                     </SidebarMenuButton>
@@ -210,14 +197,9 @@ export function AppSidebar({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter
-        className={cn(
-          'p-3 border-t border-border/50',
-          collapsed && !isMobile ? 'p-2' : 'flex justify-center',
-        )}
-      >
-        {isMobile && (
-          <div className="flex items-center gap-2 mb-3 px-2">
+      {isMobile && (
+        <SidebarFooter className="p-3 border-t border-border/50">
+          <div className="flex items-center justify-between px-2">
             <Button variant="ghost" size="icon" asChild className="h-9 w-9">
               <Link
                 href="/notifications"
@@ -228,9 +210,8 @@ export function AppSidebar({
             </Button>
             <ThemeToggle />
           </div>
-        )}
-        <NavUser user={data.user} logout={logout} />
-      </SidebarFooter>
+        </SidebarFooter>
+      )}
       <SidebarRail className="hover:bg-primary/5 transition-colors" />
     </Sidebar>
   );

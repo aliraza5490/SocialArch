@@ -219,14 +219,20 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <div className="px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-center gap-4 sm:gap-6 mt-0">
+      <div className="px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-center gap-6 mt-0">
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-chart-1" />
-          <span className="text-sm text-muted-foreground">Videos</span>
+          <div
+            className="h-3 w-3 rounded-full shadow-xs shrink-0"
+            style={{ backgroundColor: 'var(--color-chart-1)' }}
+          />
+          <span className="text-sm font-medium text-foreground/80">Videos</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-chart-2" />
-          <span className="text-sm text-muted-foreground">Posts</span>
+          <div
+            className="h-3 w-3 rounded-xs shadow-xs shrink-0 rotate-45"
+            style={{ backgroundColor: 'var(--color-chart-2)' }}
+          />
+          <span className="text-sm font-medium text-foreground/80">Posts</span>
         </div>
       </div>
     </div>
