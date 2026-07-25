@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAccessToken } from "@/lib/utils/jwt";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -7,8 +6,8 @@ export async function POST(req: NextRequest) {
 
   // Actually, for client-side useChat, we can just pass the headers if we call backend directly
   // But a proxy allows us to handle auth more securely if needed
-  
-  const backendUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/ai/chat`;
+
+  const backendUrl = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/ai/chat`;
 
   const response = await fetch(backendUrl, {
     method: "POST",
