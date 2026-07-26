@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 export function CTASection() {
   return (
     <section className="py-20 bg-linear-to-r from-cyan-600 to-blue-700">
-      <div className="container mx-auto px-4 text-center">
+      <div className="container max-w-6xl mx-auto px-4 text-center">
         <div className="max-w-2xl mx-auto text-white">
           <h2 className="text-3xl font-bold mb-4">
             Ready to Transform Your Social Media Strategy?

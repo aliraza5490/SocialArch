@@ -14,7 +14,7 @@ export function HeroSection() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-white dark:from-gray-900 to-transparent"></div>
       </div>
 
-      <div className="container relative z-10 mx-auto px-4 py-16 text-center">
+      <div className="container max-w-6xl relative z-10 mx-auto px-4 py-16 text-center">
         <div className="max-w-4xl mx-auto mb-16">
           <div className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-sm font-medium text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300 mb-6">
             <span className="flex h-2 w-2 rounded-full bg-blue-600 mr-2 animate-pulse"></span>

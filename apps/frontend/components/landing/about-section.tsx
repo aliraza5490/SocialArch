@@ -3,7 +3,7 @@ import { Target, Heart, Sparkles, CheckCircle2, Zap, Layers } from 'lucide-react
 export function AboutSection() {
   return (
     <section id="about" className="py-20 bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4">
+      <div className="container max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">

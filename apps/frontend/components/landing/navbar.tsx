@@ -35,7 +35,7 @@ export function Navbar() {
           : 'bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="container mx-auto px-4 py-4">
+      <div className="container max-w-6xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link 
             href="/" 
