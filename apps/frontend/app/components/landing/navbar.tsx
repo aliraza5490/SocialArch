@@ -75,10 +75,10 @@ export function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/auth/login">
+            <Link href="/login">
               <Button variant="ghost">Sign In</Button>
             </Link>
-            <Link href="/auth/register">
+            <Link href="/register">
               <Button>Get Started</Button>
             </Link>
           </div>
@@ -115,12 +115,12 @@ export function Navbar() {
               </Link>
             ))}
             <div className="flex flex-col space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-              <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start">
                   Sign In
                 </Button>
               </Link>
-              <Link href="/auth/register" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
                 <Button className="w-full">Get Started</Button>
               </Link>
             </div>

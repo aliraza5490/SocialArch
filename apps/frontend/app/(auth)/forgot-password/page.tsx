@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { RegisterForm } from '@/components/auth/register-form';
+import { ForgotPasswordForm } from './components/forgot-password-form';
 
-export default function RegisterPage() {
+export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background Elements */}
@@ -28,7 +28,7 @@ export default function RegisterPage() {
           </span>
         </Link>
 
-        <RegisterForm />
+        <ForgotPasswordForm />
       </div>
     </div>
   );

@@ -41,7 +41,7 @@ export function EmailVerificationPage() {
       toast.success('Email verified successfully! You can now log in to your account.');
       // Redirect to login after a delay
       setTimeout(() => {
-        router.push('/auth/login?message=email-verified');
+        router.push('/login?message=email-verified');
       }, 3000);
     },
     onError: (error) => {
@@ -123,7 +123,7 @@ export function EmailVerificationPage() {
           <p className="text-xs text-muted-foreground">
             Redirecting to login page...
           </p>
-          <Link href="/auth/login">
+          <Link href="/login">
             <Button className="w-full">
               Continue to Sign In
             </Button>
@@ -148,7 +148,7 @@ export function EmailVerificationPage() {
             <AlertDescription>{message}</AlertDescription>
           </Alert>
           <div className="space-y-2">
-            <Link href="/auth/login">
+            <Link href="/login">
               <Button variant="outline" className="w-full">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Sign In
@@ -204,7 +204,7 @@ export function EmailVerificationPage() {
                 )}
               </Button>
 
-              <Link href="/auth/login">
+              <Link href="/login">
                 <Button variant="outline" className="w-full">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Sign In

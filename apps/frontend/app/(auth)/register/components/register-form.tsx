@@ -58,7 +58,7 @@ export function RegisterForm() {
             Please check your email and click the verification link to activate your account.
           </p>
           <div className="space-y-2">
-            <Link href="/auth/login">
+            <Link href="/login">
               <Button variant="outline" className="w-full">
                 Back to Sign In
               </Button>
@@ -216,7 +216,7 @@ export function RegisterForm() {
 
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}
-          <Link href="/auth/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary hover:underline">
             Sign in
           </Link>
         </div>

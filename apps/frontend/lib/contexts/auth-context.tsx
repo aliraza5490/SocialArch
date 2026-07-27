@@ -221,7 +221,7 @@ export function useAuth(): AuthContextType {
 
   const logout = useCallback(() => {
     storeLogout();
-    router.push("/auth/login");
+    router.push("/login");
   }, [storeLogout, router]);
 
   return {

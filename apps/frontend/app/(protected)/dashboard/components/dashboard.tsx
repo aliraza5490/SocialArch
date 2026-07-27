@@ -1,8 +1,8 @@
 'use client';
 
 import { Video, FileText, TrendingUp, Zap } from 'lucide-react';
-import { StatCard } from '@/components/dashboard/StatCard';
-import { ActivityChart } from '@/components/dashboard/ActivityChart';
+import { StatCard } from './StatCard';
+import { ActivityChart } from './ActivityChart';
 
 function Dashboard() {
   return (

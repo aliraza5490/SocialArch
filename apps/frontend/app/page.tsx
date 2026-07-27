@@ -1,24 +1,25 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import LandingPage from '@/components/pages/landing-page';
-import { useAuth } from '@/lib/contexts/auth-context';
-import { LoadingScreen } from '@/components/LoadingScreen';
+import { Navbar } from './components/landing/navbar';
+import { HeroSection } from './components/landing/hero-section';
+import { FeaturesSection } from './components/landing/features-section';
+import { AboutSection } from './components/landing/about-section';
+import { TestimonialsSection } from './components/landing/testimonials-section';
+import { PricingSection } from './components/landing/pricing-section';
+import { CTASection } from './components/landing/cta-section';
+import { Footer } from './components/landing/footer';
 
 export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.replace('/dashboard');
-    }
-  }, [isAuthenticated, isLoading, router]);
-
-  if (isLoading || isAuthenticated) {
-    return <LoadingScreen />;
-  }
-
-  return <LandingPage />;
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 overflow-hidden relative">
+      <Navbar />
+      <HeroSection />
+      <FeaturesSection />
+      <AboutSection />
+      <TestimonialsSection />
+      <PricingSection />
+      <CTASection />
+      <Footer />
+    </div>
+  );
 }
+
+

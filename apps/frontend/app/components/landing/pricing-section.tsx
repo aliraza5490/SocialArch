@@ -91,7 +91,7 @@ export function PricingSection() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/auth/register">
+                <Link href="/register">
                   <Button
                     className="w-full"
                     variant={plan.popular ? 'default' : 'outline'}

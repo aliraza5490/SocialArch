@@ -62,7 +62,7 @@ export function ForgotPasswordForm() {
             Please check your email and follow the instructions.
           </p>
           <div className="space-y-2">
-            <Link href="/auth/login">
+            <Link href="/login">
               <Button variant="outline" className="w-full">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Sign In
@@ -126,7 +126,7 @@ export function ForgotPasswordForm() {
 
         <div className="mt-4 text-center text-sm">
           Remember your password?{' '}
-          <Link href="/auth/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary hover:underline">
             Sign in
           </Link>
         </div>

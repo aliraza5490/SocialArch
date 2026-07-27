@@ -12,7 +12,7 @@ export function CTASection() {
           <p className="text-xl mb-8 text-blue-100">
             Join thousands of creators and businesses already using SocialArch
           </p>
-          <Link href="/auth/register">
+          <Link href="/register">
             <Button size="lg" variant="secondary">
               Get Started Today
             </Button>

@@ -19,13 +19,13 @@ export function Footer() {
           </div>
           <div className="flex space-x-6">
             <Link
-              href="/auth/login"
+              href="/login"
               className="hover:text-blue-400 transition-colors"
             >
               Sign In
             </Link>
             <Link
-              href="/auth/register"
+              href="/register"
               className="hover:text-blue-400 transition-colors"
             >
               Sign Up

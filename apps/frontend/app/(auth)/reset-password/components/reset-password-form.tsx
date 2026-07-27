@@ -44,7 +44,7 @@ export function ResetPasswordForm() {
       toast.success('Password reset successful! You can now log in with your new password.');
       // Redirect to login after a delay
       setTimeout(() => {
-        router.push('/auth/login?message=password-reset-success');
+        router.push('/login?message=password-reset-success');
       }, 3000);
     },
     onError: (error) => {
@@ -73,12 +73,12 @@ export function ResetPasswordForm() {
             Please request a new password reset link.
           </p>
           <div className="space-y-2">
-            <Link href="/auth/forgot-password">
+            <Link href="/forgot-password">
               <Button className="w-full">
                 Request New Reset Link
               </Button>
             </Link>
-            <Link href="/auth/login">
+            <Link href="/login">
               <Button variant="outline" className="w-full">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Sign In
@@ -104,7 +104,7 @@ export function ResetPasswordForm() {
           <p className="text-sm text-muted-foreground">
             You can now sign in with your new password. Redirecting to login...
           </p>
-          <Link href="/auth/login">
+          <Link href="/login">
             <Button variant="outline" className="w-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Go to Sign In
@@ -211,7 +211,7 @@ export function ResetPasswordForm() {
 
         <div className="mt-4 text-center text-sm">
           Remember your password?{' '}
-          <Link href="/auth/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary hover:underline">
             Sign in
           </Link>
         </div>
