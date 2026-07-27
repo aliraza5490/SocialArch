@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Home, FolderOpen, Bell } from 'lucide-react';
+import { Home, FolderOpen, Bell, Plus } from 'lucide-react';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -46,14 +46,18 @@ export function AppSidebar({
     >
       <SidebarHeader
         className={cn(
-          'h-12 p-0 px-3 flex flex-row items-center justify-center shrink-0 w-full',
+          'h-12 p-0 flex flex-row items-center shrink-0 w-full',
+          collapsed && !isMobile
+            ? 'justify-center px-0'
+            : 'justify-start px-4',
         )}
       >
         <Link
           href="/dashboard"
           onClick={() => isMobile && setOpenMobile(false)}
           className={cn(
-            'flex items-center justify-center gap-2 w-full h-full my-auto',
+            'flex items-center gap-2 h-full my-auto',
+            collapsed && !isMobile ? 'justify-center' : 'justify-start',
           )}
         >
           <div className={cn(
@@ -82,6 +86,27 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent className="px-2">
+        <div className={cn('pt-2 pb-1.5', collapsed && !isMobile ? 'flex justify-center' : 'px-1')}>
+          <Button
+            asChild
+            size={collapsed && !isMobile ? 'icon' : 'sm'}
+            className={cn(
+              'w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-xs transition-all duration-200 rounded-md',
+              collapsed && !isMobile ? 'h-8 w-8 justify-center' : 'h-8 justify-start gap-2 px-2.5 text-xs',
+            )}
+            title={collapsed && !isMobile ? 'New Chat' : undefined}
+          >
+            <Link
+              href="/dashboard?newChat=true"
+              onClick={() => isMobile && setOpenMobile(false)}
+              className="flex items-center"
+            >
+              <Plus className="h-3.5 w-3.5 shrink-0" />
+              {(!collapsed || isMobile) && <span>New Chat</span>}
+            </Link>
+          </Button>
+        </div>
+
         <SidebarGroup className="py-0.5">
           <SidebarGroupLabel
             className={cn(
