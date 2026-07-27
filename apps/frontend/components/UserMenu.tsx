@@ -62,16 +62,16 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
   const dropdownContent = (
     <>
       <DropdownMenuLabel className="p-0 font-normal">
-        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-          <Avatar className="h-8 w-8 rounded-lg">
+        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-xs">
+          <Avatar className="h-7 w-7 rounded-md">
             <AvatarImage src={user.avatar} alt={fullName} />
-            <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-sm font-medium">
+            <AvatarFallback className="rounded-md bg-primary/10 text-primary text-xs font-medium">
               {userInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">{fullName}</span>
-            <span className="truncate text-xs">{user.email}</span>
+          <div className="grid flex-1 text-left leading-tight">
+            <span className="truncate font-medium text-xs">{fullName}</span>
+            <span className="truncate text-[10px] text-muted-foreground">{user.email}</span>
           </div>
         </div>
       </DropdownMenuLabel>
@@ -80,40 +80,40 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
         <DropdownMenuItem asChild>
           <Link
             href="/billing"
-            className="flex items-center cursor-pointer"
+            className="flex items-center text-xs cursor-pointer"
             onClick={() => isMobile && setOpenMobile(false)}
           >
-            <CreditCard className="mr-2 h-4 w-4" />
+            <CreditCard className="mr-2 h-3.5 w-3.5" />
             Billing
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link
             href="/notifications"
-            className="flex items-center cursor-pointer"
+            className="flex items-center text-xs cursor-pointer"
             onClick={() => isMobile && setOpenMobile(false)}
           >
-            <Bell className="mr-2 h-4 w-4" />
+            <Bell className="mr-2 h-3.5 w-3.5" />
             Notifications
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link
             href="/settings"
-            className="flex items-center cursor-pointer"
+            className="flex items-center text-xs cursor-pointer"
             onClick={() => isMobile && setOpenMobile(false)}
           >
-            <Settings className="mr-2 h-4 w-4" />
+            <Settings className="mr-2 h-3.5 w-3.5" />
             Settings
           </Link>
         </DropdownMenuItem>
       </DropdownMenuGroup>
       <DropdownMenuSeparator />
       <DropdownMenuItem
-        className="text-destructive focus:text-destructive cursor-pointer"
+        className="text-destructive focus:text-destructive text-xs cursor-pointer"
         onClick={logout}
       >
-        <LogOut className="mr-2 h-4 w-4" />
+        <LogOut className="mr-2 h-3.5 w-3.5" />
         Log out
       </DropdownMenuItem>
     </>
@@ -123,42 +123,42 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
     if (isMobile) {
       return (
         <SidebarMenu className="mt-4 space-y-1">
-          <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <Avatar className="h-9 w-9 rounded-lg border border-border">
+          <div className="flex items-center gap-2.5 px-2 py-1.5 mb-2">
+            <Avatar className="h-7 w-7 rounded-md border border-border">
               <AvatarImage src={user.avatar} alt={fullName} />
-              <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-medium">
+              <AvatarFallback className="rounded-md bg-primary/10 text-primary text-xs font-medium">
                 {userInitials}
               </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left leading-tight">
-              <span className="truncate font-semibold text-sm">{fullName}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              <span className="truncate font-medium text-xs">{fullName}</span>
+              <span className="truncate text-[10px] text-muted-foreground">{user.email}</span>
             </div>
           </div>
           
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-xs">
               <Link href="/billing" onClick={() => setOpenMobile(false)}>
-                <CreditCard className="h-4 w-4" />
-                <span>Billing</span>
+                <CreditCard className="h-3.5 w-3.5" />
+                <span className="text-xs">Billing</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-xs">
               <Link href="/notifications" onClick={() => setOpenMobile(false)}>
-                <Bell className="h-4 w-4" />
-                <span>Notifications</span>
+                <Bell className="h-3.5 w-3.5" />
+                <span className="text-xs">Notifications</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
 
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="text-xs">
               <Link href="/settings" onClick={() => setOpenMobile(false)}>
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
+                <Settings className="h-3.5 w-3.5" />
+                <span className="text-xs">Settings</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -169,10 +169,10 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
                 if (isMobile) setOpenMobile(false);
                 logout();
               }}
-              className="text-destructive hover:text-destructive"
+              className="text-destructive hover:text-destructive text-xs"
             >
-              <LogOut className="h-4 w-4" />
-              <span>Log out</span>
+              <LogOut className="h-3.5 w-3.5" />
+              <span className="text-xs">Log out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -190,15 +190,15 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-7 w-7 rounded-md">
                   <AvatarImage src={user.avatar} alt={fullName} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-md text-xs font-medium">{userInitials}</AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                <div className="grid flex-1 text-left leading-tight">
+                  <span className="truncate font-medium text-xs">{fullName}</span>
+                  <span className="truncate text-[10px] text-muted-foreground">{user.email}</span>
                 </div>
-                <ChevronsUpDown className="ml-auto size-4" />
+                <ChevronsUpDown className="ml-auto size-3.5 text-muted-foreground" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent

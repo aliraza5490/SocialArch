@@ -46,7 +46,7 @@ export function AppSidebar({
     >
       <SidebarHeader
         className={cn(
-          'h-12 p-0 flex flex-row items-center shrink-0 w-full',
+          'h-12 p-0 flex flex-row items-center shrink-0 w-full border-b border-border/50',
           collapsed && !isMobile
             ? 'justify-center px-0'
             : 'justify-start px-4',
@@ -86,7 +86,7 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent className="px-2">
-        <div className={cn('pt-2 pb-1.5', collapsed && !isMobile ? 'flex justify-center' : 'px-1')}>
+        <div className={cn('mt-2.5 pt-1 pb-1.5', collapsed && !isMobile ? 'flex justify-center' : 'px-1')}>
           <Button
             asChild
             size={collapsed && !isMobile ? 'icon' : 'sm'}
