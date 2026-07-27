@@ -394,19 +394,24 @@ export default function ChatPage() {
             </div>
 
             {/* Example Queries directly below composer */}
-            <div className="w-full pt-2">
+            <div className="w-full pt-2 max-w-2xl mx-auto">
               <p className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider mb-3 text-center">
                 Example Queries
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-2 max-w-xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
                 {SUGGESTIONS.map((item) => (
                   <button
                     key={item.title}
                     onClick={() => handleSend(item.desc)}
-                    className="flex items-center gap-2 px-3.5 py-2 rounded-full border border-border bg-card hover:bg-muted/80 text-xs text-card-foreground transition-all cursor-pointer shadow-2xs group"
+                    className="flex flex-col justify-between items-start text-left p-3.5 rounded-xl border border-border bg-card/60 hover:bg-muted/80 hover:border-primary/40 transition-all cursor-pointer shadow-xs group h-full space-y-2.5"
                   >
-                    <item.icon className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-                    <span>{item.desc}</span>
+                    <div className="flex items-center gap-2 w-full">
+                      <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:scale-105 transition-transform shrink-0">
+                        <item.icon className="h-4 w-4" />
+                      </div>
+                      <span className="text-xs font-semibold text-foreground truncate">{item.title}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{item.desc}</p>
                   </button>
                 ))}
               </div>
