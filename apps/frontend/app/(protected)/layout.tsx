@@ -68,12 +68,13 @@ function DashboardShell({
   pathname: string;
 }) {
   const { setOpen, open: isSidebarOpen } = useSidebar();
+  const isChat = pathname.startsWith('/chat');
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full overflow-hidden">
       <AppSidebar logout={logout} />
-      <SidebarInset>
-        <header className="h-12 border-b border-border flex items-center justify-between px-4 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+      <SidebarInset className="h-full overflow-hidden flex flex-col">
+        <header className="h-12 border-b border-border flex items-center justify-between px-4 bg-card/50 backdrop-blur-sm shrink-0 z-10">
           <div className="flex items-center gap-3">
             <SidebarTrigger />
             <Link href="/dashboard" className="flex lg:hidden items-center gap-2">
@@ -120,7 +121,9 @@ function DashboardShell({
             />
           </div>
         </header>
-        <div className="flex-1 overflow-auto p-3.5 sm:p-4">{children}</div>
+        <div className={`flex-1 min-h-0 flex flex-col ${isChat ? 'overflow-hidden p-0' : 'overflow-auto p-3.5 sm:p-4'}`}>
+          {children}
+        </div>
       </SidebarInset>
     </div>
   );
