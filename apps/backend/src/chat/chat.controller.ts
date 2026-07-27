@@ -10,8 +10,9 @@ import {
 } from "@nestjs/common";
 import { Response } from "express";
 import { ChatService } from "./chat.service";
-import { CreateChatDto } from "./dto/create-chat.dto";
 import { UpdateChatDto } from "./dto/update-chat.dto";
+import { SendMessageDto } from "./dto/send-message.dto";
+import { RegenerateMessageDto } from "./dto/regenerate-message.dto";
 import { JWTUser } from "@/auth/decorators/jwtUser.decorator";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 
@@ -20,11 +21,6 @@ import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 @Controller("chat")
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
-
-  @Post()
-  create(@JWTUser() user: any, @Body() createChatDto: CreateChatDto) {
-    return this.chatService.create(user.ID, createChatDto);
-  }
 
   @Get()
   findAll(@JWTUser() user: any) {
@@ -51,46 +47,39 @@ export class ChatController {
   }
 
   @Get(":id/messages")
-  async getMessages(@Param("id") id: string, @JWTUser() user: any) {
-    await this.chatService.findOne(id, user.ID);
-    return this.chatService.getMessageHistory(id);
+  getMessages(@Param("id") id: string, @JWTUser() user: any) {
+    return this.chatService.getMessageHistory(id, user.ID);
   }
 
   @Post("send")
   async send(
     @JWTUser() user: any,
-    @Body("chatId") chatId?: string,
-    @Body("newChat") newChat?: boolean,
-    @Body("content") content?: string,
-    @Res() res?: Response,
-    @Body("position") position?: number,
-    @Body("selectedVersions") selectedVersions?: Record<number, number>,
+    @Body() sendMessageDto: SendMessageDto,
+    @Res() res: Response,
   ) {
     return this.chatService.createChatCompletion(
-      chatId,
+      sendMessageDto.chatId,
       user.ID,
-      content || "",
-      res!,
-      position,
-      selectedVersions,
-      newChat,
+      sendMessageDto.content || "",
+      res,
+      sendMessageDto.position,
+      sendMessageDto.selectedVersions,
+      sendMessageDto.newChat,
     );
   }
 
   @Post("regenerate")
   async regenerate(
     @JWTUser() user: any,
-    @Body("chatId") chatId: string,
-    @Body("position") position: number,
-    @Body("selectedVersions") selectedVersions: Record<number, number>,
+    @Body() regenerateMessageDto: RegenerateMessageDto,
     @Res() res: Response,
   ) {
     return this.chatService.regenerateResponse(
-      chatId,
+      regenerateMessageDto.chatId,
       user.ID,
-      position,
+      regenerateMessageDto.position,
       res,
-      selectedVersions,
+      regenerateMessageDto.selectedVersions,
     );
   }
 }
