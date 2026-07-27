@@ -147,230 +147,230 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="animate-fade-in">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-              <Bell className="h-6 w-6 text-primary" />
-              Notifications
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Stay updated with your content and account activity
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {unreadCount > 0 && (
-              <Button variant="outline" size="sm" onClick={markAllAsRead}>
-                <CheckCheck className="h-4 w-4 mr-2" />
-                Mark all read
-              </Button>
-            )}
+    <div className="space-y-3.5 animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
+            <Bell className="h-5 w-5 text-primary" />
+            Notifications
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Stay updated with your content and account activity
+          </p>
+        </div>
+        <div className="flex gap-1.5">
+          {unreadCount > 0 && (
+            <Button variant="outline" size="sm" className="h-8 text-xs px-2.5" onClick={markAllAsRead}>
+              <CheckCheck className="h-3.5 w-3.5 mr-1.5" />
+              Mark all read
+            </Button>
+          )}
 
-            {/* Desktop buttons */}
-            <div className="hidden md:flex gap-2">
-              <Button variant="outline" size="sm" onClick={clearAll}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Clear all
-              </Button>
-              <Dialog open={preferencesOpen} onOpenChange={setPreferencesOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Preferences
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                      <Settings className="h-5 w-5" />
-                      Notification Preferences
-                    </DialogTitle>
-                    <DialogDescription>
-                      Configure your notification settings and preferences.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Content Updates</p>
-                        <p className="text-sm text-muted-foreground">
-                          Get notified when your content is ready
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
+          {/* Desktop buttons */}
+          <div className="hidden md:flex gap-1.5">
+            <Button variant="outline" size="sm" className="h-8 text-xs px-2.5" onClick={clearAll}>
+              <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+              Clear all
+            </Button>
+            <Dialog open={preferencesOpen} onOpenChange={setPreferencesOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 text-xs px-2.5">
+                  <Settings className="h-3.5 w-3.5 mr-1.5" />
+                  Preferences
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md p-4 sm:p-5">
+                <DialogHeader className="p-0 mb-3">
+                  <DialogTitle className="text-base font-semibold flex items-center gap-2">
+                    <Settings className="h-4 w-4 text-primary" />
+                    Notification Preferences
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                    Configure your notification settings and preferences.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">Content Updates</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        Get notified when your content is ready
+                      </p>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Account Activity</p>
-                        <p className="text-sm text-muted-foreground">
-                          Updates about your account and billing
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">System Updates</p>
-                        <p className="text-sm text-muted-foreground">
-                          New features and platform announcements
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Marketing</p>
-                        <p className="text-sm text-muted-foreground">
-                          Promotional content and tips
-                        </p>
-                      </div>
-                      <Switch />
-                    </div>
+                    <Switch defaultChecked />
                   </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">Account Activity</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        Updates about your account and billing
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">System Updates</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        New features and platform announcements
+                      </p>
+                    </div>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-medium">Marketing</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        Promotional content and tips
+                      </p>
+                    </div>
+                    <Switch />
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
 
-            {/* Mobile dropdown menu */}
-            <div className="md:hidden">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={clearAll}>
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Clear all
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setPreferencesOpen(true)}>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Preferences
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          {/* Mobile dropdown menu */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={clearAll} className="text-xs">
+                  <Trash2 className="h-3.5 w-3.5 mr-2" />
+                  Clear all
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPreferencesOpen(true)} className="text-xs">
+                  <Settings className="h-3.5 w-3.5 mr-2" />
+                  Preferences
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
+      </div>
 
-        {/* Tab Navigation */}
-        <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit mb-4">
-          <button
-            onClick={() => setActiveTab('all')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors',
-              activeTab === 'all'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setActiveTab('unread')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors relative',
-              activeTab === 'unread'
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            Unread
-            {unreadCount > 0 && (
-              <span className="ml-2 h-5 px-1.5 text-xs gradient-primary text-primary-foreground rounded-full flex items-center">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-        </div>
+      {/* Tab Navigation */}
+      <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={cn(
+            'flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
+            activeTab === 'all'
+              ? 'bg-background text-foreground shadow-xs'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setActiveTab('unread')}
+          className={cn(
+            'flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors relative',
+            activeTab === 'unread'
+              ? 'bg-background text-foreground shadow-xs'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          Unread
+          {unreadCount > 0 && (
+            <span className="ml-1.5 h-4 px-1.5 text-[10px] font-semibold gradient-primary text-primary-foreground rounded-full flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+      </div>
 
-        {/* Notifications */}
-        <div className="space-y-3">
-          {filteredNotifications.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="py-12 text-center">
-                <Bell className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                <p className="text-muted-foreground">No notifications</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredNotifications.map((notification) => {
-              const IconComponent = iconMap[notification.icon];
-              return (
-                <Card
-                  key={notification.id}
-                  className={cn(
-                    'transition-all hover:shadow-card-hover cursor-pointer group',
-                    !notification.read && 'border-primary/30 bg-primary/5',
-                  )}
-                  onClick={() => markAsRead(notification.id)}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex gap-3">
-                      <div
-                        className={cn(
-                          'h-8 w-8 rounded-lg flex items-center justify-center shrink-0',
-                          notification.type === 'success' &&
-                            'bg-green-500/10 text-green-500',
-                          notification.type === 'info' &&
-                            'bg-blue-500/10 text-blue-500',
-                          notification.type === 'warning' &&
-                            'bg-yellow-500/10 text-yellow-500',
-                          notification.type === 'content' &&
-                            'gradient-primary text-primary-foreground shadow-glow',
-                        )}
-                      >
-                        <IconComponent className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">{notification.title}</p>
-                          {!notification.read && (
-                            <div className="h-2 w-2 rounded-full bg-primary" />
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-0.5">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatTime(notification.timestamp)}
-                        </p>
-                      </div>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Notifications */}
+      <div className="space-y-2">
+        {filteredNotifications.length === 0 ? (
+          <Card className="border-dashed">
+            <CardContent className="py-8 text-center">
+              <Bell className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">No notifications</p>
+            </CardContent>
+          </Card>
+        ) : (
+          filteredNotifications.map((notification) => {
+            const IconComponent = iconMap[notification.icon];
+            return (
+              <Card
+                key={notification.id}
+                className={cn(
+                  'transition-all hover:shadow-card-hover cursor-pointer group p-3 py-2.5',
+                  !notification.read && 'border-primary/30 bg-primary/5',
+                )}
+                onClick={() => markAsRead(notification.id)}
+              >
+                <CardContent className="p-0">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={cn(
+                        'h-7 w-7 rounded-md flex items-center justify-center shrink-0 mt-0.5',
+                        notification.type === 'success' &&
+                          'bg-green-500/10 text-green-500',
+                        notification.type === 'info' &&
+                          'bg-blue-500/10 text-blue-500',
+                        notification.type === 'warning' &&
+                          'bg-yellow-500/10 text-yellow-500',
+                        notification.type === 'content' &&
+                          'gradient-primary text-primary-foreground shadow-glow',
+                      )}
+                    >
+                      <IconComponent className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-semibold text-foreground">{notification.title}</p>
                         {!notification.read && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAsRead(notification.id);
-                            }}
-                          >
-                            <Check className="h-3.5 w-3.5" />
-                          </Button>
+                          <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                         )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {notification.message}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                        {formatTime(notification.timestamp)}
+                      </p>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {!notification.read && (
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-destructive hover:text-destructive"
+                          className="h-6 w-6"
                           onClick={(e) => {
                             e.stopPropagation();
-                            deleteNotification(notification.id);
+                            markAsRead(notification.id);
                           }}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Check className="h-3.5 w-3.5" />
                         </Button>
-                      </div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-destructive hover:text-destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteNotification(notification.id);
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })
-          )}
-        </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
       </div>
+    </div>
   );
 }
