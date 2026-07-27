@@ -2,7 +2,7 @@ import {
   DistanceStrategy,
   PGVectorStore,
 } from "@langchain/community/vectorstores/pgvector";
-import { OpenAIEmbeddings } from "@langchain/openai";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { Provider } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PoolConfig } from "pg";
@@ -11,11 +11,20 @@ import { DataSource } from "typeorm";
 export const PGVectorStoreProvider: Provider = {
   provide: "PGVectorStore",
   useFactory: async (configService: ConfigService, dataSource: DataSource) => {
-    const result = await dataSource.query(`SELECT * FROM settings LIMIT 1`);
+    let result: any[] = [];
+    try {
+      result = await dataSource.query(`SELECT * FROM settings LIMIT 1`);
+    } catch {
+      // Table settings might not exist yet during migration
+    }
 
-    const apiKey = result?.[0]?.openAIAPIKey;
-    const embeddings = new OpenAIEmbeddings({
-      model: "text-embedding-3-small",
+    const apiKey =
+      configService.get<string>("GEMINI_API_KEY") ||
+      result?.[0]?.geminiAPIKey ||
+      "dummy-key";
+
+    const embeddings = new GoogleGenerativeAIEmbeddings({
+      model: "text-embedding-004", // Google Gemini embeddings model (text-embedding-004 / gemini-embedding-2)
       apiKey,
     });
 
@@ -31,7 +40,6 @@ export const PGVectorStoreProvider: Provider = {
         contentColumnName: "content",
         metadataColumnName: "metadata",
       },
-      // supported distance strategies: cosine (default), innerProduct, or euclidean
       distanceStrategy: "cosine" as DistanceStrategy,
     };
 

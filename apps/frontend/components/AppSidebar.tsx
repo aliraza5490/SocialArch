@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Home, FolderOpen, Plus, Bell, Sparkles } from 'lucide-react';
+import { Home, FolderOpen, Bell } from 'lucide-react';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -26,7 +26,6 @@ import { cn } from '@/lib/utils';
 
 const menuItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
-  { title: 'AI Agent', url: '/create', icon: Sparkles },
   { title: 'Assets', url: '/assets', icon: FolderOpen },
 ];
 
@@ -81,36 +80,6 @@ export function AppSidebar({
           )}
         </Link>
       </SidebarHeader>
-
-      {/* Create Content Button */}
-      <div
-        className={cn(
-          'px-3 mt-3 pb-1',
-          collapsed && !isMobile && 'px-2 pb-3.5 flex justify-center',
-        )}
-      >
-        <Button
-          asChild
-          size={collapsed && !isMobile ? 'icon' : 'sm'}
-          className={cn(
-            'gradient-primary shadow-glow hover:shadow-glow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200',
-            collapsed && !isMobile ? 'h-7 w-7' : 'px-3 py-1.5 h-8 w-full text-xs font-medium',
-          )}
-        >
-          <Link
-            href="/create"
-            onClick={() => isMobile && setOpenMobile(false)}
-            className="flex items-center justify-center gap-1.5"
-          >
-            <Plus
-              className={cn('h-3.5 w-3.5', (!collapsed || isMobile) && '-ml-0.5')}
-            />
-            {(!collapsed || isMobile) && (
-              <span className="font-medium text-xs">Create Content</span>
-            )}
-          </Link>
-        </Button>
-      </div>
 
       <SidebarContent className="px-2">
         <SidebarGroup className="py-1">

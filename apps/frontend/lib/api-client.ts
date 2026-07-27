@@ -6,7 +6,7 @@ import {
   clearTokens,
 } from "./utils/jwt";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 class ApiClient {
   axiosInstance: AxiosInstance;
@@ -41,18 +41,42 @@ class ApiClient {
         const originalRequest = error.config;
 
         // If error is not 401 or request has already been retried, reject
-        if (error.response?.status !== 401 || originalRequest._retry) {
+        if (error.response?.status !== 401 || originalRequest?._retry) {
+          return Promise.reject(error);
+        }
+
+        // Don't attempt token refresh or redirect for public auth endpoints
+        const publicAuthEndpoints = [
+          "/auth/login",
+          "/auth/register",
+          "/auth/request-reset-password",
+          "/auth/reset-password",
+          "/auth/validate-email",
+          "/auth/verify-email",
+          "/auth/send-email-verification",
+        ];
+
+        const isPublicAuthEndpoint = publicAuthEndpoints.some((endpoint) =>
+          originalRequest?.url?.includes(endpoint),
+        );
+
+        if (isPublicAuthEndpoint) {
           return Promise.reject(error);
         }
 
         // Check if it's a refresh token error - if so, logout immediately
         if (
-          error.response.data?.message?.includes("Invalid refresh token") ||
-          error.response.data?.message?.includes("Refresh token expired") ||
-          originalRequest.url?.includes("/auth/refresh")
+          error.response?.data?.message?.includes("Invalid refresh token") ||
+          error.response?.data?.message?.includes("Refresh token expired") ||
+          originalRequest?.url?.includes("/auth/refresh")
         ) {
           clearTokens();
-          window.location.href = "/auth/login";
+          if (
+            typeof window !== "undefined" &&
+            window.location.pathname !== "/auth/login"
+          ) {
+            window.location.href = "/auth/login";
+          }
           return Promise.reject(error);
         }
 
@@ -64,7 +88,12 @@ class ApiClient {
             const refreshToken = getRefreshToken();
             if (!refreshToken) {
               clearTokens();
-              window.location.href = "/auth/login";
+              if (
+                typeof window !== "undefined" &&
+                window.location.pathname !== "/auth/login"
+              ) {
+                window.location.href = "/auth/login";
+              }
               return Promise.reject(error);
             }
 
@@ -85,7 +114,12 @@ class ApiClient {
         } catch (refreshError: any) {
           this.refreshPromise = null;
           clearTokens();
-          window.location.href = "/auth/login";
+          if (
+            typeof window !== "undefined" &&
+            window.location.pathname !== "/auth/login"
+          ) {
+            window.location.href = "/auth/login";
+          }
           return Promise.reject(refreshError);
         }
       },

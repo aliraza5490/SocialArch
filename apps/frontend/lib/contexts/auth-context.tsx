@@ -141,9 +141,10 @@ const useAuthStore = create<AuthStore>((set) => ({
       });
     } catch (error: unknown) {
       const axiosError = error as AxiosError<AuthErrorResponse>;
-      const message =
-        axiosError?.response?.data?.message ||
-        "Login failed. Please try again.";
+      const rawMessage = axiosError?.response?.data?.message;
+      const message = Array.isArray(rawMessage)
+        ? rawMessage.join(", ")
+        : rawMessage || "Login failed. Please try again.";
 
       set((prev) => ({ ...prev, isLoading: false }));
       throw new Error(message);

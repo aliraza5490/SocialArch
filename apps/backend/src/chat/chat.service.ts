@@ -5,6 +5,9 @@ import { Chat } from "./entities/Chat.entity";
 import { Message } from "./entities/Message.entity";
 import { CreateChatDto } from "./dto/create-chat.dto";
 import { UpdateChatDto } from "./dto/update-chat.dto";
+import { AgentService } from "@/agent/agent.service";
+import { HumanMessage, AIMessage, BaseMessage } from "@langchain/core/messages";
+import { Response } from "express";
 
 type ChatListItem = {
   ID: string;
@@ -23,6 +26,7 @@ export class ChatService {
     private chatRepository: Repository<Chat>,
     @InjectRepository(Message)
     private messageRepository: Repository<Message>,
+    private agentService: AgentService,
   ) {}
 
   async create(userId: string, createChatDto: CreateChatDto): Promise<Chat> {
@@ -69,7 +73,6 @@ export class ChatService {
     if (!chat) {
       throw new NotFoundException("Chat not found");
     }
-    // Sort messages by creation date if needed, though with parent/child it's more complex
     return chat;
   }
 
@@ -98,14 +101,12 @@ export class ChatService {
     let finalVersion = 1;
 
     if (position !== undefined) {
-      // Adding a new version for an existing position
       const maxVersionMessage = await this.messageRepository.findOne({
         where: { chatId, position },
         order: { version: "DESC" },
       });
       finalVersion = (maxVersionMessage?.version || 0) + 1;
     } else {
-      // Adding a new message to the end of the chat
       const lastMessage = await this.messageRepository.findOne({
         where: { chatId },
         order: { position: "DESC" },
@@ -128,5 +129,144 @@ export class ChatService {
       where: { chatId },
       order: { createdAt: "ASC" },
     });
+  }
+
+  async createChatCompletion(
+    chatId: string | undefined,
+    userId: string,
+    content: string,
+    res: Response,
+    position?: number,
+    selectedVersions?: Record<number, number>,
+    newChat?: boolean,
+  ) {
+    let targetChatId = chatId;
+
+    // 1. Resolve or create chat
+    if (newChat || !targetChatId) {
+      const title = content ? content.trim().slice(0, 50) : "New Chat";
+      const newChatObj = await this.create(userId, { title });
+      targetChatId = newChatObj.ID;
+    } else {
+      await this.findOne(targetChatId, userId);
+    }
+
+    // 2. Save user message
+    const userMessage = await this.addMessage(
+      targetChatId,
+      "user",
+      content,
+      position,
+    );
+
+    const finalPosition = userMessage.position;
+
+    // 3. Get history for context
+    const fullHistory = await this.getMessageHistory(targetChatId);
+
+    const historyForContext = this.filterHistoryByVersion(
+      fullHistory,
+      selectedVersions || {},
+    );
+
+    const filteredHistory = historyForContext.filter(
+      (m) => m.position < finalPosition,
+    );
+    filteredHistory.push(userMessage);
+
+    filteredHistory.sort((a, b) => a.position - b.position);
+
+    // 4. Convert history to LangChain messages
+    const messages: BaseMessage[] = filteredHistory.map((msg) => {
+      if (msg.role === "user") return new HumanMessage(msg.content);
+      return new AIMessage(msg.content);
+    });
+
+    // 5. Stream response via AgentService
+    const fullAssistantContent = await this.agentService.streamResponse(
+      messages,
+      res,
+      targetChatId,
+    );
+
+    // 6. Save assistant message at next position
+    await this.addMessage(
+      targetChatId,
+      "assistant",
+      fullAssistantContent,
+      finalPosition + 1,
+    );
+  }
+
+  async regenerateResponse(
+    chatId: string,
+    userId: string,
+    position: number,
+    res: Response,
+    selectedVersions?: Record<number, number>,
+  ) {
+    // 1. Verify chat ownership
+    await this.findOne(chatId, userId);
+
+    // 2. Get history up to the position
+    const fullHistory = await this.getMessageHistory(chatId);
+
+    const historyForContext = this.filterHistoryByVersion(
+      fullHistory,
+      selectedVersions || {},
+    );
+
+    const filteredHistory = historyForContext.filter(
+      (m) => m.position < position,
+    );
+
+    // 3. Convert to LangChain messages
+    const messages: BaseMessage[] = filteredHistory.map((msg) => {
+      if (msg.role === "user") return new HumanMessage(msg.content);
+      return new AIMessage(msg.content);
+    });
+
+    // 4. Stream response via AgentService
+    const fullAssistantContent = await this.agentService.streamResponse(
+      messages,
+      res,
+    );
+
+    // 5. Save new version of assistant message
+    await this.addMessage(
+      chatId,
+      "assistant",
+      fullAssistantContent,
+      position,
+    );
+  }
+
+  private filterHistoryByVersion(
+    messages: Message[],
+    selectedVersions: Record<number, number>,
+  ): Message[] {
+    const messagesByPosition = new Map<number, Message[]>();
+    messages.forEach((m) => {
+      if (!messagesByPosition.has(m.position)) {
+        messagesByPosition.set(m.position, []);
+      }
+      messagesByPosition.get(m.position)!.push(m);
+    });
+
+    const result: Message[] = [];
+    messagesByPosition.forEach((versions, position) => {
+      const selectedV = selectedVersions[position];
+      let chosen: Message | undefined;
+      if (selectedV !== undefined) {
+        chosen = versions.find((v) => v.version === selectedV);
+      }
+      if (!chosen) {
+        versions.sort((a, b) => b.version - a.version);
+        chosen = versions[0];
+      }
+      result.push(chosen);
+    });
+
+    return result.sort((a, b) => a.position - b.position);
   }
 }

@@ -6,7 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
 } from "@nestjs/common";
+import { Response } from "express";
 import { ChatService } from "./chat.service";
 import { CreateChatDto } from "./dto/create-chat.dto";
 import { UpdateChatDto } from "./dto/update-chat.dto";
@@ -50,8 +52,45 @@ export class ChatController {
 
   @Get(":id/messages")
   async getMessages(@Param("id") id: string, @JWTUser() user: any) {
-    // Basic verification that user owns the chat
     await this.chatService.findOne(id, user.ID);
     return this.chatService.getMessageHistory(id);
+  }
+
+  @Post("send")
+  async send(
+    @JWTUser() user: any,
+    @Body("chatId") chatId?: string,
+    @Body("newChat") newChat?: boolean,
+    @Body("content") content?: string,
+    @Res() res?: Response,
+    @Body("position") position?: number,
+    @Body("selectedVersions") selectedVersions?: Record<number, number>,
+  ) {
+    return this.chatService.createChatCompletion(
+      chatId,
+      user.ID,
+      content || "",
+      res!,
+      position,
+      selectedVersions,
+      newChat,
+    );
+  }
+
+  @Post("regenerate")
+  async regenerate(
+    @JWTUser() user: any,
+    @Body("chatId") chatId: string,
+    @Body("position") position: number,
+    @Body("selectedVersions") selectedVersions: Record<number, number>,
+    @Res() res: Response,
+  ) {
+    return this.chatService.regenerateResponse(
+      chatId,
+      user.ID,
+      position,
+      res,
+      selectedVersions,
+    );
   }
 }

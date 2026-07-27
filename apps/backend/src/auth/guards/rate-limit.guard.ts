@@ -7,6 +7,7 @@ import {
   Inject,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+import { ConfigService } from "@nestjs/config";
 import { Request } from "express";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Cache } from "cache-manager";
@@ -25,9 +26,16 @@ export class RateLimitGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const env =
+      this.configService.get<string>("NODE_ENV") || process.env.NODE_ENV;
+    if (env !== "production") {
+      return true;
+    }
+
     const enableRateLimit = this.reflector.getAllAndOverride<boolean>(
       "rateLimit",
       [context.getHandler(), context.getClass()],

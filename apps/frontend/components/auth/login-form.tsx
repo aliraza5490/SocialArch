@@ -72,8 +72,9 @@ export function LoginForm() {
       toast.success('Login successful!');
     } catch (err) {
       const errorMessage =
-        (err as Error & { response?: { data?: { message?: string } } })
-          ?.response?.data?.message || 'Login failed. Please try again.';
+        err instanceof Error
+          ? err.message
+          : (err as any)?.response?.data?.message || 'Login failed. Please try again.';
 
       // Handle specific case of too many failed login attempts
       if (errorMessage.includes('Too many failed login attempts')) {

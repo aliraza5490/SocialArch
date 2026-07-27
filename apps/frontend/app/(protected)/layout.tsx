@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -68,20 +68,6 @@ function DashboardShell({
   pathname: string;
 }) {
   const { setOpen, open: isSidebarOpen } = useSidebar();
-  const hasCollapsedForCreatePage = useRef(false);
-
-  // Auto-collapse sidebar on content creator page (only once per visit)
-  useEffect(() => {
-    if (pathname === '/create/new' || pathname === '/create') {
-      // Handling potential sub-routes if needed, checking equality for now
-      if (!hasCollapsedForCreatePage.current) {
-        setOpen(false);
-        hasCollapsedForCreatePage.current = true;
-      }
-    } else {
-      hasCollapsedForCreatePage.current = false;
-    }
-  }, [pathname, setOpen]);
 
   return (
     <div className="flex min-h-screen w-full">

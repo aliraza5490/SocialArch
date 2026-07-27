@@ -12,7 +12,7 @@ import { RateLimitGuard } from "@/auth/guards/rate-limit.guard";
 import { AuthModule } from "./auth/auth.module";
 import { SharedModule } from "./shared/shared.module";
 import { ChatModule } from "./chat/chat.module";
-import { AiModule } from "./ai/ai.module";
+import { AgentModule } from "./agent/agent.module";
 import { validate } from "./config";
 import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.interceptor";
 
@@ -48,7 +48,7 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
     AuthModule,
     SharedModule,
     ChatModule,
-    AiModule,
+    AgentModule,
   ],
   controllers: [AppController],
   providers: [

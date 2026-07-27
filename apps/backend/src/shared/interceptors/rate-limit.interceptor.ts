@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Inject,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Observable } from "rxjs";
 import { Request } from "express";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
@@ -22,12 +23,20 @@ export class RateLimitInterceptor implements NestInterceptor {
   private readonly maxAttempts = 5;
   private readonly windowMs = 15 * 60 * 1000;
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private configService: ConfigService,
+  ) {}
 
   async intercept(
     context: ExecutionContext,
     next: CallHandler,
   ): Promise<Observable<any>> {
+    const env =
+      this.configService.get<string>("NODE_ENV") || process.env.NODE_ENV;
+    if (env !== "production") {
+      return next.handle();
+    }
     const request = context.switchToHttp().getRequest<Request>();
     const ip = request.ip || request.connection.remoteAddress || "unknown";
 

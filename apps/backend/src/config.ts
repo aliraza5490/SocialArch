@@ -7,6 +7,7 @@ import {
   IsString,
   IsEmail,
   IsPort,
+  IsOptional,
 } from "class-validator";
 
 enum Environment {
@@ -66,6 +67,14 @@ class EnvironmentVariables {
 
   @IsEmail()
   MAIL_FROM_ADDRESS: string;
+
+  @IsOptional()
+  @IsString()
+  GEMINI_API_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  MODEL_NAME?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

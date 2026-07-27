@@ -83,9 +83,13 @@ export class AuthService implements OnModuleInit {
   }
 
   async login(input: LoginInput, ip: string) {
+    const isDev =
+      (this.configService.get<string>("NODE_ENV") || process.env.NODE_ENV) !==
+      "production";
+
     const loginLog = await this.logService.findOneByIP(ip);
 
-    if (loginLog && loginLog.blockedUntil > new Date()) {
+    if (!isDev && loginLog && loginLog.blockedUntil > new Date()) {
       throw new ForbiddenException(
         `Too many failed login attempts. Try again after ${loginLog.blockedUntil.toISOString()}`,
       );
@@ -117,7 +121,7 @@ export class AuthService implements OnModuleInit {
 
     const tokens = await this.tokenService.signAuthTokens(
       user,
-      input.rememberMe,
+      !!input.rememberMe,
     );
 
     return { ...tokens, user: userWithoutPassword };
