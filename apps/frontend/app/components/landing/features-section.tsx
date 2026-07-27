@@ -48,34 +48,34 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="pt-8 pb-20 bg-white/50 dark:bg-gray-800/50">
-      <div className="container max-w-6xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+    <section id="features" className="pt-8 pb-12 bg-white/50 dark:bg-gray-800/50">
+      <div className="container max-w-5xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Everything You Need to Succeed
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-sm text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
             Powerful tools engineered to accelerate your social media growth and streamline operations.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((feature, index) => {
             const IconComponent = feature.Icon;
             return (
               <Card
                 key={index}
-                className="group border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
               >
-                <CardHeader className="p-6">
+                <CardHeader className="p-4">
                   {/* Unified Dual-Tone Icon Palette Container */}
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/15 via-blue-600/10 to-purple-600/15 border border-cyan-500/30 flex items-center justify-center mb-5 shadow-xs group-hover:scale-105 transition-transform">
-                    <IconComponent className="h-7 w-7 text-cyan-600 dark:text-cyan-400" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/15 via-blue-600/10 to-purple-600/15 border border-cyan-500/30 flex items-center justify-center mb-3 shadow-2xs group-hover:scale-105 transition-transform">
+                    <IconComponent className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  <CardTitle className="text-base font-bold text-gray-900 dark:text-white mb-1">
                     {feature.title}
                   </CardTitle>
-                  <CardDescription className="text-base font-normal dark:font-medium text-gray-600 dark:text-gray-300 leading-relaxed">
+                  <CardDescription className="text-xs font-normal dark:font-medium text-gray-600 dark:text-gray-300 leading-relaxed">
                     {feature.description}
                   </CardDescription>
                 </CardHeader>

@@ -89,16 +89,16 @@ export function EmailVerificationPage() {
 
   if (state === 'loading') {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Verifying Email</CardTitle>
-          <CardDescription className="text-center">
+      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+          <CardTitle className="text-lg font-bold text-center">Verifying Email</CardTitle>
+          <CardDescription className="text-center text-xs">
             Please wait while we verify your email address
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center">
-          <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-sm text-muted-foreground">
+        <CardContent className="text-center px-4 pt-0">
+          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
+          <p className="text-xs text-muted-foreground">
             This may take a few moments...
           </p>
         </CardContent>
@@ -108,23 +108,23 @@ export function EmailVerificationPage() {
 
   if (state === 'success') {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Email Verified!</CardTitle>
-          <CardDescription className="text-center">
+      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+          <CardTitle className="text-lg font-bold text-center">Email Verified!</CardTitle>
+          <CardDescription className="text-center text-xs">
             Your email has been successfully verified
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-          <p className="text-sm text-muted-foreground">
+        <CardContent className="text-center space-y-3 px-4 pt-0">
+          <CheckCircle className="h-10 w-10 text-emerald-500 mx-auto" />
+          <p className="text-xs text-muted-foreground">
             {message || 'Congratulations! Your email has been verified. You can now sign in to your account.'}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground">
             Redirecting to login page...
           </p>
           <Link href="/login">
-            <Button className="w-full">
+            <Button className="w-full h-8 text-xs font-medium">
               Continue to Sign In
             </Button>
           </Link>
@@ -135,22 +135,22 @@ export function EmailVerificationPage() {
 
   if (state === 'error') {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Verification Failed</CardTitle>
-          <CardDescription className="text-center">
+      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+          <CardTitle className="text-lg font-bold text-center">Verification Failed</CardTitle>
+          <CardDescription className="text-center text-xs">
             We couldn&apos;t verify your email address
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <XCircle className="h-16 w-16 text-red-500 mx-auto" />
-          <Alert variant="destructive">
-            <AlertDescription>{message}</AlertDescription>
+        <CardContent className="text-center space-y-3 px-4 pt-0">
+          <XCircle className="h-10 w-10 text-rose-500 mx-auto" />
+          <Alert variant="destructive" className="py-2 text-xs">
+            <AlertDescription className="text-xs">{message}</AlertDescription>
           </Alert>
           <div className="space-y-2">
             <Link href="/login">
-              <Button variant="outline" className="w-full">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+              <Button variant="outline" className="w-full h-8 text-xs font-medium">
+                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                 Back to Sign In
               </Button>
             </Link>
@@ -162,26 +162,26 @@ export function EmailVerificationPage() {
 
   // Invalid token state
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Invalid Verification Link</CardTitle>
-        <CardDescription className="text-center">
+    <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+      <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+        <CardTitle className="text-lg font-bold text-center">Invalid Verification Link</CardTitle>
+        <CardDescription className="text-center text-xs">
           The verification link is invalid or has expired
         </CardDescription>
       </CardHeader>
-      <CardContent className="text-center space-y-4">
-        <AlertTriangle className="h-16 w-16 text-orange-500 mx-auto" />
+      <CardContent className="text-center space-y-3 px-4 pt-0">
+        <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto" />
 
         {resendVerificationMutation.isSuccess ? (
-          <Alert>
-            <Mail className="h-4 w-4" />
-            <AlertDescription>
+          <Alert className="py-2 text-xs">
+            <Mail className="h-3.5 w-3.5" />
+            <AlertDescription className="text-xs">
               A new verification email has been sent to your email address.
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
               The verification link may have expired or is invalid. Please request a new verification email.
             </p>
 
@@ -189,24 +189,24 @@ export function EmailVerificationPage() {
               <Button
                 onClick={() => handleResendVerification('')}
                 disabled={resendVerificationMutation.isPending}
-                className="w-full"
+                className="w-full h-8 text-xs font-medium"
               >
                 {resendVerificationMutation.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Mail className="mr-2 h-4 w-4" />
+                    <Mail className="mr-1.5 h-3.5 w-3.5" />
                     Resend Verification Email
                   </>
                 )}
               </Button>
 
               <Link href="/login">
-                <Button variant="outline" className="w-full">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                <Button variant="outline" className="w-full h-8 text-xs font-medium">
+                  <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                   Back to Sign In
                 </Button>
               </Link>

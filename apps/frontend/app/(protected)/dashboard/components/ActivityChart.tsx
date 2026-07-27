@@ -70,10 +70,10 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
 
   return (
     <div className="bg-card border border-border rounded-xl overflow-hidden shadow-card animate-slide-up">
-      <div className="px-4 py-3 sm:px-6 sm:py-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-4 gap-2">
-          <h3 className="font-semibold text-lg">{title}</h3>
-          <div className="flex gap-1 bg-muted rounded-lg p-1">
+      <div className="px-3.5 py-2.5 sm:px-4 sm:py-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-1 sm:mb-2 gap-2">
+          <h3 className="font-semibold text-base">{title}</h3>
+          <div className="flex gap-1 bg-muted rounded-lg p-0.5">
             {timeRanges.map((range) => (
               <Button
                 key={range}
@@ -81,9 +81,9 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
                 size="sm"
                 onClick={() => setTimeRange(range)}
                 className={cn(
-                  'text-xs capitalize px-3 h-7',
+                  'text-[11px] capitalize px-2.5 h-6',
                   timeRange === range &&
-                    'bg-background shadow-sm text-foreground',
+                    'bg-background shadow-xs text-foreground',
                 )}
               >
                 {range}
@@ -93,7 +93,7 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
         </div>
       </div>
 
-      <div className="w-full h-[160px] sm:h-[220px] md:h-[280px]">
+      <div className="w-full h-[140px] sm:h-[180px] md:h-[210px]">
         <ResponsiveContainer width="100%" height="100%">
           {type === 'area' ? (
             <AreaChart
@@ -133,13 +133,13 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
               <XAxis
                 dataKey="name"
                 stroke="var(--color-muted-foreground)"
-                fontSize={12}
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis
                 stroke="var(--color-muted-foreground)"
-                fontSize={12}
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
                 tick={!isMobile}
@@ -183,13 +183,13 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
               <XAxis
                 dataKey="name"
                 stroke="var(--color-muted-foreground)"
-                fontSize={12}
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis
                 stroke="var(--color-muted-foreground)"
-                fontSize={12}
+                fontSize={11}
                 tickLine={false}
                 axisLine={false}
                 tick={!isMobile}
@@ -219,20 +219,20 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <div className="px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-center gap-6 mt-0">
-        <div className="flex items-center gap-2">
+      <div className="px-3.5 py-2 sm:px-4 sm:py-2.5 flex items-center justify-center gap-5 mt-0">
+        <div className="flex items-center gap-1.5">
           <div
-            className="h-3 w-3 rounded-full shadow-xs shrink-0"
+            className="h-2.5 w-2.5 rounded-full shadow-xs shrink-0"
             style={{ backgroundColor: 'var(--color-chart-1)' }}
           />
-          <span className="text-sm font-medium text-foreground/80">Videos</span>
+          <span className="text-xs font-medium text-foreground/80">Videos</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <div
-            className="h-3 w-3 rounded-xs shadow-xs shrink-0 rotate-45"
+            className="h-2.5 w-2.5 rounded-xs shadow-xs shrink-0 rotate-45"
             style={{ backgroundColor: 'var(--color-chart-2)' }}
           />
-          <span className="text-sm font-medium text-foreground/80">Posts</span>
+          <span className="text-xs font-medium text-foreground/80">Posts</span>
         </div>
       </div>
     </div>

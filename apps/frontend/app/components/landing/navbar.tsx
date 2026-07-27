@@ -35,7 +35,7 @@ export function Navbar() {
           : 'bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="container max-w-6xl mx-auto px-4 py-4">
+      <div className="container max-w-6xl mx-auto px-4 py-2.5">
         <div className="flex items-center justify-between">
           <Link 
             href="/" 
@@ -48,7 +48,7 @@ export function Navbar() {
               }
             }}
           >
-            <div className="w-8 h-8 relative flex items-center justify-center">
+            <div className="w-7 h-7 relative flex items-center justify-center">
               <Image 
                 src="/logo.png" 
                 alt="SocialArch Logo" 
@@ -56,13 +56,13 @@ export function Navbar() {
                 className="object-contain"
               />
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">
+            <span className="text-lg font-bold text-gray-900 dark:text-white">
               SocialArch
             </span>
           </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -74,12 +74,12 @@ export function Navbar() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-2">
             <Link href="/login">
-              <Button variant="ghost">Sign In</Button>
+              <Button variant="ghost" size="sm">Sign In</Button>
             </Link>
             <Link href="/register">
-              <Button>Get Started</Button>
+              <Button size="sm">Get Started</Button>
             </Link>
           </div>
 

@@ -60,27 +60,27 @@ export function ResetPasswordForm() {
   // Show error if no token is provided
   if (!token) {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Invalid Reset Link</CardTitle>
-          <CardDescription className="text-center">
+      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+          <CardTitle className="text-lg font-bold text-center">Invalid Reset Link</CardTitle>
+          <CardDescription className="text-center text-xs">
             The password reset link is invalid or has expired
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto" />
-          <p className="text-sm text-muted-foreground">
+        <CardContent className="text-center space-y-3 px-4 pt-0">
+          <AlertTriangle className="h-10 w-10 text-rose-500 mx-auto" />
+          <p className="text-xs text-muted-foreground">
             Please request a new password reset link.
           </p>
           <div className="space-y-2">
             <Link href="/forgot-password">
-              <Button className="w-full">
+              <Button className="w-full h-8 text-xs font-medium">
                 Request New Reset Link
               </Button>
             </Link>
             <Link href="/login">
-              <Button variant="outline" className="w-full">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+              <Button variant="outline" className="w-full h-8 text-xs font-medium">
+                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                 Back to Sign In
               </Button>
             </Link>
@@ -92,21 +92,21 @@ export function ResetPasswordForm() {
 
   if (success) {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Password Reset Successful</CardTitle>
-          <CardDescription className="text-center">
+      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+          <CardTitle className="text-lg font-bold text-center">Password Reset Successful</CardTitle>
+          <CardDescription className="text-center text-xs">
             Your password has been successfully updated
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-          <p className="text-sm text-muted-foreground">
+        <CardContent className="text-center space-y-3 px-4 pt-0">
+          <CheckCircle className="h-10 w-10 text-emerald-500 mx-auto" />
+          <p className="text-xs text-muted-foreground">
             You can now sign in with your new password. Redirecting to login...
           </p>
           <Link href="/login">
-            <Button variant="outline" className="w-full">
-              <ArrowLeft className="mr-2 h-4 w-4" />
+            <Button variant="outline" className="w-full h-8 text-xs font-medium">
+              <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
               Go to Sign In
             </Button>
           </Link>
@@ -116,22 +116,22 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Reset Password</CardTitle>
-        <CardDescription className="text-center">
+    <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+      <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+        <CardTitle className="text-lg font-bold text-center">Reset Password</CardTitle>
+        <CardDescription className="text-center text-xs">
           Enter your new password below
         </CardDescription>
       </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
+      <CardContent className="px-4 pt-0">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5">
+            <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                <FormItem className="gap-1">
+                  <FormLabel className="text-xs">New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -139,24 +139,25 @@ export function ResetPasswordForm() {
                         placeholder="Enter your new password"
                         {...field}
                         disabled={resetPasswordMutation.isPending}
+                        className="h-8 text-xs pl-2.5 pr-8"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-8 w-8 px-0 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={resetPasswordMutation.isPending}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                         )}
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[11px]" />
                 </FormItem>
               )}
             />
@@ -165,8 +166,8 @@ export function ResetPasswordForm() {
               control={form.control}
               name="confirmPassword"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm New Password</FormLabel>
+                <FormItem className="gap-1">
+                  <FormLabel className="text-xs">Confirm New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -174,44 +175,45 @@ export function ResetPasswordForm() {
                         placeholder="Confirm your new password"
                         {...field}
                         disabled={resetPasswordMutation.isPending}
+                        className="h-8 text-xs pl-2.5 pr-8"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-8 w-8 px-0 hover:bg-transparent"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         disabled={resetPasswordMutation.isPending}
                       >
                         {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
                         )}
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[11px]" />
                 </FormItem>
               )}
             />
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-8 text-xs font-medium mt-1.5"
               disabled={resetPasswordMutation.isPending}
             >
               {resetPasswordMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
               )}
               Reset Password
             </Button>
           </form>
         </Form>
 
-        <div className="mt-4 text-center text-sm">
+        <div className="mt-2.5 text-center text-xs">
           Remember your password?{' '}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary hover:underline font-medium">
             Sign in
           </Link>
         </div>

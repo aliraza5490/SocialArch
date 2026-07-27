@@ -3,11 +3,11 @@ import Image from 'next/image';
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="container max-w-6xl mx-auto px-4">
+    <footer className="bg-gray-900 text-white py-8">
+      <div className="container max-w-5xl mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center space-x-2 mb-4 md:mb-0">
-            <div className="w-8 h-8 relative flex items-center justify-center">
+            <div className="w-6 h-6 relative flex items-center justify-center">
               <Image 
                 src="/logo.png" 
                 alt="SocialArch Logo" 
@@ -15,9 +15,9 @@ export function Footer() {
                 className="object-contain"
               />
             </div>
-            <span className="text-xl font-bold">SocialArch</span>
+            <span className="text-lg font-bold">SocialArch</span>
           </div>
-          <div className="flex space-x-6">
+          <div className="flex space-x-5 text-xs font-medium">
             <Link
               href="/login"
               className="hover:text-blue-400 transition-colors"
@@ -32,7 +32,7 @@ export function Footer() {
             </Link>
           </div>
         </div>
-        <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
+        <div className="mt-6 pt-6 border-t border-gray-800 text-center text-xs text-gray-400">
           <p>&copy; 2024 SocialArch. All rights reserved.</p>
         </div>
       </div>

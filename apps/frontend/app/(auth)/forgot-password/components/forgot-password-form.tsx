@@ -48,23 +48,23 @@ export function ForgotPasswordForm() {
 
   if (success) {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Check Your Email</CardTitle>
-          <CardDescription className="text-center">
+      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+          <CardTitle className="text-lg font-bold text-center">Check Your Email</CardTitle>
+          <CardDescription className="text-center text-xs">
             We&apos;ve sent you a password reset link
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-          <p className="text-sm text-muted-foreground">
+        <CardContent className="text-center space-y-3 px-4 pt-0">
+          <CheckCircle className="h-10 w-10 text-emerald-500 mx-auto" />
+          <p className="text-xs text-muted-foreground">
             If an account with that email exists, we&apos;ve sent you a password reset link.
             Please check your email and follow the instructions.
           </p>
           <div className="space-y-2">
             <Link href="/login">
-              <Button variant="outline" className="w-full">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+              <Button variant="outline" className="w-full h-8 text-xs font-medium">
+                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                 Back to Sign In
               </Button>
             </Link>
@@ -75,48 +75,49 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">Forgot Password</CardTitle>
-        <CardDescription className="text-center">
+    <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
+      <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
+        <CardTitle className="text-lg font-bold text-center">Forgot Password</CardTitle>
+        <CardDescription className="text-center text-xs">
           Enter your email address and we&apos;ll send you a reset link
         </CardDescription>
       </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
+      <CardContent className="px-4 pt-0">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5">
+            <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
+                <FormItem className="gap-1">
+                  <FormLabel className="text-xs">Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="Enter your email address"
                       {...field}
                       disabled={requestResetMutation.isPending}
+                      className="h-8 text-xs px-2.5"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-[11px]" />
                 </FormItem>
               )}
             />
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-8 text-xs font-medium mt-1.5"
               disabled={requestResetMutation.isPending}
             >
               {requestResetMutation.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                   Sending...
                 </>
               ) : (
                 <>
-                  <Mail className="mr-2 h-4 w-4" />
+                  <Mail className="mr-1.5 h-3.5 w-3.5" />
                   Send Reset Link
                 </>
               )}
@@ -124,9 +125,9 @@ export function ForgotPasswordForm() {
           </form>
         </Form>
 
-        <div className="mt-4 text-center text-sm">
+        <div className="mt-2.5 text-center text-xs">
           Remember your password?{' '}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary hover:underline font-medium">
             Sign in
           </Link>
         </div>

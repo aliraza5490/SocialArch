@@ -27,20 +27,20 @@ export function StatCard({
   return (
     <div
       className={cn(
-        'bg-card border border-border rounded-xl p-4 shadow-card hover:shadow-card-hover transition-all duration-300 animate-fade-in flex flex-col justify-between',
+        'bg-card border border-border rounded-xl p-3 sm:p-3.5 shadow-card hover:shadow-card-hover transition-all duration-300 animate-fade-in flex flex-col justify-between',
         className,
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-1 flex-1 pr-2">
-          <p className="text-xs text-muted-foreground font-medium">{title}</p>
-          <p className="text-2xl font-bold tracking-tight">{value}</p>
+        <div className="space-y-0.5 flex-1 pr-2">
+          <p className="text-[11px] text-muted-foreground font-medium">{title}</p>
+          <p className="text-xl font-bold tracking-tight">{value}</p>
           {change && (
             <div className="pt-0.5">
               {changeType === 'neutral' ? (
                 <span
                   className={cn(
-                    'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold tracking-wide border',
+                    'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wide border',
                     creditStatus === 'healthy' &&
                       'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
                     creditStatus === 'warning' &&
@@ -51,7 +51,7 @@ export function StatCard({
                 >
                   <span
                     className={cn(
-                      'h-1.5 w-1.5 rounded-full mr-1.5 animate-pulse',
+                      'h-1.5 w-1.5 rounded-full mr-1 animate-pulse',
                       creditStatus === 'healthy' && 'bg-emerald-500',
                       creditStatus === 'warning' && 'bg-amber-500',
                       creditStatus === 'critical' && 'bg-destructive',
@@ -62,7 +62,7 @@ export function StatCard({
               ) : (
                 <p
                   className={cn(
-                    'text-xs font-medium',
+                    'text-[11px] font-medium',
                     changeType === 'positive' && 'text-emerald-500',
                     changeType === 'negative' && 'text-destructive',
                   )}
@@ -73,14 +73,14 @@ export function StatCard({
             </div>
           )}
         </div>
-        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+        <div className="h-7.5 w-7.5 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
           {icon}
         </div>
       </div>
 
       {typeof progress === 'number' && (
-        <div className="mt-2.5 space-y-1">
-          <div className="flex justify-between items-center text-[10px] text-muted-foreground font-medium">
+        <div className="mt-2 space-y-1">
+          <div className="flex justify-between items-center text-[9px] text-muted-foreground font-medium">
             <span>Usage</span>
             <span>{Math.round(progress)}%</span>
           </div>

@@ -46,20 +46,20 @@ export function AppSidebar({
     >
       <SidebarHeader
         className={cn(
-          'h-14 px-4 flex flex-row items-center justify-center shrink-0 w-full',
+          'h-12 p-0 px-3 flex flex-row items-center justify-center shrink-0 w-full',
         )}
       >
         <Link
           href="/dashboard"
           onClick={() => isMobile && setOpenMobile(false)}
           className={cn(
-            'flex items-center justify-center gap-2 w-full',
+            'flex items-center justify-center gap-2 w-full h-full my-auto',
           )}
         >
           <div className={cn(
             'relative shrink-0',
-            isMobile ? 'h-8 w-8' : 'h-7 w-7',
-            'group-data-[collapsible=icon]:h-6.5 group-data-[collapsible=icon]:w-6.5',
+            isMobile ? 'h-5.5 w-5.5' : 'h-5 w-5',
+            'group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5',
           )}>
             <Image
               src="/logo.png"
@@ -69,11 +69,11 @@ export function AppSidebar({
             />
           </div>
           {(!collapsed || isMobile) && (
-            <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <div className="flex flex-col justify-center">
+              <span className="font-bold text-sm leading-tight tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 SocialArch
               </span>
-              <span className="text-[10px] text-muted-foreground -mt-0.5">
+              <span className="text-[8px] leading-tight text-muted-foreground">
                 AI-Powered Studio
               </span>
             </div>
@@ -82,11 +82,11 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent className="px-2">
-        <SidebarGroup className="py-1">
+        <SidebarGroup className="py-0.5">
           <SidebarGroupLabel
             className={cn(
-              'text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-1 h-6',
-              collapsed && !isMobile ? 'sr-only' : 'px-2.5',
+              'text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-0.5 h-5',
+              collapsed && !isMobile ? 'sr-only' : 'px-2',
             )}
           >
             Menu
@@ -94,7 +94,7 @@ export function AppSidebar({
           <SidebarGroupContent>
             <SidebarMenu
               className={cn(
-                'space-y-1',
+                'space-y-0.5',
                 (!collapsed || isMobile) && 'items-start',
               )}
             >
@@ -106,15 +106,15 @@ export function AppSidebar({
                   (!collapsed || isMobile) && 'flex justify-start',
                 );
                 const navLinkClass = cn(
-                  'flex items-center gap-2.5 w-full',
-                  collapsed && !isMobile ? 'px-2.5' : 'pr-2.5 pl-2',
+                  'flex items-center gap-2 w-full',
+                  collapsed && !isMobile ? 'px-2' : 'pr-2 pl-2',
                   collapsed && !isMobile ? 'justify-center' : 'justify-start',
                 );
                 const menuButtonClass = cn(
-                  'h-8.5 transition-all duration-200 rounded-md group/item border border-transparent',
+                  'h-7.5 transition-all duration-200 rounded-md group/item border border-transparent',
                   collapsed ? 'w-full' : 'w-full',
                   !collapsed && 'max-w-full',
-                  'group-data-[collapsible=icon]:!size-auto group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!h-8.5 group-data-[collapsible=icon]:!p-0',
+                  'group-data-[collapsible=icon]:!size-auto group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!h-7.5 group-data-[collapsible=icon]:!p-0',
                   isActive
                     ? 'bg-primary/15 dark:bg-primary/25 text-primary border-primary/30 shadow-xs font-semibold'
                     : 'text-muted-foreground/75 hover:text-foreground hover:bg-muted/60',
@@ -141,7 +141,7 @@ export function AppSidebar({
                             isActive ? 'text-primary font-bold' : 'text-muted-foreground/80 group-hover/item:text-foreground',
                           )}
                         >
-                          <item.icon className="h-4 w-4" />
+                          <item.icon className="h-3.5 w-3.5" />
                         </div>
                         {(!collapsed || isMobile) && (
                           <span
