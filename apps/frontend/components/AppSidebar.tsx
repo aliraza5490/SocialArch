@@ -78,6 +78,27 @@ export function AppSidebar({
     };
   }, [loadRecentChats]);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        (e.key === 'O' || e.key === 'o' || e.code === 'KeyO')
+      ) {
+        e.preventDefault();
+        if (isMobile) {
+          setOpenMobile(false);
+        }
+        router.push('/chat');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [router, isMobile, setOpenMobile]);
+
   const handleStartRename = (chat: ChatItem, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -178,7 +199,7 @@ export function AppSidebar({
             <Link
               href="/chat"
               onClick={() => isMobile && setOpenMobile(false)}
-              className="flex items-center"
+              className="flex items-center gap-2"
             >
               <Plus className="h-3.5 w-3.5 shrink-0" />
               {(!collapsed || isMobile) && <span>New Chat</span>}

@@ -730,9 +730,17 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* Disclaimer Text */}
-            <p className="text-[11px] text-center text-muted-foreground">
-              SocialArch AI can make mistakes. Check important info.
+            {/* Disclaimer & Shortcut Text */}
+            <p className="text-[11px] text-center text-muted-foreground flex items-center justify-center gap-1.5 flex-wrap mt-2">
+              <span>SocialArch AI can make mistakes. Check important info.</span>
+              <span className="text-muted-foreground/40">•</span>
+              <span className="inline-flex items-center gap-1">
+                <span>Press</span>
+                <kbd className="pointer-events-none inline-flex h-4 select-none items-center gap-0.5 rounded border border-border/60 bg-muted/60 px-1 font-mono text-[9px] font-medium text-muted-foreground">
+                  Ctrl+Shift+O
+                </kbd>
+                <span>to start new chat</span>
+              </span>
             </p>
           </div>
         </div>
