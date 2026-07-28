@@ -1,5 +1,5 @@
 import { comparePassword, generatePasswordHash } from "@/shared/utils/bcrypt";
-import { MailService } from "@/shared/mail/mail.service";
+import { MailService } from "@/mail/mail.service";
 import {
   BadRequestException,
   ConflictException,

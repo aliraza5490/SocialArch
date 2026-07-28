@@ -13,6 +13,7 @@ import { AuthModule } from "./auth/auth.module";
 import { SharedModule } from "./shared/shared.module";
 import { ChatModule } from "./chat/chat.module";
 import { AgentModule } from "./agent/agent.module";
+import { MailModule } from "./mail/mail.module";
 import { validate } from "./config";
 import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.interceptor";
 
@@ -45,6 +46,7 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
       }),
       inject: [ConfigService],
     }),
+    MailModule,
     AuthModule,
     SharedModule,
     ChatModule,
