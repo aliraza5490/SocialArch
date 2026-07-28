@@ -5,11 +5,17 @@ import { Message } from "./entities/Message.entity";
 import { ChatService } from "./chat.service";
 import { ChatController } from "./chat.controller";
 import { AgentModule } from "@/agent/agent.module";
+import { AssetsModule } from "@/assets/assets.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Chat, Message]), AgentModule],
+  imports: [
+    TypeOrmModule.forFeature([Chat, Message]),
+    AgentModule,
+    AssetsModule,
+  ],
   controllers: [ChatController],
   providers: [ChatService],
   exports: [ChatService],
 })
 export class ChatModule {}
+

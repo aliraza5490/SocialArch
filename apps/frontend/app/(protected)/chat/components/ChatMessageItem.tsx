@@ -16,6 +16,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Bookmark,
+  Download,
+  FileText,
 } from 'lucide-react';
 import { MarkdownContent } from '@/components/markdown-content';
 import { TooltipIconButton } from '@/components/tooltip-icon-button';
@@ -25,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChatMessage } from '@/lib/services/chat.service';
+import { ChatMessage, ChatAttachment } from '@/lib/services/chat.service';
 import { assetsService } from '@/lib/services/assets.service';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -46,6 +48,92 @@ interface ChatMessageItemProps {
   feedback: Record<number, 'up' | 'down'>;
   handleFeedback: (pos: number, type: 'up' | 'down') => void;
   handleRegenerate: (position: number) => void;
+}
+
+function formatFileSize(bytes?: number): string {
+  if (!bytes) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function RenderAttachments({ attachments }: { attachments?: ChatAttachment[] }) {
+  if (!attachments || attachments.length === 0) return null;
+
+  const handleDownload = async (att: ChatAttachment) => {
+    try {
+      await assetsService.downloadAssetFile(att.id, att.name);
+      toast.success(`Downloaded ${att.name}`);
+    } catch (err) {
+      console.error('Failed to download attachment:', err);
+      toast.error(`Failed to download ${att.name}`);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2 my-1.5">
+      {attachments.map((att) => {
+        const isImage = att.mimeType?.startsWith('image/') || att.type === 'image';
+        const fileUrl = assetsService.getFileUrl(att.id);
+
+        if (isImage) {
+          return (
+            <div
+              key={att.id}
+              className="relative group/img rounded-xl overflow-hidden border border-border bg-card shadow-xs max-w-[240px]"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={fileUrl}
+                alt={att.name}
+                className="w-full h-auto max-h-48 object-cover rounded-xl"
+              />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDownload(att)}
+                  className="bg-background/90 text-foreground hover:bg-background rounded-lg px-2.5 py-1.5 text-xs font-medium flex items-center gap-1.5 shadow-md transition-transform hover:scale-105"
+                  title="Download Image"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Download</span>
+                </button>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div
+            key={att.id}
+            className="flex items-center gap-3 bg-muted/70 hover:bg-muted border border-border/70 rounded-xl p-2.5 text-xs text-foreground shrink-0 shadow-2xs max-w-[280px] transition-colors"
+          >
+            <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <FileText className="h-4 w-4" />
+            </div>
+
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="font-medium truncate text-foreground leading-tight" title={att.name}>
+                {att.name}
+              </span>
+              {att.size && (
+                <span className="text-[10px] text-muted-foreground mt-0.5">{formatFileSize(att.size)}</span>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleDownload(att)}
+              className="h-8 w-8 rounded-lg bg-background hover:bg-muted text-muted-foreground hover:text-foreground border border-border/50 flex items-center justify-center shrink-0 transition-colors shadow-2xs"
+              title="Download File"
+            >
+              <Download className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export function ChatMessageItem({
@@ -103,9 +191,12 @@ export function ChatMessageItem({
       {isUser ? (
         /* User Bubble & Hover Actions */
         <div className="flex flex-col items-end gap-1.5 max-w-[85%] md:max-w-[75%]">
-          <div className="rounded-[22px] bg-primary text-primary-foreground font-medium px-4 py-2.5 text-sm leading-relaxed shadow-xs whitespace-pre-wrap">
-            {msg.content}
-          </div>
+          <RenderAttachments attachments={msg.attachments} />
+          {msg.content && (
+            <div className="rounded-[22px] bg-primary text-primary-foreground font-medium px-4 py-2.5 text-sm leading-relaxed shadow-xs whitespace-pre-wrap">
+              {msg.content}
+            </div>
+          )}
 
           {/* User Actions */}
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -179,6 +270,7 @@ export function ChatMessageItem({
           </div>
 
           <div className="flex-1 space-y-2 overflow-hidden min-w-0">
+            <RenderAttachments attachments={msg.attachments} />
             {msg.content ? (
               <MarkdownContent content={msg.content} />
             ) : (

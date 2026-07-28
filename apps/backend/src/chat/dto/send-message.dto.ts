@@ -26,4 +26,9 @@ export class SendMessageDto {
   @IsOptional()
   @IsObject()
   selectedVersions?: Record<number, number>;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  attachments?: any[];
 }
+

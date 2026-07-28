@@ -65,6 +65,7 @@ export class ChatController {
       sendMessageDto.position,
       sendMessageDto.selectedVersions,
       sendMessageDto.newChat,
+      sendMessageDto.attachments,
     );
   }
 

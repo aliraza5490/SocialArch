@@ -11,9 +11,13 @@ import {
   Megaphone,
   BarChart3,
   FileText,
+  Loader2,
+  X,
 } from 'lucide-react';
 import { TooltipIconButton } from '@/components/tooltip-icon-button';
 import { toast } from 'sonner';
+import { assetsService } from '@/lib/services/assets.service';
+import { ChatAttachment } from '@/lib/services/chat.service';
 
 export const SUGGESTIONS = [
   {
@@ -41,6 +45,8 @@ export const SUGGESTIONS = [
 interface ChatEmptyStateProps {
   input: string;
   setInput: (val: string) => void;
+  stagedAttachments: ChatAttachment[];
+  setStagedAttachments: React.Dispatch<React.SetStateAction<ChatAttachment[]>>;
   handleSend: (overrideContent?: string) => void;
   handleCancel: () => void;
   isRunning: boolean;
@@ -49,25 +55,115 @@ interface ChatEmptyStateProps {
 export function ChatEmptyState({
   input,
   setInput,
+  stagedAttachments,
+  setStagedAttachments,
   handleSend,
   handleCancel,
   isRunning,
 }: ChatEmptyStateProps) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    try {
+      setIsUploading(true);
+      const uploadedAssets = await assetsService.uploadAssets(Array.from(files));
+      const newAttachments: ChatAttachment[] = uploadedAssets.map((asset) => ({
+        id: asset.ID,
+        name: asset.name,
+        type: asset.type,
+        mimeType: asset.mimeType || undefined,
+        size: asset.size || undefined,
+      }));
+
+      setStagedAttachments((prev) => [...prev, ...newAttachments]);
+      toast.success(`Uploaded ${uploadedAssets.length} file${uploadedAssets.length > 1 ? 's' : ''} to Assets`);
+    } catch (err: any) {
+      console.error('File upload failed:', err);
+      toast.error(err?.response?.data?.message || 'Failed to upload files');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const removeAttachment = (id: string) => {
+    setStagedAttachments((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const canSend = input.trim().length > 0 || stagedAttachments.length > 0;
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center min-h-[65vh] text-center max-w-2xl w-full mx-auto px-2 space-y-7 animate-in fade-in duration-300">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileSelect}
+        multiple
+        className="hidden"
+      />
+
       {/* Heading */}
       <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
         Where should we begin?
       </h1>
 
       {/* Centered Composer Surface matching theme */}
-      <div className="w-full rounded-full border border-border bg-card shadow-md px-4 py-2.5 transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20">
+      <div className="w-full rounded-3xl border border-border bg-card shadow-md px-4 py-3 transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 space-y-2">
+        {/* Staged Attachments */}
+        {(stagedAttachments.length > 0 || isUploading) && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 px-1 scrollbar-thin">
+            {stagedAttachments.map((att) => {
+              const isImage = att.mimeType?.startsWith('image/') || att.type === 'image';
+              return (
+                <div
+                  key={att.id}
+                  className="flex items-center gap-2 bg-muted/80 border border-border/60 rounded-xl px-2.5 py-1.5 text-xs text-foreground shrink-0 shadow-2xs"
+                >
+                  {isImage ? (
+                    <div className="relative w-6 h-6 rounded-md overflow-hidden shrink-0 bg-background border border-border/40">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={assetsService.getFileUrl(att.id)}
+                        alt={att.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
+                  )}
+                  <span className="font-medium truncate max-w-[120px]">{att.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeAttachment(att.id)}
+                    className="text-muted-foreground hover:text-foreground rounded-full p-0.5 hover:bg-background/80 transition-colors ml-0.5"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+
+            {isUploading && (
+              <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-xl px-3 py-1.5 text-xs text-primary shrink-0 animate-pulse">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>Uploading...</span>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="flex items-center gap-3">
           {/* Plus Attachment Icon */}
           <TooltipIconButton
             tooltip="Add photos & files"
             className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted p-1.5"
-            onClick={() => toast.info('Attachments option selected')}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading || isRunning}
           >
             <Plus className="h-4 w-4" />
           </TooltipIconButton>
@@ -78,12 +174,12 @@ export function ChatEmptyState({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === 'Enter' && canSend && !isUploading) {
                 e.preventDefault();
                 handleSend();
               }
             }}
-            placeholder="Ask anything"
+            placeholder={isUploading ? 'Uploading attachments...' : 'Ask anything or upload files'}
             className="flex-1 bg-transparent border-0 text-sm md:text-base text-foreground placeholder:text-muted-foreground focus:outline-hidden"
           />
 
@@ -97,13 +193,14 @@ export function ChatEmptyState({
               >
                 <Square className="h-3.5 w-3.5 fill-current" />
               </TooltipIconButton>
-            ) : input.trim().length > 0 ? (
+            ) : canSend ? (
               <TooltipIconButton
                 tooltip="Send prompt"
                 className="h-8 w-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
                 onClick={() => handleSend()}
+                disabled={isUploading}
               >
-                <ArrowUp className="h-4 w-4" />
+                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
               </TooltipIconButton>
             ) : (
               <>

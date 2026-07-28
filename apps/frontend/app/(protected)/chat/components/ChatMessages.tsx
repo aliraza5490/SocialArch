@@ -5,11 +5,15 @@ import { Loader2 } from 'lucide-react';
 import { ChatEmptyState } from './ChatEmptyState';
 import { ChatMessageItem, PositionGroup } from './ChatMessageItem';
 
+import { ChatAttachment } from '@/lib/services/chat.service';
+
 interface ChatMessagesProps {
   isLoadingHistory: boolean;
   positionGroups: PositionGroup[];
   input: string;
   setInput: (val: string) => void;
+  stagedAttachments: ChatAttachment[];
+  setStagedAttachments: React.Dispatch<React.SetStateAction<ChatAttachment[]>>;
   handleSend: (overrideContent?: string) => void;
   handleCancel: () => void;
   isRunning: boolean;
@@ -28,6 +32,8 @@ export function ChatMessages({
   positionGroups,
   input,
   setInput,
+  stagedAttachments,
+  setStagedAttachments,
   handleSend,
   handleCancel,
   isRunning,
@@ -53,6 +59,8 @@ export function ChatMessages({
         <ChatEmptyState
           input={input}
           setInput={setInput}
+          stagedAttachments={stagedAttachments}
+          setStagedAttachments={setStagedAttachments}
           handleSend={handleSend}
           handleCancel={handleCancel}
           isRunning={isRunning}

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { chatService, ChatMessage } from '@/lib/services/chat.service';
+import { chatService, ChatMessage, ChatAttachment } from '@/lib/services/chat.service';
 import { toast } from 'sonner';
 
 import { ChatMessages } from './ChatMessages';
@@ -17,6 +17,7 @@ export function ChatContainer() {
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [selectedVersions, setSelectedVersions] = React.useState<Record<number, number>>({});
   const [input, setInput] = React.useState('');
+  const [stagedAttachments, setStagedAttachments] = React.useState<ChatAttachment[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = React.useState(false);
   const [isRunning, setIsRunning] = React.useState(false);
   const [copiedMsgId, setCopiedMsgId] = React.useState<string | number | null>(null);
@@ -110,9 +111,11 @@ export function ChatContainer() {
   // Send message
   const handleSend = async (overrideContent?: string) => {
     const text = (overrideContent ?? input).trim();
-    if (!text || isRunning) return;
+    const attachmentsToSend = [...stagedAttachments];
+    if ((!text && attachmentsToSend.length === 0) || isRunning) return;
 
     setInput('');
+    setStagedAttachments([]);
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
@@ -124,6 +127,7 @@ export function ChatContainer() {
       content: text,
       position: currentPosition,
       version: 1,
+      attachments: attachmentsToSend.length > 0 ? attachmentsToSend : undefined,
     };
 
     const assistantPosition = currentPosition + 1;
@@ -148,6 +152,7 @@ export function ChatContainer() {
         content: text,
         newChat: !activeChatId,
         position: currentPosition,
+        attachments: attachmentsToSend.length > 0 ? attachmentsToSend : undefined,
         signal: controller.signal,
         onChatIdCreated: (newId) => {
           if (!currentChatId) {
@@ -269,6 +274,8 @@ export function ChatContainer() {
         positionGroups={positionGroups}
         input={input}
         setInput={setInput}
+        stagedAttachments={stagedAttachments}
+        setStagedAttachments={setStagedAttachments}
         handleSend={handleSend}
         handleCancel={handleCancel}
         isRunning={isRunning}
@@ -286,6 +293,8 @@ export function ChatContainer() {
         <ChatComposer
           input={input}
           setInput={setInput}
+          stagedAttachments={stagedAttachments}
+          setStagedAttachments={setStagedAttachments}
           handleSend={handleSend}
           handleCancel={handleCancel}
           isRunning={isRunning}

@@ -5,8 +5,16 @@ import { Chat } from "./entities/Chat.entity";
 import { Message } from "./entities/Message.entity";
 import { UpdateChatDto } from "./dto/update-chat.dto";
 import { AgentService } from "@/agent/agent.service";
+import { GeminiFileService } from "@/agent/gemini-file.service";
+import { AssetsService } from "@/assets/services/assets.service";
 import { HumanMessage, AIMessage, BaseMessage } from "@langchain/core/messages";
 import { Response } from "express";
+import * as fs from "fs";
+import {
+  normalizeMimeType,
+  isGeminiSupportedMimeType,
+  isTextMimeType,
+} from "@/common/utils/mime-utils";
 
 type ChatListItem = {
   ID: string;
@@ -26,6 +34,8 @@ export class ChatService {
     @InjectRepository(Message)
     private messageRepository: Repository<Message>,
     private agentService: AgentService,
+    private geminiFileService: GeminiFileService,
+    private assetsService: AssetsService,
   ) {}
 
   async findAll(userId: string): Promise<ChatListItem[]> {
@@ -100,12 +110,13 @@ export class ChatService {
     position?: number,
     selectedVersions?: Record<number, number>,
     newChat?: boolean,
+    attachments?: any[],
   ) {
     let targetChatId = chatId;
 
     // 1. Resolve or create chat
     if (newChat || !targetChatId) {
-      const title = content ? content.trim().slice(0, 50) : "New Chat";
+      const title = content ? content.trim().slice(0, 50) : attachments?.length ? `File upload (${attachments.length})` : "New Chat";
       const chat = this.chatRepository.create({ title, userId });
       const newChatObj = await this.chatRepository.save(chat);
       targetChatId = newChatObj.ID;
@@ -113,7 +124,47 @@ export class ChatService {
       await this.findOne(targetChatId, userId);
     }
 
-    // 2. Save user message
+    // 2. Process attachments with Gemini File API
+    let processedAttachments: any[] | null = null;
+    if (attachments && attachments.length > 0) {
+      processedAttachments = await Promise.all(
+        attachments.map(async (att) => {
+          const item = { ...att };
+          if (item.id) {
+            try {
+              const asset = await this.assetsService.findOne(userId, item.id);
+              if (asset && asset.path) {
+                item.path = asset.path;
+                item.name = item.name || asset.name;
+                const normalizedMime = normalizeMimeType(
+                  asset.name || asset.path,
+                  item.mimeType || asset.mimeType,
+                );
+                item.mimeType = normalizedMime;
+
+                if (isGeminiSupportedMimeType(normalizedMime)) {
+                  const gFile = await this.geminiFileService.uploadFileToGemini(
+                    asset.path,
+                    normalizedMime,
+                    asset.name,
+                  );
+                  if (gFile) {
+                    item.geminiFileUri = gFile.fileUri;
+                  }
+                }
+              }
+            } catch (err) {
+              // Ignore asset lookup error
+            }
+          } else {
+            item.mimeType = normalizeMimeType(item.name || item.path, item.mimeType);
+          }
+          return item;
+        }),
+      );
+    }
+
+    // 3. Save user message
     let userPosition = position;
     let userVersion = 1;
 
@@ -138,12 +189,13 @@ export class ChatService {
         content,
         position: userPosition,
         version: userVersion,
+        attachments: processedAttachments,
       }),
     );
 
     const finalPosition = userMessage.position;
 
-    // 3. Get history for context
+    // 4. Get history for context
     const fullHistory = await this.getMessageHistory(targetChatId);
 
     const historyForContext = this.filterHistoryByVersion(
@@ -158,13 +210,47 @@ export class ChatService {
 
     filteredHistory.sort((a, b) => a.position - b.position);
 
-    // 4. Convert history to LangChain messages
+    // 5. Convert history to LangChain messages
     const messages: BaseMessage[] = filteredHistory.map((msg) => {
-      if (msg.role === "user") return new HumanMessage(msg.content);
+      if (msg.role === "user") {
+        if (msg.attachments && msg.attachments.length > 0) {
+          const parts: any[] = [];
+          if (msg.content) {
+            parts.push({ type: "text", text: msg.content });
+          }
+          for (const att of msg.attachments) {
+            const mime = normalizeMimeType(att.name || att.path, att.mimeType);
+            if (att.geminiFileUri && isGeminiSupportedMimeType(mime)) {
+              parts.push({
+                type: "media",
+                fileUri: att.geminiFileUri,
+                mimeType: mime,
+              });
+            } else if (att.path && fs.existsSync(att.path) && isTextMimeType(mime)) {
+              try {
+                const textContent = fs.readFileSync(att.path, "utf-8");
+                parts.push({
+                  type: "text",
+                  text: `\n\n--- Attachment: ${att.name || "File"} ---\n${textContent.slice(0, 15000)}\n--- End of Attachment ---`,
+                });
+              } catch (e) {
+                // ignore
+              }
+            }
+          }
+          const attNames = msg.attachments.map((a: any) => `${a.name} (${normalizeMimeType(a.name, a.mimeType)})`).join(", ");
+          parts.push({
+            type: "text",
+            text: `\n\n[Attached Files: ${attNames}]`,
+          });
+          return new HumanMessage({ content: parts });
+        }
+        return new HumanMessage(msg.content);
+      }
       return new AIMessage(msg.content);
     });
 
-    // 5. Stream response via AgentService
+    // 6. Stream response via AgentService
     const fullAssistantContent = await this.agentService.streamResponse(
       messages,
       res,
@@ -172,7 +258,7 @@ export class ChatService {
       userId,
     );
 
-    // 6. Save assistant message at next position
+    // 7. Save assistant message at next position
     const assistPosition = finalPosition + 1;
     const maxAssistVersion = await this.messageRepository.findOne({
       where: { chatId: targetChatId, position: assistPosition },

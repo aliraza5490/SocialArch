@@ -9,6 +9,16 @@ export interface ChatItem {
   preview: string;
 }
 
+export interface ChatAttachment {
+  id: string;
+  name: string;
+  type: string;
+  mimeType?: string;
+  size?: number;
+  url?: string;
+  path?: string;
+}
+
 export interface ChatMessage {
   ID?: string;
   chatId?: string;
@@ -17,6 +27,7 @@ export interface ChatMessage {
   position: number;
   version?: number;
   createdAt?: string;
+  attachments?: ChatAttachment[];
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -46,6 +57,7 @@ export const chatService = {
     content,
     newChat,
     position,
+    attachments,
     onChunk,
     onChatIdCreated,
     signal,
@@ -54,6 +66,7 @@ export const chatService = {
     content: string;
     newChat?: boolean;
     position?: number;
+    attachments?: ChatAttachment[];
     onChunk: (chunk: string) => void;
     onChatIdCreated?: (newChatId: string) => void;
     signal?: AbortSignal;
@@ -70,6 +83,7 @@ export const chatService = {
         content,
         newChat,
         position,
+        attachments,
       }),
       signal,
     });

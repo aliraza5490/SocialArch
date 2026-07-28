@@ -15,6 +15,7 @@ import {
 import * as fs from "fs";
 import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
+import { normalizeMimeType } from "@/common/utils/mime-utils";
 
 @Injectable()
 export class AssetsService {
@@ -38,7 +39,9 @@ export class AssetsService {
       mimeType.includes("pdf") ||
       mimeType.includes("word") ||
       mimeType.includes("sheet") ||
-      mimeType.includes("zip")
+      mimeType.includes("zip") ||
+      mimeType.includes("json") ||
+      mimeType.includes("javascript")
     ) {
       return AssetType.DOCUMENT;
     }
@@ -93,13 +96,14 @@ export class AssetsService {
     const createdAssets: Asset[] = [];
 
     for (const file of files) {
-      const assetType = this.determineAssetType(file.mimetype);
+      const normalizedMime = normalizeMimeType(file.originalname || file.filename, file.mimetype);
+      const assetType = this.determineAssetType(normalizedMime);
 
       const asset = this.assetRepository.create({
         name: file.originalname,
         filename: file.filename,
         type: assetType,
-        mimeType: file.mimetype,
+        mimeType: normalizedMime,
         size: file.size,
         path: file.path,
         thumbnailUrl: null,
