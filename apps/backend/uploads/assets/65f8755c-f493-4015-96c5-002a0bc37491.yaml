@@ -1,0 +1,27 @@
+---
+- name: Test Ansible on Docker containers
+  hosts: webservers
+  become: false
+  gather_facts: true
+
+  tasks:
+    - name: Display hostname
+      debug:
+        msg: "Hostname: {{ ansible_facts['hostname'] }}"
+
+    - name: Display OS
+      debug:
+        msg: "OS: {{ ansible_facts['os_family'] }}"
+
+    - name: Get uptime
+      command: uptime
+      register: uptime_output
+      changed_when: false
+
+    - name: Display uptime
+      debug:
+        var: uptime_output.stdout
+
+    - name: List all hosts
+      debug:
+        msg: "All hosts: {{ groups['all'] }}"

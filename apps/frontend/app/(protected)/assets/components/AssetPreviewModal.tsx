@@ -1,0 +1,303 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Download,
+  Trash2,
+  Edit2,
+  Check,
+  Tag,
+  Calendar,
+  HardDrive,
+  FileText,
+  FileVideo,
+  Image as ImageIcon,
+  ExternalLink,
+} from 'lucide-react';
+import Image from 'next/image';
+import { toast } from 'sonner';
+import { Asset, assetsService } from '@/lib/services/assets.service';
+
+interface AssetPreviewModalProps {
+  asset: Asset | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: () => void;
+  onDelete: (id: string) => void;
+}
+
+export function AssetPreviewModal({
+  asset,
+  isOpen,
+  onClose,
+  onUpdate,
+  onDelete,
+}: AssetPreviewModalProps) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [name, setName] = useState('');
+  const [newTag, setNewTag] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (asset) {
+      setName(asset.name);
+      setTags(asset.tags || []);
+      setIsEditingName(false);
+    }
+  }, [asset]);
+
+  if (!asset) return null;
+
+  const fileUrl = assetsService.getFileUrl(asset.ID);
+  const downloadUrl = assetsService.getDownloadUrl(asset.ID);
+
+  const formatFileSize = (bytes?: number | null) => {
+    if (!bytes) return '—';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  const handleSaveName = async () => {
+    if (!name.trim()) return;
+    try {
+      setIsSaving(true);
+      await assetsService.updateAsset(asset.ID, { name: name.trim() });
+      toast.success('Asset renamed successfully');
+      setIsEditingName(false);
+      onUpdate();
+    } catch (error) {
+      toast.error('Failed to rename asset');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleAddTag = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTag.trim() || tags.includes(newTag.trim())) return;
+    const updatedTags = [...tags, newTag.trim().toLowerCase()];
+    try {
+      setTags(updatedTags);
+      setNewTag('');
+      await assetsService.updateAsset(asset.ID, { tags: updatedTags });
+      toast.success('Tag added');
+      onUpdate();
+    } catch (error) {
+      toast.error('Failed to update tags');
+    }
+  };
+
+  const handleRemoveTag = async (tagToRemove: string) => {
+    const updatedTags = tags.filter((t) => t !== tagToRemove);
+    try {
+      setTags(updatedTags);
+      await assetsService.updateAsset(asset.ID, { tags: updatedTags });
+      toast.success('Tag removed');
+      onUpdate();
+    } catch (error) {
+      toast.error('Failed to remove tag');
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[750px] p-0 overflow-hidden bg-card">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Asset Preview: {asset.name}</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-1 md:grid-cols-12 min-h-[420px]">
+          {/* Media Preview Area */}
+          <div className="md:col-span-7 bg-muted/40 p-4 flex items-center justify-center relative border-b md:border-b-0 md:border-r border-border min-h-[280px]">
+            {asset.type === 'image' ? (
+              <div className="relative w-full h-full min-h-[260px] flex items-center justify-center">
+                <img
+                  src={fileUrl}
+                  alt={asset.name}
+                  className="max-h-[360px] max-w-full object-contain rounded-lg shadow-md"
+                />
+              </div>
+            ) : asset.type === 'video' ? (
+              <video
+                src={fileUrl}
+                controls
+                className="max-h-[360px] max-w-full rounded-lg shadow-md"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center p-6 text-center text-muted-foreground">
+                {asset.type === 'document' ? (
+                  <FileText className="h-16 w-16 text-primary mb-3 stroke-[1.5]" />
+                ) : (
+                  <ImageIcon className="h-16 w-16 text-muted-foreground mb-3 stroke-[1.5]" />
+                )}
+                <p className="text-sm font-medium text-foreground">{asset.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {asset.mimeType || 'Document'}
+                </p>
+                <a
+                  href={fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-4 inline-flex items-center gap-1.5 text-xs text-primary font-medium hover:underline"
+                >
+                  Open in tab <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Details & Actions Panel */}
+          <div className="md:col-span-5 p-5 flex flex-col justify-between space-y-4">
+            <div className="space-y-4">
+              {/* Header / Name Edit */}
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  {isEditingName ? (
+                    <div className="flex items-center gap-1.5 w-full">
+                      <Input
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="h-8 text-xs font-semibold"
+                        autoFocus
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-emerald-500 hover:text-emerald-600"
+                        onClick={handleSaveName}
+                        disabled={isSaving}
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditingName(true)}>
+                      <h2 className="text-base font-bold tracking-tight truncate max-w-[200px]" title={asset.name}>
+                        {asset.name}
+                      </h2>
+                      <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  )}
+                </div>
+                <p className="text-[11px] text-muted-foreground capitalize mt-0.5">
+                  {asset.type} File
+                </p>
+              </div>
+
+              {/* Metadata Info */}
+              <div className="space-y-2.5 text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <HardDrive className="h-4 w-4 text-primary shrink-0" />
+                  <span>Size:</span>
+                  <span className="font-medium text-foreground ml-auto">
+                    {formatFileSize(asset.size)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Calendar className="h-4 w-4 text-primary shrink-0" />
+                  <span>Uploaded:</span>
+                  <span className="font-medium text-foreground ml-auto">
+                    {new Date(asset.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                {asset.mimeType && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <FileText className="h-4 w-4 text-primary shrink-0" />
+                    <span>MIME:</span>
+                    <span className="font-medium text-foreground ml-auto truncate max-w-[140px]">
+                      {asset.mimeType}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Tags Section */}
+              <div className="space-y-2 pt-2 border-t border-border">
+                <div className="flex items-center gap-1.5 text-xs font-semibold">
+                  <Tag className="h-3.5 w-3.5 text-primary" />
+                  <span>Tags</span>
+                </div>
+
+                <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                  {tags.map((t) => (
+                    <Badge
+                      key={t}
+                      variant="secondary"
+                      className="text-[10px] px-2 py-0.5 gap-1 group"
+                    >
+                      {t}
+                      <button
+                        onClick={() => handleRemoveTag(t)}
+                        className="hover:text-destructive text-muted-foreground"
+                      >
+                        ×
+                      </button>
+                    </Badge>
+                  ))}
+                  {tags.length === 0 && (
+                    <p className="text-[11px] text-muted-foreground italic">
+                      No tags assigned
+                    </p>
+                  )}
+                </div>
+
+                <form onSubmit={handleAddTag} className="flex gap-1.5 pt-1">
+                  <Input
+                    placeholder="Add tag..."
+                    value={newTag}
+                    onChange={(e) => setNewTag(e.target.value)}
+                    className="h-7 text-[11px]"
+                  />
+                  <Button type="submit" size="sm" variant="outline" className="h-7 text-[11px] px-2">
+                    Add
+                  </Button>
+                </form>
+              </div>
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="flex items-center gap-2 pt-3 border-t border-border">
+              <Button
+                size="sm"
+                className="flex-1 h-8 text-xs gradient-primary shadow-glow"
+                onClick={async () => {
+                  try {
+                    await assetsService.downloadAssetFile(asset.ID, asset.name);
+                    toast.success('Download started');
+                  } catch (error) {
+                    toast.error('Failed to download file');
+                  }
+                }}
+              >
+                <Download className="mr-1.5 h-3.5 w-3.5" />
+                Download
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-8 px-3 text-xs"
+                onClick={() => {
+                  onDelete(asset.ID);
+                  onClose();
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

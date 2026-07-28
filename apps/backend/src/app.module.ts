@@ -14,6 +14,7 @@ import { SharedModule } from "./shared/shared.module";
 import { ChatModule } from "./chat/chat.module";
 import { AgentModule } from "./agent/agent.module";
 import { MailModule } from "./mail/mail.module";
+import { AssetsModule } from "./assets/assets.module";
 import { validate } from "./config";
 import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.interceptor";
 
@@ -51,6 +52,7 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
     SharedModule,
     ChatModule,
     AgentModule,
+    AssetsModule,
   ],
   controllers: [AppController],
   providers: [

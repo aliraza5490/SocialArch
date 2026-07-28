@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  web1:
+    image: ubuntu:26.10
+    container_name: ansible-web1
+    hostname: web1
+    ports:
+      - "2221:22"
+    environment:
+      - ROOT_PASSWORD=ansible
+    volumes:
+      - ./ssh_init.sh:/ssh_init.sh:z
+    command: /bin/bash -c "chmod +x /ssh_init.sh && /ssh_init.sh && /usr/sbin/sshd -D"
+    networks:
+      - ansible-net
+
+networks:
+  ansible-net:
+    driver: bridge

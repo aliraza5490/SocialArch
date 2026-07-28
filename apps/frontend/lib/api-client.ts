@@ -179,39 +179,42 @@ class ApiClient {
   }
 
   // Generic methods for future use
-  async get(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
-    return this.axiosInstance.get(url, config);
+  async get<T = any>(
+    url: string,
+    config?: AxiosRequestConfig,
+  ): Promise<AxiosResponse<T>> {
+    return this.axiosInstance.get<T>(url, config);
   }
 
-  async post(
+  async post<T = any>(
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig,
-  ): Promise<AxiosResponse> {
-    return this.axiosInstance.post(url, data, config);
+  ): Promise<AxiosResponse<T>> {
+    return this.axiosInstance.post<T>(url, data, config);
   }
 
-  async put(
+  async put<T = any>(
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig,
-  ): Promise<AxiosResponse> {
-    return this.axiosInstance.put(url, data, config);
+  ): Promise<AxiosResponse<T>> {
+    return this.axiosInstance.put<T>(url, data, config);
   }
 
-  async patch(
+  async patch<T = any>(
     url: string,
     data?: unknown,
     config?: AxiosRequestConfig,
-  ): Promise<AxiosResponse> {
-    return this.axiosInstance.patch(url, data, config);
+  ): Promise<AxiosResponse<T>> {
+    return this.axiosInstance.patch<T>(url, data, config);
   }
 
-  async delete(
+  async delete<T = any>(
     url: string,
     config?: AxiosRequestConfig,
-  ): Promise<AxiosResponse> {
-    return this.axiosInstance.delete(url, config);
+  ): Promise<AxiosResponse<T>> {
+    return this.axiosInstance.delete<T>(url, config);
   }
 }
 
