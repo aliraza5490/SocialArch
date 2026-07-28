@@ -85,20 +85,17 @@ export const chatService = {
     let accumulatedText = "";
     let buffer = "";
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n\n");
-      buffer = lines.pop() || "";
+    const processText = (text: string) => {
+      buffer += text;
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
 
       for (const line of lines) {
         const trimmed = line.trim();
         if (trimmed.startsWith("data: ")) {
           const rawData = trimmed.replace(/^data:\s*/, "");
           if (rawData === "[DONE]") {
-            break;
+            continue;
           }
           try {
             const parsed = JSON.parse(rawData);
@@ -114,6 +111,17 @@ export const chatService = {
           }
         }
       }
+    };
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        if (buffer.trim()) {
+          processText("\n");
+        }
+        break;
+      }
+      processText(decoder.decode(value, { stream: true }));
     }
 
     return accumulatedText;
@@ -155,20 +163,17 @@ export const chatService = {
     let accumulatedText = "";
     let buffer = "";
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n\n");
-      buffer = lines.pop() || "";
+    const processText = (text: string) => {
+      buffer += text;
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
 
       for (const line of lines) {
         const trimmed = line.trim();
         if (trimmed.startsWith("data: ")) {
           const rawData = trimmed.replace(/^data:\s*/, "");
           if (rawData === "[DONE]") {
-            break;
+            continue;
           }
           try {
             const parsed = JSON.parse(rawData);
@@ -181,6 +186,17 @@ export const chatService = {
           }
         }
       }
+    };
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        if (buffer.trim()) {
+          processText("\n");
+        }
+        break;
+      }
+      processText(decoder.decode(value, { stream: true }));
     }
 
     return accumulatedText;

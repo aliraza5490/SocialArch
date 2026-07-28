@@ -25,6 +25,7 @@ export function ChatContainer() {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const abortControllerRef = React.useRef<AbortController | null>(null);
+  const streamingChatIdRef = React.useRef<string | null>(null);
 
   // Group messages by position to eliminate duplicate bubbles for regenerated messages
   const positionGroups: PositionGroup[] = React.useMemo(() => {
@@ -65,6 +66,10 @@ export function ChatContainer() {
     if (!activeChatId) {
       setMessages([]);
       setSelectedVersions({});
+      return;
+    }
+
+    if (streamingChatIdRef.current === activeChatId) {
       return;
     }
 
@@ -147,6 +152,7 @@ export function ChatContainer() {
         onChatIdCreated: (newId) => {
           if (!currentChatId) {
             currentChatId = newId;
+            streamingChatIdRef.current = newId;
             router.push(`/chat?id=${newId}`);
             window.dispatchEvent(new Event('refresh-recent-chats'));
           }
@@ -178,6 +184,7 @@ export function ChatContainer() {
     } finally {
       setIsRunning(false);
       abortControllerRef.current = null;
+      streamingChatIdRef.current = null;
     }
   };
 

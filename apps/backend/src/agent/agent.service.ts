@@ -15,7 +15,7 @@ export class AgentService {
 
   constructor(private configService: ConfigService) {
     this.modelName =
-      this.configService.get<string>("MODEL_NAME") || "gemma-4-26b-a4b-it";
+      this.configService.get<string>("MODEL_NAME") || "gemini-3.6-flash";
     this.model = this.initializeModel();
   }
 
@@ -64,11 +64,24 @@ export class AgentService {
     const fullMessageList = [systemMsg, ...messagesHistory];
 
     res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
     res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+    res.setHeader("Content-Encoding", "none");
+
+    if (typeof (res as any).flushHeaders === "function") {
+      (res as any).flushHeaders();
+    }
+
+    const safeFlush = () => {
+      if (typeof (res as any).flush === "function") {
+        (res as any).flush();
+      }
+    };
 
     if (chatId) {
       res.write(`data: ${JSON.stringify({ chatId })}\n\n`);
+      safeFlush();
     }
 
     let fullText = "";
@@ -93,6 +106,7 @@ export class AgentService {
         if (chunkContent) {
           fullText += chunkContent;
           res.write(`data: ${JSON.stringify({ content: chunkContent })}\n\n`);
+          safeFlush();
         }
       }
     } catch (err: any) {
@@ -105,9 +119,11 @@ export class AgentService {
           "I apologize, but I encountered an error connecting to the language model service. Please ensure your GEMINI_API_KEY is configured.";
         fullText = errorFallback;
         res.write(`data: ${JSON.stringify({ content: errorFallback })}\n\n`);
+        safeFlush();
       }
     } finally {
       res.write("data: [DONE]\n\n");
+      safeFlush();
       res.end();
     }
 
