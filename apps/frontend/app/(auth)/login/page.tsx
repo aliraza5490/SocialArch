@@ -1,6 +1,12 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { LoginForm } from './components/login-form';
+
+export const metadata: Metadata = {
+  title: 'Sign In | SocialArch',
+  description: 'Sign in to your SocialArch account to manage your social media studio.',
+};
 
 export default function LoginPage() {
   return (

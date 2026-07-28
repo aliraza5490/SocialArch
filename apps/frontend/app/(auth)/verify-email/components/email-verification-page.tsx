@@ -15,7 +15,7 @@ import { apiClient } from '@/lib/api-client';
 
 type VerificationState = 'loading' | 'success' | 'error' | 'invalid-token';
 
-export function EmailVerificationPage() {
+export function EmailVerificationCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');

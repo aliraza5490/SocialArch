@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { EmailVerificationPage } from './components/email-verification-page';
+import { EmailVerificationCard } from './components/email-verification-page';
 
 function EmailVerificationPageWrapper() {
   return (
@@ -29,7 +29,7 @@ function EmailVerificationPageWrapper() {
           </span>
         </Link>
 
-        <EmailVerificationPage />
+        <EmailVerificationCard />
       </div>
     </div>
   );

@@ -1,6 +1,12 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { RegisterForm } from './components/register-form';
+
+export const metadata: Metadata = {
+  title: 'Create Account | SocialArch',
+  description: 'Create a new SocialArch account to start generating AI social content.',
+};
 
 export default function RegisterPage() {
   return (

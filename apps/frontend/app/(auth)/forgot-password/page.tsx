@@ -1,6 +1,12 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ForgotPasswordForm } from './components/forgot-password-form';
+
+export const metadata: Metadata = {
+  title: 'Forgot Password | SocialArch',
+  description: 'Reset your SocialArch account password.',
+};
 
 export default function ForgotPasswordPage() {
   return (
