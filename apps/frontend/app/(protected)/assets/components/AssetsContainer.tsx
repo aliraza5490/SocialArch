@@ -46,6 +46,7 @@ import { CreateFolderModal } from './CreateFolderModal';
 import { UploadModal } from './UploadModal';
 import { AssetPreviewModal } from './AssetPreviewModal';
 import { MoveAssetsModal } from './MoveAssetsModal';
+import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
 export function AssetsContainer() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -73,6 +74,16 @@ export function AssetsContainer() {
     mode: 'move',
     ids: [],
   });
+  const [deleteModalConfig, setDeleteModalConfig] = useState<{
+    isOpen: boolean;
+    ids: string[];
+    item?: Asset | null;
+  }>({
+    isOpen: false,
+    ids: [],
+    item: null,
+  });
+  const [isDeletingAsset, setIsDeletingAsset] = useState(false);
 
   const fetchAssets = useCallback(async () => {
     try {
@@ -132,26 +143,43 @@ export function AssetsContainer() {
     setSelectedAssets([]);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await assetsService.deleteAsset(id);
-      toast.success('Asset deleted successfully');
-      setSelectedAssets((prev) => prev.filter((assetId) => assetId !== id));
-      fetchAssets();
-    } catch (error) {
-      toast.error('Failed to delete asset');
-    }
+  const promptDeleteSingle = (asset: Asset) => {
+    setDeleteModalConfig({
+      isOpen: true,
+      ids: [asset.ID],
+      item: asset,
+    });
   };
 
-  const handleBulkDelete = async () => {
+  const promptBulkDelete = () => {
     if (selectedAssets.length === 0) return;
+    setDeleteModalConfig({
+      isOpen: true,
+      ids: selectedAssets,
+      item: null,
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteModalConfig.ids.length === 0) return;
     try {
-      await assetsService.bulkDeleteAssets(selectedAssets);
-      toast.success(`${selectedAssets.length} items deleted`);
-      setSelectedAssets([]);
+      setIsDeletingAsset(true);
+      if (deleteModalConfig.ids.length === 1) {
+        await assetsService.deleteAsset(deleteModalConfig.ids[0]);
+        toast.success('Asset deleted successfully');
+      } else {
+        await assetsService.bulkDeleteAssets(deleteModalConfig.ids);
+        toast.success(`${deleteModalConfig.ids.length} items deleted`);
+      }
+      setSelectedAssets((prev) =>
+        prev.filter((assetId) => !deleteModalConfig.ids.includes(assetId)),
+      );
+      setDeleteModalConfig({ isOpen: false, ids: [], item: null });
       fetchAssets();
     } catch (error) {
-      toast.error('Failed to delete selected assets');
+      toast.error('Failed to delete asset(s)');
+    } finally {
+      setIsDeletingAsset(false);
     }
   };
 
@@ -353,7 +381,7 @@ export function AssetsContainer() {
                 variant="destructive"
                 size="sm"
                 className="h-7 px-2 text-xs"
-                onClick={handleBulkDelete}
+                onClick={promptBulkDelete}
               >
                 <Trash2 className="h-3.5 w-3.5 mr-1" />
                 Delete
@@ -498,7 +526,7 @@ export function AssetsContainer() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-destructive"
-                      onClick={() => handleDelete(asset.ID)}
+                      onClick={() => promptDeleteSingle(asset)}
                     >
                       <Trash2 className="h-3.5 w-3.5 mr-2" />
                       Delete
@@ -639,7 +667,7 @@ export function AssetsContainer() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
-                            onClick={() => handleDelete(asset.ID)}
+                            onClick={() => promptDeleteSingle(asset)}
                           >
                             <Trash2 className="h-3.5 w-3.5 mr-2" />
                             Delete
@@ -675,7 +703,14 @@ export function AssetsContainer() {
         isOpen={!!previewAsset}
         onClose={() => setPreviewAsset(null)}
         onUpdate={fetchAssets}
-        onDelete={handleDelete}
+        onDelete={(id) => {
+          const found = assets.find((a) => a.ID === id) || previewAsset;
+          if (found) {
+            promptDeleteSingle(found);
+          } else {
+            setDeleteModalConfig({ isOpen: true, ids: [id], item: null });
+          }
+        }}
       />
 
       <MoveAssetsModal
@@ -689,6 +724,15 @@ export function AssetsContainer() {
           setSelectedAssets([]);
           fetchAssets();
         }}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalConfig.isOpen}
+        onClose={() => setDeleteModalConfig({ isOpen: false, ids: [], item: null })}
+        onConfirm={handleConfirmDelete}
+        isDeleting={isDeletingAsset}
+        item={deleteModalConfig.item}
+        selectedCount={deleteModalConfig.ids.length}
       />
     </div>
   );
