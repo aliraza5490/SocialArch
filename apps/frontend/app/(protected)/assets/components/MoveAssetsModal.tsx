@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,13 +9,150 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { FolderOpen, Home, ChevronRight, Copy, FolderInput, Loader2 } from 'lucide-react';
+import {
+  Folder,
+  FolderOpen,
+  Home,
+  ChevronRight,
+  ChevronDown,
+  Copy,
+  FolderInput,
+  Loader2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import {
   FolderTreeNode,
   assetsService,
 } from '@/lib/services/assets.service';
 import { cn } from '@/lib/utils';
+
+interface TreeFolderNode extends FolderTreeNode {
+  children: TreeFolderNode[];
+}
+
+function buildFolderTree(
+  nodes: FolderTreeNode[],
+  selectedIds: string[],
+): TreeFolderNode[] {
+  // Find all invalid target folder IDs (selected folders and their recursive descendants)
+  const invalidSet = new Set<string>(selectedIds);
+  let added = true;
+  while (added) {
+    added = false;
+    for (const node of nodes) {
+      if (
+        node.parentId &&
+        invalidSet.has(node.parentId) &&
+        !invalidSet.has(node.id)
+      ) {
+        invalidSet.add(node.id);
+        added = true;
+      }
+    }
+  }
+
+  // Filter out invalid folders
+  const validNodes = nodes.filter((n) => !invalidSet.has(n.id));
+
+  // Map of nodes
+  const nodeMap = new Map<string, TreeFolderNode>();
+  validNodes.forEach((node) => {
+    nodeMap.set(node.id, { ...node, children: [] });
+  });
+
+  const rootNodes: TreeFolderNode[] = [];
+
+  validNodes.forEach((node) => {
+    const treeNode = nodeMap.get(node.id)!;
+    if (node.parentId && nodeMap.has(node.parentId)) {
+      nodeMap.get(node.parentId)!.children.push(treeNode);
+    } else {
+      rootNodes.push(treeNode);
+    }
+  });
+
+  return rootNodes;
+}
+
+interface FolderTreeItemProps {
+  node: TreeFolderNode;
+  level: number;
+  targetFolderId: string | null;
+  onSelect: (id: string) => void;
+  expandedIds: Set<string>;
+  onToggleExpand: (id: string) => void;
+}
+
+function FolderTreeItem({
+  node,
+  level,
+  targetFolderId,
+  onSelect,
+  expandedIds,
+  onToggleExpand,
+}: FolderTreeItemProps) {
+  const hasChildren = node.children.length > 0;
+  const isExpanded = expandedIds.has(node.id);
+  const isSelected = targetFolderId === node.id;
+
+  return (
+    <div className="flex flex-col">
+      <div
+        onClick={() => onSelect(node.id)}
+        style={{ paddingLeft: `${level * 16 + 8}px` }}
+        className={cn(
+          'flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors text-xs font-medium select-none',
+          isSelected
+            ? 'bg-primary/10 text-primary border border-primary/20 font-semibold'
+            : 'hover:bg-muted text-foreground',
+        )}
+      >
+        {hasChildren ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand(node.id);
+            }}
+            className="p-0.5 hover:bg-muted-foreground/20 rounded transition-colors"
+          >
+            {isExpanded ? (
+              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            )}
+          </button>
+        ) : (
+          <span className="w-4 h-4 shrink-0" />
+        )}
+
+        {isSelected || isExpanded ? (
+          <FolderOpen className="h-4 w-4 text-primary shrink-0" />
+        ) : (
+          <Folder className="h-4 w-4 text-primary/80 shrink-0" />
+        )}
+
+        <span className="truncate">{node.name}</span>
+      </div>
+
+      {hasChildren && isExpanded && (
+        <div className="space-y-1 mt-1">
+          {node.children.map((child) => (
+            <FolderTreeItem
+              key={child.id}
+              node={child}
+              level={level + 1}
+              targetFolderId={targetFolderId}
+              onSelect={onSelect}
+              expandedIds={expandedIds}
+              onToggleExpand={onToggleExpand}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface MoveAssetsModalProps {
   isOpen: boolean;
@@ -33,6 +170,7 @@ export function MoveAssetsModal({
   onSuccess,
 }: MoveAssetsModalProps) {
   const [folders, setFolders] = useState<FolderTreeNode[]>([]);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [targetFolderId, setTargetFolderId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,14 +186,31 @@ export function MoveAssetsModal({
     try {
       setIsLoading(true);
       const list = await assetsService.getFolderTree();
-      // Exclude any selected folder IDs from being eligible targets to prevent circular parenting
-      const filtered = list.filter((f) => !selectedIds.includes(f.id));
-      setFolders(filtered);
+      setFolders(list);
+      // Auto-expand all folders by default so user sees full tree structure immediately
+      setExpandedIds(new Set(list.map((f) => f.id)));
     } catch (error) {
       toast.error('Failed to load folder list');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const treeNodes = useMemo(
+    () => buildFolderTree(folders, selectedIds),
+    [folders, selectedIds],
+  );
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
   const handleSubmit = async () => {
@@ -119,7 +274,7 @@ export function MoveAssetsModal({
             <div
               onClick={() => setTargetFolderId(null)}
               className={cn(
-                'flex items-center gap-2.5 p-2 rounded-md cursor-pointer transition-colors text-xs font-medium',
+                'flex items-center gap-2.5 p-2 rounded-md cursor-pointer transition-colors text-xs font-medium select-none',
                 targetFolderId === null
                   ? 'bg-primary/10 text-primary border border-primary/20 font-semibold'
                   : 'hover:bg-muted text-foreground',
@@ -129,30 +284,26 @@ export function MoveAssetsModal({
               <span>Home (Root Folder)</span>
             </div>
 
-            {/* Folder List */}
+            {/* Folder Tree List */}
             {isLoading ? (
               <div className="flex items-center justify-center p-6 text-xs text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading folders...
               </div>
-            ) : folders.length === 0 ? (
+            ) : treeNodes.length === 0 ? (
               <div className="p-4 text-center text-xs text-muted-foreground">
                 No subfolders available. Items will be placed in Home root.
               </div>
             ) : (
-              folders.map((folder) => (
-                <div
-                  key={folder.id}
-                  onClick={() => setTargetFolderId(folder.id)}
-                  className={cn(
-                    'flex items-center gap-2.5 p-2 rounded-md cursor-pointer transition-colors text-xs',
-                    targetFolderId === folder.id
-                      ? 'bg-primary/10 text-primary border border-primary/20 font-semibold'
-                      : 'hover:bg-muted text-foreground',
-                  )}
-                >
-                  <FolderOpen className="h-4 w-4 text-primary shrink-0" />
-                  <span className="truncate">{folder.name}</span>
-                </div>
+              treeNodes.map((node) => (
+                <FolderTreeItem
+                  key={node.id}
+                  node={node}
+                  level={0}
+                  targetFolderId={targetFolderId}
+                  onSelect={setTargetFolderId}
+                  expandedIds={expandedIds}
+                  onToggleExpand={toggleExpand}
+                />
               ))
             )}
           </div>
@@ -190,3 +341,4 @@ export function MoveAssetsModal({
     </Dialog>
   );
 }
+
