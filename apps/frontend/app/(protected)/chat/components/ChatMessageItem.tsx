@@ -15,6 +15,7 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Bookmark,
 } from 'lucide-react';
 import { MarkdownContent } from '@/components/markdown-content';
 import { TooltipIconButton } from '@/components/tooltip-icon-button';
@@ -25,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChatMessage } from '@/lib/services/chat.service';
+import { assetsService } from '@/lib/services/assets.service';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -66,6 +68,30 @@ export function ChatMessageItem({
   const msgId = msg?.ID || `${group.position}-${msg?.version || activeVersionIndex}`;
   const isUser = group.role === 'user';
   const hasMultipleVersions = group.versions.length > 1;
+
+  const [isSavingAsset, setIsSavingAsset] = React.useState(false);
+
+  const handleSaveToAssets = async (content: string) => {
+    if (!content) return;
+    try {
+      setIsSavingAsset(true);
+      const firstLine = content.split('\n')[0].replace(/[^a-zA-Z0-9 ]/g, '').trim();
+      const defaultTitle = firstLine ? firstLine.slice(0, 30).trim().replace(/\s+/g, '_') : `Response_${Date.now()}`;
+      const name = `${defaultTitle}.md`;
+
+      await assetsService.saveMarkdownAsset({
+        name,
+        content,
+        tags: ['chat-response', 'markdown'],
+      });
+
+      toast.success(`Saved to Assets as ${name}`);
+    } catch (error) {
+      toast.error('Failed to save response to Assets');
+    } finally {
+      setIsSavingAsset(false);
+    }
+  };
 
   return (
     <div
@@ -253,6 +279,19 @@ export function ChatMessageItem({
                 </TooltipIconButton>
 
                 <TooltipIconButton
+                  tooltip="Save to Assets"
+                  disabled={isSavingAsset}
+                  className="h-7 w-7 p-1 hover:bg-muted hover:text-foreground disabled:opacity-50"
+                  onClick={() => handleSaveToAssets(msg.content)}
+                >
+                  {isSavingAsset ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                  ) : (
+                    <Bookmark className="h-3.5 w-3.5" />
+                  )}
+                </TooltipIconButton>
+
+                <TooltipIconButton
                   tooltip="Regenerate"
                   className="h-7 w-7 p-1 hover:bg-muted hover:text-foreground"
                   onClick={() => handleRegenerate(group.position)}
@@ -269,10 +308,17 @@ export function ChatMessageItem({
                       <MoreHorizontal className="h-3.5 w-3.5" />
                     </TooltipIconButton>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-40 text-xs">
+                  <DropdownMenuContent align="start" className="w-48 text-xs">
                     <DropdownMenuItem onClick={() => handleCopy(msg.content, msgId)}>
                       <Copy className="mr-2 h-3.5 w-3.5" />
                       Copy Text
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleSaveToAssets(msg.content)}
+                      disabled={isSavingAsset}
+                    >
+                      <Bookmark className="mr-2 h-3.5 w-3.5" />
+                      Save as Markdown Asset
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleRegenerate(group.position)}>
                       <RotateCcw className="mr-2 h-3.5 w-3.5" />

@@ -167,4 +167,26 @@ export const assetsService = {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   },
+
+  async saveMarkdownAsset(data: {
+    name: string;
+    content: string;
+    parentId?: string | null;
+    tags?: string[];
+  }): Promise<Asset> {
+    const res = await apiClient.post<Asset>("/assets/save-markdown", {
+      name: data.name,
+      content: data.content,
+      parentId: data.parentId || undefined,
+      tags: data.tags || ["markdown", "saved-response"],
+    });
+    return res.data;
+  },
+
+  async getFileContent(assetId: string): Promise<string> {
+    const res = await apiClient.get<string>(`/assets/${assetId}/file`, {
+      responseType: "text",
+    });
+    return res.data;
+  },
 };

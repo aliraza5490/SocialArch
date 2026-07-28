@@ -10,6 +10,7 @@ import {
   CreateFolderDto,
   QueryAssetsDto,
   UpdateAssetDto,
+  SaveMarkdownDto,
 } from "../dto/assets.dto";
 import * as fs from "fs";
 import * as path from "path";
@@ -431,4 +432,47 @@ export class AssetsService {
 
     return savedFolder;
   }
+
+  async saveMarkdown(
+    userId: string,
+    dto: SaveMarkdownDto,
+  ): Promise<Asset> {
+    const { name, content, parentId, tags } = dto;
+    const cleanName = name.trim();
+    const finalName = cleanName.toLowerCase().endsWith(".md") ? cleanName : `${cleanName}.md`;
+
+    if (parentId && parentId !== "root" && parentId !== "null") {
+      const parent = await this.assetRepository.findOne({
+        where: { ID: parentId, userId },
+      });
+      if (!parent || parent.type !== AssetType.FOLDER) {
+        throw new NotFoundException("Parent folder not found");
+      }
+    }
+
+    const fileExt = ".md";
+    const filename = `${uuidv4()}${fileExt}`;
+    const filePath = path.join(this.uploadDir, filename);
+
+    fs.writeFileSync(filePath, content, "utf-8");
+    const stats = fs.statSync(filePath);
+
+    const assetTags = Array.from(new Set(["markdown", ...(tags || [])]));
+
+    const asset = this.assetRepository.create({
+      name: finalName,
+      filename,
+      type: AssetType.DOCUMENT,
+      mimeType: "text/markdown",
+      size: stats.size,
+      path: filePath,
+      thumbnailUrl: null,
+      parentId: parentId && parentId !== "root" && parentId !== "null" ? parentId : null,
+      userId,
+      tags: assetTags,
+    });
+
+    return this.assetRepository.save(asset);
+  }
 }
+

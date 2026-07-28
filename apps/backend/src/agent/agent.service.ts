@@ -11,6 +11,7 @@ import {
 import { Response } from "express";
 import { SYSTEM_PROMPT } from "./prompts/agent.prompt";
 import { agentTools } from "./tools/content.tools";
+import { AssetsService } from "@/assets/services/assets.service";
 
 @Injectable()
 export class AgentService {
@@ -18,7 +19,10 @@ export class AgentService {
   private model: BaseChatModel;
   private readonly modelName: string;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private assetsService: AssetsService,
+  ) {
     this.modelName =
       this.configService.get<string>("MODEL_NAME") || "gemini-3.6-flash";
     this.model = this.initializeModel();
@@ -64,6 +68,7 @@ export class AgentService {
     messagesHistory: BaseMessage[],
     res: Response,
     chatId?: string,
+    userId?: string,
   ): Promise<string> {
     const systemMsg = new SystemMessage(SYSTEM_PROMPT);
     const fullMessageList = [systemMsg, ...messagesHistory];
@@ -144,7 +149,28 @@ export class AgentService {
             `Executing tool '${toolCall.name}' with args: ${JSON.stringify(toolCall.args)}`
           );
 
-          if (tool) {
+          if (toolCall.name === "save_markdown_asset" && userId) {
+            try {
+              const title = toolCall.args?.title || toolCall.args?.name || "document.md";
+              const content = toolCall.args?.content || "";
+              const tags = toolCall.args?.tags || ["markdown", "agent-saved"];
+              const savedAsset = await this.assetsService.saveMarkdown(userId, {
+                name: title,
+                content,
+                tags,
+              });
+              toolResult = JSON.stringify({
+                success: true,
+                message: `Successfully saved markdown file '${savedAsset.name}' to your assets library!`,
+                asset: savedAsset,
+              });
+            } catch (saveErr: any) {
+              this.logger.error(`Error saving markdown asset for user ${userId}: ${saveErr.message}`);
+              toolResult = JSON.stringify({
+                error: `Failed to save asset: ${saveErr.message}`,
+              });
+            }
+          } else if (tool) {
             try {
               const rawResult = await tool.invoke(toolCall.args as any);
               toolResult =

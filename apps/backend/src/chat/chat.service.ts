@@ -169,6 +169,7 @@ export class ChatService {
       messages,
       res,
       targetChatId,
+      userId,
     );
 
     // 6. Save assistant message at next position
@@ -222,6 +223,8 @@ export class ChatService {
     const fullAssistantContent = await this.agentService.streamResponse(
       messages,
       res,
+      chatId,
+      userId,
     );
 
     // 5. Save new version of assistant message

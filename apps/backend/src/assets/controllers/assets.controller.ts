@@ -26,6 +26,7 @@ import {
   BulkDeleteAssetsDto,
   BulkMoveAssetsDto,
   BulkCopyAssetsDto,
+  SaveMarkdownDto,
 } from "../dto/assets.dto";
 import { JWTUser } from "@/auth/decorators/jwtUser.decorator";
 import { ApiTags, ApiBearerAuth, ApiConsumes } from "@nestjs/swagger";
@@ -78,6 +79,14 @@ export class AssetsController {
     @Body() createFolderDto: CreateFolderDto,
   ) {
     return this.assetsService.createFolder(user.ID, createFolderDto);
+  }
+
+  @Post("save-markdown")
+  saveMarkdown(
+    @JWTUser() user: any,
+    @Body() dto: SaveMarkdownDto,
+  ) {
+    return this.assetsService.saveMarkdown(user.ID, dto);
   }
 
   @Post("upload")

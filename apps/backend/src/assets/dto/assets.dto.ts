@@ -89,3 +89,27 @@ export class BulkCopyAssetsDto {
   @IsString()
   targetParentId?: string | null;
 }
+
+export class SaveMarkdownDto {
+  @ApiProperty({ description: "Asset display name or title" })
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @ApiProperty({ description: "Markdown text content" })
+  @IsNotEmpty()
+  @IsString()
+  content: string;
+
+  @ApiPropertyOptional({ description: "Parent folder UUID" })
+  @IsOptional()
+  @IsString()
+  parentId?: string;
+
+  @ApiPropertyOptional({ description: "Tags for asset", type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+}
+

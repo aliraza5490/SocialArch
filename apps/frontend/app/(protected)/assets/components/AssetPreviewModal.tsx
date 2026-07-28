@@ -22,10 +22,15 @@ import {
   FileVideo,
   Image as ImageIcon,
   ExternalLink,
+  Loader2,
+  Eye,
+  Code,
 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { Asset, assetsService } from '@/lib/services/assets.service';
+import { MarkdownContent } from '@/components/markdown-content';
+import { cn } from '@/lib/utils';
 
 interface AssetPreviewModalProps {
   asset: Asset | null;
@@ -34,6 +39,17 @@ interface AssetPreviewModalProps {
   onUpdate: () => void;
   onDelete: (id: string) => void;
 }
+
+const isMarkdownFile = (a: Asset) => {
+  const name = a.name.toLowerCase();
+  const mime = (a.mimeType || '').toLowerCase();
+  return (
+    name.endsWith('.md') ||
+    name.endsWith('.markdown') ||
+    mime.includes('markdown') ||
+    mime === 'text/markdown'
+  );
+};
 
 export function AssetPreviewModal({
   asset,
@@ -47,12 +63,34 @@ export function AssetPreviewModal({
   const [newTag, setNewTag] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [markdownContent, setMarkdownContent] = useState<string | null>(null);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
+  const [previewTab, setPreviewTab] = useState<'rendered' | 'raw'>('rendered');
 
   useEffect(() => {
     if (asset) {
       setName(asset.name);
       setTags(asset.tags || []);
       setIsEditingName(false);
+
+      if (isMarkdownFile(asset)) {
+        setIsLoadingContent(true);
+        setMarkdownContent(null);
+        assetsService
+          .getFileContent(asset.ID)
+          .then((content) => {
+            setMarkdownContent(content);
+          })
+          .catch((err) => {
+            console.error('Failed to fetch markdown content:', err);
+            toast.error('Could not load markdown content');
+          })
+          .finally(() => {
+            setIsLoadingContent(false);
+          });
+      } else {
+        setMarkdownContent(null);
+      }
     }
   }, [asset]);
 
@@ -113,14 +151,66 @@ export function AssetPreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[750px] p-0 overflow-hidden bg-card">
+      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden bg-card">
         <DialogHeader className="sr-only">
           <DialogTitle>Asset Preview: {asset.name}</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-1 md:grid-cols-12 min-h-[420px]">
+        <div className="grid grid-cols-1 md:grid-cols-12 min-h-[440px]">
           {/* Media Preview Area */}
-          <div className="md:col-span-7 bg-muted/40 p-4 flex items-center justify-center relative border-b md:border-b-0 md:border-r border-border min-h-[280px]">
-            {asset.type === 'image' ? (
+          <div className="md:col-span-7 bg-muted/40 p-4 flex flex-col items-center justify-center relative border-b md:border-b-0 md:border-r border-border min-h-[300px]">
+            {isMarkdownFile(asset) ? (
+              <div className="flex flex-col w-full h-full space-y-2.5">
+                <div className="flex items-center justify-between px-1">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <span>Markdown Content</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-muted rounded-md p-0.5 border border-border">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTab('rendered')}
+                      className={cn(
+                        'flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-sm font-medium transition-colors',
+                        previewTab === 'rendered'
+                          ? 'bg-background text-foreground shadow-xs'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      <Eye className="h-3 w-3" />
+                      Preview
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTab('raw')}
+                      className={cn(
+                        'flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-sm font-medium transition-colors',
+                        previewTab === 'raw'
+                          ? 'bg-background text-foreground shadow-xs'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      <Code className="h-3 w-3" />
+                      Raw
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex-1 w-full max-h-[360px] min-h-[260px] overflow-y-auto p-4 bg-background/80 rounded-xl border border-border/80 shadow-inner text-left">
+                  {isLoadingContent ? (
+                    <div className="flex flex-col items-center justify-center h-48 text-muted-foreground space-y-2">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      <span className="text-xs">Loading markdown content...</span>
+                    </div>
+                  ) : previewTab === 'rendered' ? (
+                    <MarkdownContent content={markdownContent || '*Empty document*'} />
+                  ) : (
+                    <pre className="text-xs font-mono whitespace-pre-wrap leading-relaxed text-foreground/90">
+                      {markdownContent || ''}
+                    </pre>
+                  )}
+                </div>
+              </div>
+            ) : asset.type === 'image' ? (
               <div className="relative w-full h-full min-h-[260px] flex items-center justify-center">
                 <img
                   src={fileUrl}

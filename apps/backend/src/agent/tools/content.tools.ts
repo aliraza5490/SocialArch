@@ -1,5 +1,8 @@
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
+import * as fs from "fs";
+import * as path from "path";
+import { v4 as uuidv4 } from "uuid";
 
 export const contentIdeaGeneratorTool = tool(
   async ({ topic, targetAudience }) => {
@@ -84,8 +87,48 @@ export const postOptimizerTool = tool(
   }
 );
 
+export const saveMarkdownAssetTool = tool(
+  async ({ title, content, tags }) => {
+    const uploadDir = path.join(process.cwd(), "uploads", "assets");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const cleanTitle = (title || "agent_response").trim().replace(/[^a-zA-Z0-9_\-\. ]/g, "");
+    const finalName = cleanTitle.toLowerCase().endsWith(".md") ? cleanTitle : `${cleanTitle}.md`;
+    const filename = `${uuidv4()}.md`;
+    const filePath = path.join(uploadDir, filename);
+
+    fs.writeFileSync(filePath, content, "utf-8");
+    const stats = fs.statSync(filePath);
+
+    return JSON.stringify({
+      success: true,
+      message: `Markdown file saved to assets as '${finalName}'`,
+      asset: {
+        name: finalName,
+        filename,
+        size: stats.size,
+        mimeType: "text/markdown",
+        tags: tags || ["markdown", "agent-saved"],
+      },
+    });
+  },
+  {
+    name: "save_markdown_asset",
+    description: "Saves a markdown text response, post draft, strategy document, or article into user assets as a .md file.",
+    schema: z.object({
+      title: z.string().describe("Filename or title for the markdown document (e.g. content_strategy.md)"),
+      content: z.string().describe("The full markdown formatted body content to save"),
+      tags: z.array(z.string()).optional().describe("Optional list of tags for organizing the asset"),
+    }),
+  }
+);
+
 export const agentTools = [
   contentIdeaGeneratorTool,
   hashtagGeneratorTool,
   postOptimizerTool,
+  saveMarkdownAssetTool,
 ];
+
