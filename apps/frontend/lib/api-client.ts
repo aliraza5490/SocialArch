@@ -40,8 +40,11 @@ class ApiClient {
       async (error) => {
         const originalRequest = error.config;
 
-        // If error is not 401 or request has already been retried, reject
-        if (error.response?.status !== 401 || originalRequest?._retry) {
+        const status = error.response?.status;
+        const isAuthError = status === 401 || status === 498;
+
+        // If error is not 401/498 or request has already been retried, reject
+        if (!isAuthError || originalRequest?._retry) {
           return Promise.reject(error);
         }
 
@@ -68,6 +71,7 @@ class ApiClient {
         if (
           error.response?.data?.message?.includes("Invalid refresh token") ||
           error.response?.data?.message?.includes("Refresh token expired") ||
+          error.response?.data?.message?.includes("Invalid Token") ||
           originalRequest?.url?.includes("/auth/refresh")
         ) {
           clearTokens();

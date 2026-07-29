@@ -3,11 +3,13 @@
 import * as React from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { chatService, ChatMessage, ChatAttachment } from '@/lib/services/chat.service';
+import { assetsService, Asset } from '@/lib/services/assets.service';
 import { toast } from 'sonner';
 
 import { ChatMessages } from './ChatMessages';
 import { ChatComposer } from './ChatComposer';
 import { PositionGroup } from './ChatMessageItem';
+import { AssetPreviewModal } from '@/app/(protected)/assets/components/AssetPreviewModal';
 
 export function ChatContainer() {
   const searchParams = useSearchParams();
@@ -22,6 +24,7 @@ export function ChatContainer() {
   const [isRunning, setIsRunning] = React.useState(false);
   const [copiedMsgId, setCopiedMsgId] = React.useState<string | number | null>(null);
   const [feedback, setFeedback] = React.useState<Record<number, 'up' | 'down'>>({});
+  const [previewAsset, setPreviewAsset] = React.useState<Asset | null>(null);
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -162,6 +165,26 @@ export function ChatContainer() {
             window.dispatchEvent(new Event('refresh-recent-chats'));
           }
         },
+        onAttachment: (att) => {
+          setMessages((prev) => {
+            const updated = [...prev];
+            const lastIndex = updated.length - 1;
+            if (
+              lastIndex >= 0 &&
+              updated[lastIndex].position === assistantPosition &&
+              updated[lastIndex].role === 'assistant'
+            ) {
+              const existing = updated[lastIndex].attachments || [];
+              if (!existing.some((a) => a.id === att.id)) {
+                updated[lastIndex] = {
+                  ...updated[lastIndex],
+                  attachments: [...existing, att],
+                };
+              }
+            }
+            return updated;
+          });
+        },
         onChunk: (chunk) => {
           setMessages((prev) => {
             const updated = [...prev];
@@ -193,6 +216,17 @@ export function ChatContainer() {
     }
   };
 
+  // Preview asset modal trigger
+  const handlePreviewAsset = async (assetId: string) => {
+    try {
+      const asset = await assetsService.getAsset(assetId);
+      setPreviewAsset(asset);
+    } catch (err) {
+      console.error('Failed to load asset details:', err);
+      toast.error('Failed to load asset details');
+    }
+  };
+
   // Handle Regenerate
   const handleRegenerate = async (position: number) => {
     if (!activeChatId || isRunning) return;
@@ -220,6 +254,18 @@ export function ChatContainer() {
         chatId: activeChatId,
         position,
         signal: controller.signal,
+        onAttachment: (att) => {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.position === position && (msg.version || 1) === newVersionNumber
+                ? {
+                    ...msg,
+                    attachments: [...(msg.attachments || []), att],
+                  }
+                : msg
+            )
+          );
+        },
         onChunk: (chunk) => {
           setMessages((prev) =>
             prev.map((msg) =>
@@ -286,6 +332,7 @@ export function ChatContainer() {
         feedback={feedback}
         handleFeedback={handleFeedback}
         handleRegenerate={handleRegenerate}
+        onPreviewAsset={handlePreviewAsset}
         messagesEndRef={messagesEndRef}
       />
 
@@ -300,6 +347,29 @@ export function ChatContainer() {
           isRunning={isRunning}
           textareaRef={textareaRef}
           handleKeyDown={handleKeyDown}
+        />
+      )}
+
+      {previewAsset && (
+        <AssetPreviewModal
+          asset={previewAsset}
+          isOpen={!!previewAsset}
+          onClose={() => setPreviewAsset(null)}
+          onUpdate={async () => {
+            if (previewAsset) {
+              const updated = await assetsService.getAsset(previewAsset.ID);
+              setPreviewAsset(updated);
+            }
+          }}
+          onDelete={async (id) => {
+            try {
+              await assetsService.deleteAsset(id);
+              toast.success('Asset deleted');
+              setPreviewAsset(null);
+            } catch (err) {
+              toast.error('Failed to delete asset');
+            }
+          }}
         />
       )}
     </div>

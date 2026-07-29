@@ -11,6 +11,7 @@ import {
   QueryAssetsDto,
   UpdateAssetDto,
   SaveMarkdownDto,
+  SaveGeneratedImageDto,
 } from "../dto/assets.dto";
 import * as fs from "fs";
 import * as path from "path";
@@ -478,5 +479,50 @@ export class AssetsService {
 
     return this.assetRepository.save(asset);
   }
+
+  async saveGeneratedImage(
+    userId: string,
+    dto: SaveGeneratedImageDto,
+  ): Promise<Asset> {
+    const { name, buffer, mimeType = "image/png", parentId, tags } = dto;
+    const cleanName = (name || "generated_image").trim();
+    const ext = mimeType.includes("jpeg") || mimeType.includes("jpg") ? ".jpg" : ".png";
+    const finalName = cleanName.toLowerCase().endsWith(ext) ? cleanName : `${cleanName}${ext}`;
+
+    if (parentId && parentId !== "root" && parentId !== "null") {
+      const parent = await this.assetRepository.findOne({
+        where: { ID: parentId, userId },
+      });
+      if (!parent || parent.type !== AssetType.FOLDER) {
+        throw new NotFoundException("Parent folder not found");
+      }
+    }
+
+    const filename = `${uuidv4()}${ext}`;
+    const filePath = path.join(this.uploadDir, filename);
+
+    fs.writeFileSync(filePath, buffer);
+    const stats = fs.statSync(filePath);
+
+    const assetTags = Array.from(
+      new Set(["ai-generated", "chat-image", "image", ...(tags || [])]),
+    );
+
+    const asset = this.assetRepository.create({
+      name: finalName,
+      filename,
+      type: AssetType.IMAGE,
+      mimeType,
+      size: stats.size,
+      path: filePath,
+      thumbnailUrl: null,
+      parentId: parentId && parentId !== "root" && parentId !== "null" ? parentId : null,
+      userId,
+      tags: assetTags,
+    });
+
+    return this.assetRepository.save(asset);
+  }
 }
+
 

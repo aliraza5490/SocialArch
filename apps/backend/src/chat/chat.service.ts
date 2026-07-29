@@ -251,12 +251,13 @@ export class ChatService {
     });
 
     // 6. Stream response via AgentService
-    const fullAssistantContent = await this.agentService.streamResponse(
-      messages,
-      res,
-      targetChatId,
-      userId,
-    );
+    const { fullText: fullAssistantContent, attachments: generatedAttachments } =
+      await this.agentService.streamResponse(
+        messages,
+        res,
+        targetChatId,
+        userId,
+      );
 
     // 7. Save assistant message at next position
     const assistPosition = finalPosition + 1;
@@ -273,6 +274,7 @@ export class ChatService {
         content: fullAssistantContent,
         position: assistPosition,
         version: assistVersion,
+        attachments: generatedAttachments && generatedAttachments.length > 0 ? generatedAttachments : null,
       }),
     );
   }
@@ -306,12 +308,13 @@ export class ChatService {
     });
 
     // 4. Stream response via AgentService
-    const fullAssistantContent = await this.agentService.streamResponse(
-      messages,
-      res,
-      chatId,
-      userId,
-    );
+    const { fullText: fullAssistantContent, attachments: generatedAttachments } =
+      await this.agentService.streamResponse(
+        messages,
+        res,
+        chatId,
+        userId,
+      );
 
     // 5. Save new version of assistant message
     const maxAssistVersion = await this.messageRepository.findOne({
@@ -327,8 +330,10 @@ export class ChatService {
         content: fullAssistantContent,
         position,
         version: assistVersion,
+        attachments: generatedAttachments && generatedAttachments.length > 0 ? generatedAttachments : null,
       }),
     );
+
   }
 
   private filterHistoryByVersion(

@@ -12,6 +12,7 @@ import { Response } from "express";
 import { SYSTEM_PROMPT } from "./prompts/agent.prompt";
 import { agentTools } from "./tools/content.tools";
 import { AssetsService } from "@/assets/services/assets.service";
+import { GeminiImageService } from "./gemini-image.service";
 
 @Injectable()
 export class AgentService {
@@ -22,6 +23,7 @@ export class AgentService {
   constructor(
     private configService: ConfigService,
     private assetsService: AssetsService,
+    private geminiImageService: GeminiImageService,
   ) {
     this.modelName =
       this.configService.get<string>("MODEL_NAME") || "gemini-3.6-flash";
@@ -69,7 +71,7 @@ export class AgentService {
     res: Response,
     chatId?: string,
     userId?: string,
-  ): Promise<string> {
+  ): Promise<{ fullText: string; attachments: any[] }> {
     const systemMsg = new SystemMessage(SYSTEM_PROMPT);
     const fullMessageList = [systemMsg, ...messagesHistory];
 
@@ -95,6 +97,7 @@ export class AgentService {
     }
 
     let fullText = "";
+    const attachments: any[] = [];
     const toolsMap = new Map<string, any>(agentTools.map((t) => [t.name, t]));
     const maxIterations = 5;
     let iteration = 0;
@@ -149,7 +152,48 @@ export class AgentService {
             `Executing tool '${toolCall.name}' with args: ${JSON.stringify(toolCall.args)}`
           );
 
-          if (toolCall.name === "save_markdown_asset" && userId) {
+          if (toolCall.name === "generate_image" && userId) {
+            try {
+              const prompt = toolCall.args?.prompt || "A social media graphic";
+              const title = toolCall.args?.title || toolCall.args?.name || "generated_image";
+              const aspectRatio = toolCall.args?.aspectRatio || "1:1";
+              const tags = toolCall.args?.tags || ["ai-generated", "chat-image"];
+
+              res.write(`data: ${JSON.stringify({ content: `\n\n*(Generating image with Gemini AI...)*\n\n` })}\n\n`);
+              safeFlush();
+
+              const imageResult = await this.geminiImageService.generateGeminiImage(prompt, aspectRatio);
+              const savedAsset = await this.assetsService.saveGeneratedImage(userId, {
+                name: title,
+                buffer: imageResult.buffer,
+                mimeType: imageResult.mimeType,
+                tags,
+              });
+
+              attachments.push({
+                id: savedAsset.ID,
+                name: savedAsset.name,
+                mimeType: savedAsset.mimeType,
+                size: savedAsset.size,
+                type: savedAsset.type,
+                url: `/assets/${savedAsset.ID}/file`,
+              });
+
+              res.write(`data: ${JSON.stringify({ attachment: savedAsset })}\n\n`);
+              safeFlush();
+
+              toolResult = JSON.stringify({
+                success: true,
+                message: `Successfully generated image and saved to assets as '${savedAsset.name}'`,
+                asset: savedAsset,
+              });
+            } catch (imgErr: any) {
+              this.logger.error(`Error generating image for user ${userId}: ${imgErr.message}`, imgErr.stack);
+              toolResult = JSON.stringify({
+                error: `Failed to generate image: ${imgErr.message}`,
+              });
+            }
+          } else if (toolCall.name === "save_markdown_asset" && userId) {
             try {
               const title = toolCall.args?.title || toolCall.args?.name || "document.md";
               const content = toolCall.args?.content || "";
@@ -159,6 +203,19 @@ export class AgentService {
                 content,
                 tags,
               });
+
+              attachments.push({
+                id: savedAsset.ID,
+                name: savedAsset.name,
+                mimeType: savedAsset.mimeType,
+                size: savedAsset.size,
+                type: savedAsset.type,
+                url: `/assets/${savedAsset.ID}/file`,
+              });
+
+              res.write(`data: ${JSON.stringify({ attachment: savedAsset })}\n\n`);
+              safeFlush();
+
               toolResult = JSON.stringify({
                 success: true,
                 message: `Successfully saved markdown file '${savedAsset.name}' to your assets library!`,
@@ -219,7 +276,9 @@ export class AgentService {
       res.end();
     }
 
-    return fullText;
+    return { fullText, attachments };
   }
 }
+
+
 

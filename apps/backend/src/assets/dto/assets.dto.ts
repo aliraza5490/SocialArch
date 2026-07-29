@@ -113,3 +113,30 @@ export class SaveMarkdownDto {
   tags?: string[];
 }
 
+export class SaveGeneratedImageDto {
+  @ApiProperty({ description: "Image display name or title" })
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @ApiProperty({ description: "Image binary buffer or base64" })
+  buffer: Buffer;
+
+  @ApiPropertyOptional({ description: "MIME type (e.g. image/png or image/jpeg)" })
+  @IsOptional()
+  @IsString()
+  mimeType?: string;
+
+  @ApiPropertyOptional({ description: "Parent folder UUID" })
+  @IsOptional()
+  @IsString()
+  parentId?: string;
+
+  @ApiPropertyOptional({ description: "Tags for asset", type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+}
+
+

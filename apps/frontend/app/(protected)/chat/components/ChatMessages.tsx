@@ -24,6 +24,7 @@ interface ChatMessagesProps {
   feedback: Record<number, 'up' | 'down'>;
   handleFeedback: (pos: number, type: 'up' | 'down') => void;
   handleRegenerate: (position: number) => void;
+  onPreviewAsset?: (assetId: string) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -44,6 +45,7 @@ export function ChatMessages({
   feedback,
   handleFeedback,
   handleRegenerate,
+  onPreviewAsset,
   messagesEndRef,
 }: ChatMessagesProps) {
   const isEmpty = positionGroups.length === 0;
@@ -79,6 +81,7 @@ export function ChatMessages({
               feedback={feedback}
               handleFeedback={handleFeedback}
               handleRegenerate={handleRegenerate}
+              onPreviewAsset={onPreviewAsset}
             />
           ))}
           <div ref={messagesEndRef} />

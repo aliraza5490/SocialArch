@@ -1,6 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
 import { AgentService } from "./agent.service";
+import { GeminiImageService } from "./gemini-image.service";
+import { AssetsService } from "@/assets/services/assets.service";
 import { HumanMessage, AIMessageChunk, BaseMessage } from "@langchain/core/messages";
 import { Response } from "express";
 import {
@@ -24,6 +26,18 @@ describe("Agent Tools & AgentService", () => {
               if (key === "GEMINI_API_KEY") return "test-api-key";
               return null;
             }),
+          },
+        },
+        {
+          provide: AssetsService,
+          useValue: {
+            saveGeneratedImage: jest.fn(),
+          },
+        },
+        {
+          provide: GeminiImageService,
+          useValue: {
+            generateGeminiImage: jest.fn(),
           },
         },
       ],

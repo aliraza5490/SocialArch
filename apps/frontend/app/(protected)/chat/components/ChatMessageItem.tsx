@@ -18,6 +18,7 @@ import {
   Bookmark,
   Download,
   FileText,
+  Eye,
 } from 'lucide-react';
 import { MarkdownContent } from '@/components/markdown-content';
 import { TooltipIconButton } from '@/components/tooltip-icon-button';
@@ -48,6 +49,7 @@ interface ChatMessageItemProps {
   feedback: Record<number, 'up' | 'down'>;
   handleFeedback: (pos: number, type: 'up' | 'down') => void;
   handleRegenerate: (position: number) => void;
+  onPreviewAsset?: (assetId: string) => void;
 }
 
 function formatFileSize(bytes?: number): string {
@@ -57,7 +59,13 @@ function formatFileSize(bytes?: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function RenderAttachments({ attachments }: { attachments?: ChatAttachment[] }) {
+function RenderAttachments({
+  attachments,
+  onPreviewAsset,
+}: {
+  attachments?: ChatAttachment[];
+  onPreviewAsset?: (assetId: string) => void;
+}) {
   if (!attachments || attachments.length === 0) return null;
 
   const handleDownload = async (att: ChatAttachment) => {
@@ -80,7 +88,8 @@ function RenderAttachments({ attachments }: { attachments?: ChatAttachment[] }) 
           return (
             <div
               key={att.id}
-              className="relative group/img rounded-xl overflow-hidden border border-border bg-card shadow-xs max-w-[240px]"
+              className="relative group/img rounded-xl overflow-hidden border border-border bg-card shadow-xs max-w-[240px] cursor-pointer"
+              onClick={() => onPreviewAsset?.(att.id)}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -91,7 +100,22 @@ function RenderAttachments({ attachments }: { attachments?: ChatAttachment[] }) 
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleDownload(att)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPreviewAsset?.(att.id);
+                  }}
+                  className="bg-background/90 text-foreground hover:bg-background rounded-lg px-2.5 py-1.5 text-xs font-medium flex items-center gap-1.5 shadow-md transition-transform hover:scale-105"
+                  title="View Details & Preview"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  <span>Preview</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(att);
+                  }}
                   className="bg-background/90 text-foreground hover:bg-background rounded-lg px-2.5 py-1.5 text-xs font-medium flex items-center gap-1.5 shadow-md transition-transform hover:scale-105"
                   title="Download Image"
                 >
@@ -146,6 +170,7 @@ export function ChatMessageItem({
   feedback,
   handleFeedback,
   handleRegenerate,
+  onPreviewAsset,
 }: ChatMessageItemProps) {
   const activeVersionIndex =
     selectedVersions[group.position] !== undefined
@@ -191,7 +216,7 @@ export function ChatMessageItem({
       {isUser ? (
         /* User Bubble & Hover Actions */
         <div className="flex flex-col items-end gap-1.5 max-w-[85%] md:max-w-[75%]">
-          <RenderAttachments attachments={msg.attachments} />
+          <RenderAttachments attachments={msg.attachments} onPreviewAsset={onPreviewAsset} />
           {msg.content && (
             <div className="rounded-[22px] bg-primary text-primary-foreground font-medium px-4 py-2.5 text-sm leading-relaxed shadow-xs whitespace-pre-wrap">
               {msg.content}
@@ -270,7 +295,7 @@ export function ChatMessageItem({
           </div>
 
           <div className="flex-1 space-y-2 overflow-hidden min-w-0">
-            <RenderAttachments attachments={msg.attachments} />
+            <RenderAttachments attachments={msg.attachments} onPreviewAsset={onPreviewAsset} />
             {msg.content ? (
               <MarkdownContent content={msg.content} />
             ) : (

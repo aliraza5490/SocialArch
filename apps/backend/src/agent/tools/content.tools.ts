@@ -125,10 +125,34 @@ export const saveMarkdownAssetTool = tool(
   }
 );
 
+export const generateImageTool = tool(
+  async ({ prompt, aspectRatio, title, tags }) => {
+    return JSON.stringify({
+      status: "pending_generation",
+      prompt,
+      aspectRatio: aspectRatio || "1:1",
+      title: title || "generated_image",
+      tags: tags || ["ai-generated", "chat-image"],
+    });
+  },
+  {
+    name: "generate_image",
+    description: "Generates an AI image using Gemini model (gemini-3.1-flash-lite-image) from a detailed descriptive prompt, saves it to user assets, and presents it in chat.",
+    schema: z.object({
+      prompt: z.string().describe("Detailed descriptive prompt describing the image to generate"),
+      aspectRatio: z.enum(["1:1", "16:9", "4:3", "3:4", "9:16"]).optional().describe("Aspect ratio for generated image (default 1:1)"),
+      title: z.string().optional().describe("Name/title for saved image asset"),
+      tags: z.array(z.string()).optional().describe("Optional tags to organize the image asset"),
+    }),
+  }
+);
+
 export const agentTools = [
   contentIdeaGeneratorTool,
   hashtagGeneratorTool,
   postOptimizerTool,
   saveMarkdownAssetTool,
+  generateImageTool,
 ];
+
 

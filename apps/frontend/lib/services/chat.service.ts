@@ -60,6 +60,7 @@ export const chatService = {
     attachments,
     onChunk,
     onChatIdCreated,
+    onAttachment,
     signal,
   }: {
     chatId?: string;
@@ -69,6 +70,7 @@ export const chatService = {
     attachments?: ChatAttachment[];
     onChunk: (chunk: string) => void;
     onChatIdCreated?: (newChatId: string) => void;
+    onAttachment?: (attachment: ChatAttachment) => void;
     signal?: AbortSignal;
   }): Promise<string> {
     const token = getAccessToken();
@@ -116,6 +118,16 @@ export const chatService = {
             if (parsed.chatId && onChatIdCreated) {
               onChatIdCreated(parsed.chatId);
             }
+            if (parsed.attachment && onAttachment) {
+              onAttachment({
+                id: parsed.attachment.ID || parsed.attachment.id,
+                name: parsed.attachment.name,
+                mimeType: parsed.attachment.mimeType,
+                size: parsed.attachment.size,
+                type: parsed.attachment.type,
+                url: `/assets/${parsed.attachment.ID || parsed.attachment.id}/file`,
+              });
+            }
             if (parsed.content) {
               accumulatedText += parsed.content;
               onChunk(parsed.content);
@@ -145,11 +157,13 @@ export const chatService = {
     chatId,
     position,
     onChunk,
+    onAttachment,
     signal,
   }: {
     chatId: string;
     position: number;
     onChunk: (chunk: string) => void;
+    onAttachment?: (attachment: ChatAttachment) => void;
     signal?: AbortSignal;
   }): Promise<string> {
     const token = getAccessToken();
@@ -191,6 +205,16 @@ export const chatService = {
           }
           try {
             const parsed = JSON.parse(rawData);
+            if (parsed.attachment && onAttachment) {
+              onAttachment({
+                id: parsed.attachment.ID || parsed.attachment.id,
+                name: parsed.attachment.name,
+                mimeType: parsed.attachment.mimeType,
+                size: parsed.attachment.size,
+                type: parsed.attachment.type,
+                url: `/assets/${parsed.attachment.ID || parsed.attachment.id}/file`,
+              });
+            }
             if (parsed.content) {
               accumulatedText += parsed.content;
               onChunk(parsed.content);
