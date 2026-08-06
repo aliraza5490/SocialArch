@@ -122,6 +122,7 @@ export class AssetsController {
       throw new NotFoundException("Physical file not found on server");
     }
 
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     if (asset.mimeType) {
       res.setHeader("Content-Type", asset.mimeType);
     }

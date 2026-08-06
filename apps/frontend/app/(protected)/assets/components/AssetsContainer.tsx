@@ -48,6 +48,76 @@ import { AssetPreviewModal } from './AssetPreviewModal';
 import { MoveAssetsModal } from './MoveAssetsModal';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
+function AssetThumbnail({
+  asset,
+  icon,
+  className = 'h-16 w-full mb-2',
+}: {
+  asset: Asset;
+  icon: React.ReactNode;
+  className?: string;
+}) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
+  const isImg =
+    asset.type === 'image' || (!!asset.mimeType && asset.mimeType.startsWith('image/'));
+
+  useEffect(() => {
+    let isMounted = true;
+    let url: string | null = null;
+
+    if (isImg) {
+      assetsService
+        .getFileBlob(asset.ID)
+        .then((blob) => {
+          if (!isMounted) return;
+          url = URL.createObjectURL(blob);
+          setBlobUrl(url);
+        })
+        .catch(() => {
+          if (!isMounted) return;
+          setHasError(true);
+        });
+    }
+
+    return () => {
+      isMounted = false;
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [asset.ID, isImg]);
+
+  if (!isImg || hasError || !blobUrl) {
+    return (
+      <div
+        className={cn(
+          'flex items-center justify-center bg-muted/20 rounded-md',
+          className,
+        )}
+      >
+        {icon}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        'rounded-md overflow-hidden bg-muted relative flex items-center justify-center',
+        className,
+      )}
+    >
+      <img
+        src={blobUrl}
+        alt={asset.name}
+        className="h-full w-full object-cover"
+        onError={() => setHasError(true)}
+      />
+    </div>
+  );
+}
+
 export function AssetsContainer() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -451,19 +521,11 @@ export function AssetsContainer() {
                 </div>
 
                 <div className="flex flex-col items-center text-center pt-2">
-                  {asset.type === 'image' ? (
-                    <div className="h-16 w-full rounded-md overflow-hidden mb-2 bg-muted relative flex items-center justify-center">
-                      <img
-                        src={assetsService.getFileUrl(asset.ID)}
-                        alt={asset.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-16 w-full flex items-center justify-center mb-2 bg-muted/20 rounded-md">
-                      {getFileIcon(asset.type, 'h-8 w-8')}
-                    </div>
-                  )}
+                  <AssetThumbnail
+                    asset={asset}
+                    icon={getFileIcon(asset.type, 'h-8 w-8')}
+                    className="h-16 w-full mb-2"
+                  />
                   <p className="text-xs font-medium truncate w-full" title={asset.name}>
                     {asset.name}
                   </p>
@@ -588,19 +650,11 @@ export function AssetsContainer() {
                     </td>
                     <td className="p-2 px-3">
                       <div className="flex items-center gap-2.5">
-                        {asset.type === 'image' ? (
-                          <div className="h-7 w-7 rounded overflow-hidden bg-muted shrink-0">
-                            <img
-                              src={assetsService.getFileUrl(asset.ID)}
-                              alt={asset.name}
-                              className="h-full w-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="h-7 w-7 flex items-center justify-center shrink-0">
-                            {getFileIcon(asset.type, 'h-4 w-4')}
-                          </div>
-                        )}
+                        <AssetThumbnail
+                          asset={asset}
+                          icon={getFileIcon(asset.type, 'h-4 w-4')}
+                          className="h-7 w-7 shrink-0 mb-0"
+                        />
                         <span className="font-medium truncate max-w-[240px]">
                           {asset.name}
                         </span>

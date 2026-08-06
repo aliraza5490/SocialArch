@@ -19,14 +19,12 @@ import {
   Calendar,
   HardDrive,
   FileText,
-  FileVideo,
   Image as ImageIcon,
   ExternalLink,
   Loader2,
   Eye,
   Code,
 } from 'lucide-react';
-import Image from 'next/image';
 import { toast } from 'sonner';
 import { Asset, assetsService } from '@/lib/services/assets.service';
 import { MarkdownContent } from '@/components/markdown-content';
@@ -66,32 +64,69 @@ export function AssetPreviewModal({
   const [markdownContent, setMarkdownContent] = useState<string | null>(null);
   const [isLoadingContent, setIsLoadingContent] = useState(false);
   const [previewTab, setPreviewTab] = useState<'rendered' | 'raw'>('rendered');
+  const [imageError, setImageError] = useState(false);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [isLoadingMedia, setIsLoadingMedia] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+    let createdUrl: string | null = null;
+
     if (asset) {
       setName(asset.name);
       setTags(asset.tags || []);
       setIsEditingName(false);
+      setImageError(false);
+      setBlobUrl(null);
 
-      if (isMarkdownFile(asset)) {
+      const isImg =
+        asset.type === 'image' || (!!asset.mimeType && asset.mimeType.startsWith('image/'));
+
+      if (isImg) {
+        setIsLoadingMedia(true);
+        assetsService
+          .getFileBlob(asset.ID)
+          .then((blob) => {
+            if (!isMounted) return;
+            createdUrl = URL.createObjectURL(blob);
+            setBlobUrl(createdUrl);
+          })
+          .catch((err) => {
+            if (!isMounted) return;
+            console.error('Failed to load asset blob:', err);
+            setImageError(true);
+          })
+          .finally(() => {
+            if (isMounted) setIsLoadingMedia(false);
+          });
+      } else if (isMarkdownFile(asset)) {
         setIsLoadingContent(true);
         setMarkdownContent(null);
         assetsService
           .getFileContent(asset.ID)
           .then((content) => {
+            if (!isMounted) return;
             setMarkdownContent(content);
           })
           .catch((err) => {
+            if (!isMounted) return;
             console.error('Failed to fetch markdown content:', err);
             toast.error('Could not load markdown content');
           })
           .finally(() => {
-            setIsLoadingContent(false);
+            if (isMounted) setIsLoadingContent(false);
           });
       } else {
         setMarkdownContent(null);
       }
     }
+
+    return () => {
+      isMounted = false;
+      if (createdUrl) {
+        URL.revokeObjectURL(createdUrl);
+      }
+    };
   }, [asset]);
 
   if (!asset) return null;
@@ -210,13 +245,21 @@ export function AssetPreviewModal({
                   )}
                 </div>
               </div>
-            ) : asset.type === 'image' ? (
+            ) : (asset.type === 'image' || (!!asset.mimeType && asset.mimeType.startsWith('image/'))) && !imageError ? (
               <div className="relative w-full h-full min-h-[260px] flex items-center justify-center">
-                <img
-                  src={fileUrl}
-                  alt={asset.name}
-                  className="max-h-[360px] max-w-full object-contain rounded-lg shadow-md"
-                />
+                {isLoadingMedia || !blobUrl ? (
+                  <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <span className="text-xs">Loading image preview...</span>
+                  </div>
+                ) : (
+                  <img
+                    src={blobUrl}
+                    alt={asset.name}
+                    className="max-h-[360px] max-w-full object-contain rounded-lg shadow-md"
+                    onError={() => setImageError(true)}
+                  />
+                )}
               </div>
             ) : asset.type === 'video' ? (
               <video

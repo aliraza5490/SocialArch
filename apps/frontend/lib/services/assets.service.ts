@@ -189,4 +189,11 @@ export const assetsService = {
     });
     return res.data;
   },
+
+  async getFileBlob(assetId: string): Promise<Blob> {
+    const res = await apiClient.get<Blob>(`/assets/${assetId}/file`, {
+      responseType: "blob",
+    });
+    return res.data as unknown as Blob;
+  },
 };
