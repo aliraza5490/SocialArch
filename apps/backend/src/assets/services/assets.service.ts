@@ -80,14 +80,53 @@ export class AssetsService {
     return this.assetRepository.save(folder);
   }
 
+  async getOrCreateFolder(
+    userId: string,
+    folderName: string,
+    parentId?: string | null,
+  ): Promise<Asset> {
+    const cleanName = folderName.trim();
+    const targetParentId = parentId && parentId !== "root" && parentId !== "null" ? parentId : null;
+
+    const queryBuilder = this.assetRepository
+      .createQueryBuilder("asset")
+      .where("asset.userId = :userId", { userId })
+      .andWhere("asset.type = :type", { type: AssetType.FOLDER })
+      .andWhere("LOWER(asset.name) = LOWER(:name)", { name: cleanName });
+
+    if (targetParentId) {
+      queryBuilder.andWhere("asset.parentId = :targetParentId", { targetParentId });
+    } else {
+      queryBuilder.andWhere("asset.parentId IS NULL");
+    }
+
+    let folder = await queryBuilder.getOne();
+
+    if (!folder) {
+      folder = await this.createFolder(userId, {
+        name: cleanName,
+        parentId: targetParentId || undefined,
+      });
+    }
+
+    return folder;
+  }
+
   async handleFileUpload(
     userId: string,
     files: Array<Express.Multer.File>,
     parentId?: string,
   ): Promise<Asset[]> {
-    if (parentId) {
+    let targetParentId: string | null = parentId && parentId !== "root" && parentId !== "null" ? parentId : null;
+
+    if (!targetParentId) {
+      const uploadsFolder = await this.getOrCreateFolder(userId, "uploads");
+      targetParentId = uploadsFolder.ID;
+    }
+
+    if (targetParentId) {
       const parent = await this.assetRepository.findOne({
-        where: { ID: parentId, userId },
+        where: { ID: targetParentId, userId },
       });
       if (!parent || parent.type !== AssetType.FOLDER) {
         throw new NotFoundException("Parent folder not found");
@@ -108,7 +147,7 @@ export class AssetsService {
         size: file.size,
         path: file.path,
         thumbnailUrl: null,
-        parentId: parentId || null,
+        parentId: targetParentId,
         userId,
         tags: [],
       });
