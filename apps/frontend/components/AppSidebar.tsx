@@ -185,14 +185,21 @@ export function AppSidebar({
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="pl-2 pr-0 overflow-hidden flex flex-col flex-1 min-h-0">
-        <div className={cn('mt-2.5 pt-1 pb-1.5 shrink-0 pr-2 mr-[2px]', collapsed && !isMobile ? 'flex justify-center ml-0' : '')}>
+      <SidebarContent className="px-2 overflow-hidden flex flex-col flex-1 min-h-0">
+        <div
+          className={cn(
+            'mt-2.5 pt-1 pb-1.5 shrink-0',
+            collapsed && !isMobile ? 'flex justify-center' : '',
+          )}
+        >
           <Button
             asChild
             size={collapsed && !isMobile ? 'icon' : 'sm'}
             className={cn(
               'w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-xs transition-all duration-200 rounded-md',
-              collapsed && !isMobile ? 'h-8 w-8 justify-center' : 'h-8 justify-start gap-2 px-2.5 text-xs',
+              collapsed && !isMobile
+                ? 'h-8 w-8 justify-center p-0'
+                : 'h-8 justify-start gap-2 px-2 text-xs',
             )}
             title={collapsed && !isMobile ? 'New Chat' : undefined}
           >
@@ -207,62 +214,40 @@ export function AppSidebar({
           </Button>
         </div>
 
-        <SidebarGroup className="py-0.5 shrink-0 pr-2">
+        <SidebarGroup className="py-0.5 shrink-0 p-0">
           <SidebarGroupLabel
             className={cn(
-              'text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-0.5 h-5',
-              collapsed && !isMobile ? 'sr-only' : 'px-2',
+              'text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-0.5 h-5 px-2',
+              collapsed && !isMobile ? 'sr-only' : '',
             )}
           >
             Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu
-              className={cn(
-                'space-y-0.5',
-                (!collapsed || isMobile) && 'items-start',
-              )}
-            >
+            <SidebarMenu className="space-y-0.5">
               {menuItems.map((item) => {
                 const isActive = pathname === item.url && !currentChatId;
 
-                const sidebarMenuItemClass = cn(
-                  'w-full',
-                  (!collapsed || isMobile) && 'flex justify-start',
-                );
-                const navLinkClass = cn(
-                  'flex items-center gap-2 w-full',
-                  collapsed && !isMobile ? 'px-2' : 'pr-2 pl-2',
-                  collapsed && !isMobile ? 'justify-center' : 'justify-start',
-                );
-                const menuButtonClass = cn(
-                  'h-7.5 transition-all duration-200 rounded-md group/item border border-transparent',
-                  collapsed ? 'w-full' : 'w-full',
-                  !collapsed && 'max-w-full',
-                  'group-data-[collapsible=icon]:!size-auto group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:!h-7.5 group-data-[collapsible=icon]:!p-0',
-                  isActive
-                    ? 'bg-primary/15 dark:bg-primary/25 text-primary border-primary/30 shadow-xs font-semibold'
-                    : 'text-muted-foreground/75 hover:text-foreground hover:bg-muted/60',
-                );
-
                 return (
-                  <SidebarMenuItem
-                    key={item.title}
-                    className={sidebarMenuItemClass}
-                  >
+                  <SidebarMenuItem key={item.title} className="w-full">
                     <SidebarMenuButton
                       asChild
-                      tooltip={collapsed ? item.title : undefined}
-                      className={menuButtonClass}
+                      tooltip={collapsed && !isMobile ? item.title : undefined}
+                      className={cn(
+                        'h-7.5 w-full px-2 py-1.5 transition-all duration-200 rounded-md group/item border border-transparent flex items-center gap-2',
+                        collapsed && !isMobile ? 'justify-center px-0' : 'justify-start',
+                        isActive
+                          ? 'bg-primary/15 dark:bg-primary/25 text-primary border-primary/30 shadow-xs font-semibold'
+                          : 'text-muted-foreground/75 hover:text-foreground hover:bg-muted/60',
+                      )}
                     >
                       <Link
                         href={item.url}
                         onClick={() => isMobile && setOpenMobile(false)}
-                        className={navLinkClass}
                       >
                         <div
                           className={cn(
-                            'flex items-center justify-center transition-transform duration-200 group-hover/item:scale-110',
+                            'flex items-center justify-center transition-transform duration-200 group-hover/item:scale-110 shrink-0',
                             isActive ? 'text-primary font-bold' : 'text-muted-foreground/80 group-hover/item:text-foreground',
                           )}
                         >
@@ -271,7 +256,7 @@ export function AppSidebar({
                         {(!collapsed || isMobile) && (
                           <span
                             className={cn(
-                              'text-xs transition-colors',
+                              'text-xs transition-colors truncate',
                               isActive ? 'font-semibold text-primary' : 'font-medium text-muted-foreground/80 group-hover/item:text-foreground',
                             )}
                           >
@@ -279,7 +264,7 @@ export function AppSidebar({
                           </span>
                         )}
                         {isActive && (!collapsed || isMobile) && (
-                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(var(--primary),0.8)] animate-pulse" />
+                          <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_rgba(var(--primary),0.8)] animate-pulse shrink-0" />
                         )}
                       </Link>
                     </SidebarMenuButton>
@@ -293,12 +278,12 @@ export function AppSidebar({
         {/* Recent Conversations Section */}
         {(!collapsed || isMobile) && (
           <SidebarGroup className="py-2 mt-1 flex-1 min-h-0 flex flex-col overflow-hidden p-0">
-            <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-2 h-5 flex items-center justify-between shrink-0 pr-3">
+            <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-2 h-5 flex items-center justify-between shrink-0">
               <span>Recent Chats</span>
               {isLoadingChats && <span className="text-[9px] animate-pulse text-muted-foreground">Syncing...</span>}
             </SidebarGroupLabel>
             <SidebarGroupContent className="flex-1 min-h-0 overflow-y-auto">
-              <div className="space-y-0.5 mt-1 pb-2 pl-0 pr-1.5">
+              <div className="space-y-0.5 mt-1 pb-2">
                 {recentChats.length === 0 && !isLoadingChats ? (
                   <p className="px-2 py-1 text-[11px] text-muted-foreground/60 italic">No recent chats</p>
                 ) : (
