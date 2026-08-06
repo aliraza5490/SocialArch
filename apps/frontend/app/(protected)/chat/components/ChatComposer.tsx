@@ -57,13 +57,18 @@ export function ChatComposer({
     try {
       setIsUploading(true);
       const uploadedAssets = await assetsService.uploadAssets(files);
-      const newAttachments: ChatAttachment[] = uploadedAssets.map((asset) => ({
-        id: asset.ID,
-        name: asset.name,
-        type: asset.type,
-        mimeType: asset.mimeType || undefined,
-        size: asset.size || undefined,
-      }));
+      const newAttachments: ChatAttachment[] = uploadedAssets.map((asset, idx) => {
+        const localFile = files[idx];
+        const blobUrl = localFile ? URL.createObjectURL(localFile) : undefined;
+        return {
+          id: asset.ID,
+          name: asset.name || localFile?.name || 'File',
+          type: asset.type || (localFile?.type?.startsWith('image/') ? 'image' : 'document'),
+          mimeType: asset.mimeType || localFile?.type || undefined,
+          size: asset.size || localFile?.size || undefined,
+          url: blobUrl || (asset as any).url || (asset as any).fileUrl,
+        };
+      });
 
       setStagedAttachments((prev) => [...prev, ...newAttachments]);
       toast.success(`Uploaded ${uploadedAssets.length} file${uploadedAssets.length > 1 ? 's' : ''} to Assets`);
@@ -72,6 +77,13 @@ export function ChatComposer({
       toast.error(err?.response?.data?.message || 'Failed to upload files');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    if (e.clipboardData.files && e.clipboardData.files.length > 0) {
+      e.preventDefault();
+      await uploadFiles(Array.from(e.clipboardData.files));
     }
   };
 
@@ -124,59 +136,98 @@ export function ChatComposer({
       />
 
       <div className="max-w-2xl mx-auto space-y-1.5">
-        {/* Rounded ChatGPT Shell matching theme */}
+        {/* ChatGPT Shell with adaptive roundness */}
         <div
-          className={`rounded-full border bg-card shadow-md px-3 py-1.5 transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20 ${
+          className={cn(
+            'border bg-card shadow-md transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20',
+            stagedAttachments.length > 0 || isUploading
+              ? 'rounded-3xl p-3'
+              : 'rounded-full px-3 py-1.5',
             isDragging ? 'border-primary ring-2 ring-primary/30 bg-primary/5' : 'border-border'
-          }`}
+          )}
         >
           {/* Staged Attachment Chips */}
           {(stagedAttachments.length > 0 || isUploading) && (
-            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 px-1 pt-0.5 scrollbar-thin">
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 px-1 pt-2 scrollbar-none">
               {stagedAttachments.map((att) => {
-                const isImage = att.mimeType?.startsWith('image/') || att.type === 'image';
+                const isImage =
+                  att.mimeType?.startsWith('image/') ||
+                  att.type === 'image' ||
+                  /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)$/i.test(att.name);
+
+                const isPdf =
+                  att.mimeType === 'application/pdf' ||
+                  att.name.toLowerCase().endsWith('.pdf') ||
+                  att.type === 'pdf';
+
+                const fileExt = att.name.includes('.') ? att.name.split('.').pop()?.toUpperCase() : '';
+                const fileTypeLabel = isPdf ? 'PDF' : (fileExt || (att.type ? att.type.toUpperCase() : 'FILE'));
+                const imageUrl = att.url || (att.id ? assetsService.getFileUrl(att.id) : '');
+
+                if (isImage) {
+                  return (
+                    <div key={att.id} className="relative w-12 h-12 shrink-0 group">
+                      <div className="w-full h-full rounded-xl overflow-hidden border border-border/70 bg-muted/40 shadow-2xs">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={imageUrl}
+                          alt={att.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            if (att.id && e.currentTarget.src !== assetsService.getFileUrl(att.id)) {
+                              e.currentTarget.src = assetsService.getFileUrl(att.id);
+                            }
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(att.id)}
+                        className="absolute -top-1 -right-1 z-30 w-4.5 h-4.5 rounded-full bg-background border border-border text-foreground hover:bg-muted flex items-center justify-center shadow-xs transition-transform hover:scale-110 cursor-pointer"
+                        title="Remove photo"
+                      >
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    </div>
+                  );
+                }
+
                 return (
                   <div
                     key={att.id}
-                    className="flex items-center gap-2 bg-muted/80 hover:bg-muted border border-border/60 rounded-lg px-2 py-1 text-[11px] text-foreground shrink-0 shadow-2xs group transition-colors"
+                    className="flex items-center gap-2.5 bg-muted/60 hover:bg-muted/90 border border-border/70 rounded-xl px-2.5 py-1.5 text-foreground shrink-0 shadow-2xs group transition-colors h-12 max-w-[210px]"
                   >
-                    {isImage ? (
-                      <div className="relative w-6 h-6 rounded-md overflow-hidden shrink-0 bg-background border border-border/40">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={assetsService.getFileUrl(att.id)}
-                          alt={att.name}
-                          className="w-full h-full object-cover"
-                        />
+                    {isPdf ? (
+                      <div className="w-7.5 h-7.5 rounded-lg bg-red-500/15 text-red-500 flex items-center justify-center shrink-0">
+                        <FileText className="h-4 w-4 text-red-500" />
                       </div>
                     ) : (
-                      <div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                        <FileText className="h-3 w-3" />
+                      <div className="w-7.5 h-7.5 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <FileText className="h-4 w-4" />
                       </div>
                     )}
 
-                    <div className="flex flex-col max-w-[130px] truncate">
-                      <span className="font-medium truncate leading-tight">{att.name}</span>
-                      {att.size && (
-                        <span className="text-[9px] text-muted-foreground">{formatFileSize(att.size)}</span>
-                      )}
+                    <div className="flex flex-col min-w-0 pr-0.5 flex-1 leading-tight">
+                      <span className="text-xs font-semibold text-foreground truncate">{att.name}</span>
+                      <span className="text-[10px] text-muted-foreground font-medium mt-0.5">{fileTypeLabel}</span>
                     </div>
 
                     <button
                       type="button"
                       onClick={() => removeAttachment(att.id)}
-                      className="text-muted-foreground hover:text-foreground rounded-full p-0.5 hover:bg-background/80 transition-colors ml-0.5"
+                      className="relative z-30 text-muted-foreground hover:text-foreground opacity-60 hover:opacity-100 p-0.5 rounded-full hover:bg-background/80 transition-all shrink-0 cursor-pointer"
+                      title="Remove attachment"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 );
               })}
 
               {isUploading && (
-                <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-lg px-2.5 py-1 text-[11px] text-primary shrink-0 animate-pulse">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  <span>Uploading to Assets...</span>
+                <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-xl px-3 py-1.5 text-xs text-primary shrink-0 animate-pulse h-12">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span className="font-medium text-xs">Uploading...</span>
                 </div>
               )}
             </div>
@@ -199,6 +250,7 @@ export function ChatComposer({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
               placeholder={isUploading ? 'Uploading attachments...' : 'Ask anything or upload files...'}
               rows={1}
               className="flex-1 bg-transparent border-0 resize-none py-1 px-1 text-xs md:text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden max-h-36"
