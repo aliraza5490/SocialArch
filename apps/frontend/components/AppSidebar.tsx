@@ -185,11 +185,11 @@ export function AppSidebar({
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="px-2 overflow-hidden flex flex-col flex-1 min-h-0">
+      <SidebarContent className="pl-2 pr-0 overflow-hidden flex flex-col flex-1 min-h-0">
         <div
           className={cn(
-            'mt-2.5 pt-1 pb-1.5 shrink-0',
-            collapsed && !isMobile ? 'flex justify-center' : '',
+            'mt-2.5 pt-1 pb-1.5 shrink-0 pr-2',
+            collapsed && !isMobile ? 'flex justify-center pr-0' : '',
           )}
         >
           <Button
@@ -214,7 +214,7 @@ export function AppSidebar({
           </Button>
         </div>
 
-        <SidebarGroup className="py-0.5 shrink-0 p-0">
+        <SidebarGroup className="py-0.5 shrink-0 p-0 pr-2">
           <SidebarGroupLabel
             className={cn(
               'text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-0.5 h-5 px-2',
@@ -278,12 +278,12 @@ export function AppSidebar({
         {/* Recent Conversations Section */}
         {(!collapsed || isMobile) && (
           <SidebarGroup className="py-2 mt-1 flex-1 min-h-0 flex flex-col overflow-hidden p-0">
-            <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-2 h-5 flex items-center justify-between shrink-0">
+            <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-2 h-5 flex items-center justify-between shrink-0 pr-2">
               <span>Recent Chats</span>
               {isLoadingChats && <span className="text-[9px] animate-pulse text-muted-foreground">Syncing...</span>}
             </SidebarGroupLabel>
             <SidebarGroupContent className="flex-1 min-h-0 overflow-y-auto">
-              <div className="space-y-0.5 mt-1 pb-2">
+              <div className="space-y-0.5 mt-1 pb-2 pr-2">
                 {recentChats.length === 0 && !isLoadingChats ? (
                   <p className="px-2 py-1 text-[11px] text-muted-foreground/60 italic">No recent chats</p>
                 ) : (
@@ -346,16 +346,20 @@ export function AppSidebar({
                                   <MoreHorizontal className="h-3 w-3" />
                                 </button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-32">
-                                <DropdownMenuItem onClick={(e) => handleStartRename(chat, e)}>
-                                  <Pencil className="mr-2 h-3.5 w-3.5" />
+                              <DropdownMenuContent align="end" className="w-28 min-w-0 p-1">
+                                <DropdownMenuItem
+                                  className="text-xs py-1 px-2 cursor-pointer gap-1.5 [&_svg]:size-3.5"
+                                  onClick={(e) => handleStartRename(chat, e)}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
                                   <span>Rename</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                  className="text-destructive focus:text-destructive"
+                                  variant="destructive"
+                                  className="text-xs py-1 px-2 cursor-pointer gap-1.5 [&_svg]:size-3.5"
                                   onClick={(e) => handleDeleteChat(chat.ID, e)}
                                 >
-                                  <Trash2 className="mr-2 h-3.5 w-3.5" />
+                                  <Trash2 className="h-3.5 w-3.5" />
                                   <span>Delete</span>
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
