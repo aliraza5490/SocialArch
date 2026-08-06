@@ -47,7 +47,7 @@ export function ChatMessages({
       <div
         className={cn(
           'w-full mx-auto flex flex-col transition-all duration-500 ease-out',
-          isEmpty ? 'items-center justify-center' : 'max-w-4xl px-4 py-6 md:px-8 space-y-6 flex-1'
+          isEmpty ? 'items-center justify-center' : 'max-w-4xl px-4 pt-6 pb-2 md:px-8 space-y-6 flex-1'
         )}
       >
         {isLoadingHistory ? (
@@ -58,7 +58,7 @@ export function ChatMessages({
         ) : isEmpty ? (
           <ChatEmptyState />
         ) : (
-          <div className="space-y-6 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out w-full">
+          <div className="space-y-6 pb-4 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out w-full">
             {positionGroups.map((group) => (
               <ChatMessageItem
                 key={group.position}
