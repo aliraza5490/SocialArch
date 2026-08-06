@@ -185,8 +185,8 @@ export function AppSidebar({
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
-        <div className={cn('mt-2.5 pt-1 pb-1.5', collapsed && !isMobile ? 'flex justify-center' : 'px-1')}>
+      <SidebarContent className="pl-2 pr-0 overflow-hidden flex flex-col flex-1 min-h-0">
+        <div className={cn('mt-2.5 pt-1 pb-1.5 shrink-0 pr-2 mr-[2px]', collapsed && !isMobile ? 'flex justify-center ml-0' : '')}>
           <Button
             asChild
             size={collapsed && !isMobile ? 'icon' : 'sm'}
@@ -207,7 +207,7 @@ export function AppSidebar({
           </Button>
         </div>
 
-        <SidebarGroup className="py-0.5">
+        <SidebarGroup className="py-0.5 shrink-0 pr-2">
           <SidebarGroupLabel
             className={cn(
               'text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-0.5 h-5',
@@ -292,17 +292,17 @@ export function AppSidebar({
 
         {/* Recent Conversations Section */}
         {(!collapsed || isMobile) && (
-          <SidebarGroup className="py-2 mt-1">
-            <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-2 h-5 flex items-center justify-between">
+          <SidebarGroup className="py-2 mt-1 flex-1 min-h-0 flex flex-col overflow-hidden p-0">
+            <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-2 h-5 flex items-center justify-between shrink-0 pr-3">
               <span>Recent Chats</span>
               {isLoadingChats && <span className="text-[9px] animate-pulse text-muted-foreground">Syncing...</span>}
             </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <div className="space-y-0.5 mt-1">
+            <SidebarGroupContent className="flex-1 min-h-0 overflow-y-auto">
+              <div className="space-y-0.5 mt-1 pb-2 pl-0 pr-1.5">
                 {recentChats.length === 0 && !isLoadingChats ? (
                   <p className="px-2 py-1 text-[11px] text-muted-foreground/60 italic">No recent chats</p>
                 ) : (
-                  recentChats.slice(0, 15).map((chat) => {
+                  recentChats.map((chat) => {
                     const isSelected = currentChatId === chat.ID;
                     const isEditing = editingChatId === chat.ID;
 
