@@ -218,7 +218,7 @@ export function ChatMessageItem({
         <div className="flex flex-col items-end gap-1.5 max-w-[85%] md:max-w-[75%]">
           <RenderAttachments attachments={msg.attachments} onPreviewAsset={onPreviewAsset} />
           {msg.content && (
-            <div className="rounded-[22px] bg-primary text-primary-foreground font-medium px-4 py-2.5 text-sm leading-relaxed shadow-xs whitespace-pre-wrap">
+            <div className="rounded-[20px] bg-primary text-primary-foreground font-medium px-3.5 py-2 text-xs md:text-sm leading-relaxed shadow-xs whitespace-pre-wrap">
               {msg.content}
             </div>
           )}
@@ -283,13 +283,13 @@ export function ChatMessageItem({
         </div>
       ) : (
         /* Assistant Message & Action Bar */
-        <div className="flex items-start gap-3 w-full max-w-full">
-          <div className="h-7 w-7 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+        <div className="flex items-start gap-2.5 w-full max-w-full">
+          <div className="h-6.5 w-6.5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
             <Image
               src="/logo.png"
               alt="SocialArch AI"
-              width={16}
-              height={16}
+              width={14}
+              height={14}
               className="object-contain"
             />
           </div>
