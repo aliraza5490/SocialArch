@@ -294,8 +294,14 @@ export function AppSidebar({
                     return (
                       <div
                         key={chat.ID}
+                        onClick={() => {
+                          if (!isEditing) {
+                            if (isMobile) setOpenMobile(false);
+                            router.push(`/chat?id=${chat.ID}`);
+                          }
+                        }}
                         className={cn(
-                          'group/chat flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer border border-transparent',
+                          'group/chat flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer border border-transparent select-none',
                           isSelected
                             ? 'bg-accent text-accent-foreground font-medium border-border/40 shadow-2xs'
                             : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
@@ -304,6 +310,7 @@ export function AppSidebar({
                         {isEditing ? (
                           <form
                             onSubmit={(e) => handleSaveRename(chat.ID, e)}
+                            onClick={(e) => e.stopPropagation()}
                             className="flex items-center gap-1 w-full"
                           >
                             <input
@@ -321,7 +328,10 @@ export function AppSidebar({
                             </button>
                             <button
                               type="button"
-                              onClick={() => setEditingChatId(null)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingChatId(null);
+                              }}
                               className="text-muted-foreground hover:text-foreground p-0.5"
                             >
                               <X className="h-3 w-3" />
