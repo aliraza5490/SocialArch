@@ -4,23 +4,16 @@ import * as React from 'react';
 import { Loader2 } from 'lucide-react';
 import { ChatEmptyState } from './ChatEmptyState';
 import { ChatMessageItem, PositionGroup } from './ChatMessageItem';
-
-import { ChatAttachment } from '@/lib/services/chat.service';
+import { cn } from '@/lib/utils';
 
 interface ChatMessagesProps {
   isLoadingHistory: boolean;
   positionGroups: PositionGroup[];
-  input: string;
-  setInput: (val: string) => void;
-  stagedAttachments: ChatAttachment[];
-  setStagedAttachments: React.Dispatch<React.SetStateAction<ChatAttachment[]>>;
-  handleSend: (overrideContent?: string) => void;
-  handleCancel: () => void;
-  isRunning: boolean;
   selectedVersions: Record<number, number>;
   setSelectedVersions: React.Dispatch<React.SetStateAction<Record<number, number>>>;
   copiedMsgId: string | number | null;
   handleCopy: (text: string, id: string | number) => void;
+  setInput: (val: string) => void;
   feedback: Record<number, 'up' | 'down'>;
   handleFeedback: (pos: number, type: 'up' | 'down') => void;
   handleRegenerate: (position: number) => void;
@@ -31,17 +24,11 @@ interface ChatMessagesProps {
 export function ChatMessages({
   isLoadingHistory,
   positionGroups,
-  input,
-  setInput,
-  stagedAttachments,
-  setStagedAttachments,
-  handleSend,
-  handleCancel,
-  isRunning,
   selectedVersions,
   setSelectedVersions,
   copiedMsgId,
   handleCopy,
+  setInput,
   feedback,
   handleFeedback,
   handleRegenerate,
@@ -51,25 +38,27 @@ export function ChatMessages({
   const isEmpty = positionGroups.length === 0;
 
   return (
-    <div className="flex-1 w-full overflow-y-auto overflow-x-hidden">
-      <div className="max-w-4xl w-full mx-auto px-4 py-6 md:px-8 space-y-6 flex flex-col min-h-full">
+    <div
+      className={cn(
+        'w-full transition-all duration-500 ease-out',
+        isEmpty ? 'w-full' : 'flex-1 overflow-y-auto overflow-x-hidden flex flex-col'
+      )}
+    >
+      <div
+        className={cn(
+          'w-full mx-auto flex flex-col transition-all duration-500 ease-out',
+          isEmpty ? 'items-center justify-center' : 'max-w-4xl px-4 py-6 md:px-8 space-y-6 flex-1'
+        )}
+      >
         {isLoadingHistory ? (
           <div className="flex h-full w-full items-center justify-center my-auto py-20 text-muted-foreground gap-2 text-sm">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span>Loading conversation...</span>
           </div>
         ) : isEmpty ? (
-          <ChatEmptyState
-            input={input}
-            setInput={setInput}
-            stagedAttachments={stagedAttachments}
-            setStagedAttachments={setStagedAttachments}
-            handleSend={handleSend}
-            handleCancel={handleCancel}
-            isRunning={isRunning}
-          />
+          <ChatEmptyState />
         ) : (
-          <div className="space-y-6 pb-24">
+          <div className="space-y-6 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out w-full">
             {positionGroups.map((group) => (
               <ChatMessageItem
                 key={group.position}

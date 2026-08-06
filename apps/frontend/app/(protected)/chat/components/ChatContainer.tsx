@@ -10,6 +10,7 @@ import { ChatMessages } from './ChatMessages';
 import { ChatComposer } from './ChatComposer';
 import { PositionGroup } from './ChatMessageItem';
 import { AssetPreviewModal } from '@/app/(protected)/assets/components/AssetPreviewModal';
+import { cn } from '@/lib/utils';
 
 export function ChatContainer() {
   const searchParams = useSearchParams();
@@ -259,9 +260,9 @@ export function ChatContainer() {
             prev.map((msg) =>
               msg.position === position && (msg.version || 1) === newVersionNumber
                 ? {
-                    ...msg,
-                    attachments: [...(msg.attachments || []), att],
-                  }
+                  ...msg,
+                  attachments: [...(msg.attachments || []), att],
+                }
                 : msg
             )
           );
@@ -315,28 +316,29 @@ export function ChatContainer() {
 
   return (
     <div className="flex flex-col h-full w-full bg-background text-foreground relative overflow-hidden font-sans">
-      <ChatMessages
-        isLoadingHistory={isLoadingHistory}
-        positionGroups={positionGroups}
-        input={input}
-        setInput={setInput}
-        stagedAttachments={stagedAttachments}
-        setStagedAttachments={setStagedAttachments}
-        handleSend={handleSend}
-        handleCancel={handleCancel}
-        isRunning={isRunning}
-        selectedVersions={selectedVersions}
-        setSelectedVersions={setSelectedVersions}
-        copiedMsgId={copiedMsgId}
-        handleCopy={handleCopy}
-        feedback={feedback}
-        handleFeedback={handleFeedback}
-        handleRegenerate={handleRegenerate}
-        onPreviewAsset={handlePreviewAsset}
-        messagesEndRef={messagesEndRef}
-      />
+      <div
+        className={cn(
+          'flex-1 flex flex-col w-full transition-all duration-500 ease-out',
+          isEmpty
+            ? 'justify-center items-center px-4 pb-[12vh] max-w-3xl mx-auto gap-8'
+            : 'justify-between overflow-hidden'
+        )}
+      >
+        <ChatMessages
+          isLoadingHistory={isLoadingHistory}
+          positionGroups={positionGroups}
+          selectedVersions={selectedVersions}
+          setSelectedVersions={setSelectedVersions}
+          copiedMsgId={copiedMsgId}
+          handleCopy={handleCopy}
+          setInput={setInput}
+          feedback={feedback}
+          handleFeedback={handleFeedback}
+          handleRegenerate={handleRegenerate}
+          onPreviewAsset={handlePreviewAsset}
+          messagesEndRef={messagesEndRef}
+        />
 
-      {!isEmpty && (
         <ChatComposer
           input={input}
           setInput={setInput}
@@ -347,8 +349,9 @@ export function ChatContainer() {
           isRunning={isRunning}
           textareaRef={textareaRef}
           handleKeyDown={handleKeyDown}
+          isEmpty={isEmpty}
         />
-      )}
+      </div>
 
       {previewAsset && (
         <AssetPreviewModal

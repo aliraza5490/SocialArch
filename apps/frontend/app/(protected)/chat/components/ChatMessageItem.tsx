@@ -209,7 +209,7 @@ export function ChatMessageItem({
   return (
     <div
       className={cn(
-        'flex flex-col space-y-1.5 group',
+        'flex flex-col space-y-1.5 group animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out',
         isUser ? 'items-end' : 'items-start'
       )}
     >

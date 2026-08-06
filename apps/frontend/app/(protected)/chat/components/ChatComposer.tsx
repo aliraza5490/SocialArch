@@ -6,6 +6,7 @@ import { TooltipIconButton } from '@/components/tooltip-icon-button';
 import { toast } from 'sonner';
 import { assetsService } from '@/lib/services/assets.service';
 import { ChatAttachment } from '@/lib/services/chat.service';
+import { cn } from '@/lib/utils';
 
 interface ChatComposerProps {
   input: string;
@@ -17,6 +18,7 @@ interface ChatComposerProps {
   isRunning: boolean;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  isEmpty?: boolean;
 }
 
 function formatFileSize(bytes?: number): string {
@@ -36,6 +38,7 @@ export function ChatComposer({
   isRunning,
   textareaRef,
   handleKeyDown,
+  isEmpty = false,
 }: ChatComposerProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -102,7 +105,12 @@ export function ChatComposer({
 
   return (
     <div
-      className="sticky bottom-0 w-full bg-linear-to-t from-background via-background/90 to-transparent pt-4 pb-3 px-4"
+      className={cn(
+        'w-full transition-all duration-500 ease-out animate-in fade-in slide-in-from-bottom-3',
+        isEmpty
+          ? 'px-0'
+          : 'sticky bottom-0 bg-linear-to-t from-background via-background/90 to-transparent pt-4 pb-3 px-4'
+      )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
