@@ -61,8 +61,8 @@ const useAuthStore = create<AuthStore>((set) => ({
             setTokens(accessToken, newRefreshToken);
             tokenPayload = getValidAccessToken();
           }
-        } catch (refreshError) {
-          console.error("Failed to refresh token during init:", refreshError);
+        } catch {
+          // Token refresh failed (e.g., refresh token expired) — clear stale tokens silently
           clearTokens();
           set({
             user: null,
@@ -108,6 +108,8 @@ const useAuthStore = create<AuthStore>((set) => ({
         }
       }
 
+      // No valid token and refresh not possible — clear any stale tokens
+      clearTokens();
       set({
         user: null,
         isAuthenticated: false,

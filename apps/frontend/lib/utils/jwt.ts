@@ -94,7 +94,8 @@ export function isTokenExpiredButRefreshable(): boolean {
 
     if (!token || !refreshToken) return false;
 
-    return isTokenExpired(token);
+    // Only attempt refresh if the access token is expired AND the refresh token is still valid
+    return isTokenExpired(token) && !isTokenExpired(refreshToken);
   } catch (error) {
     console.error("Failed to check if token is refreshable:", error);
     return false;
