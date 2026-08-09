@@ -138,7 +138,7 @@ export function UploadModal({
         }
       }}
     >
-      <DialogContent className="sm:max-w-[520px]">
+      <DialogContent className="sm:card-dialog-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base font-semibold">
             <Upload className="h-5 w-5 text-primary" />
@@ -177,7 +177,7 @@ export function UploadModal({
               <p className="text-xs font-semibold">
                 Click to browse or drag & drop files here
               </p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
+              <p className="text-11px text-muted-foreground mt-0.5">
                 Images, Videos, PDFs or Documents up to {MAX_FILE_SIZE_MB}MB each
               </p>
             </div>
@@ -192,7 +192,7 @@ export function UploadModal({
                   type="button"
                   onClick={() => setSelectedFiles([])}
                   disabled={isUploading}
-                  className="text-destructive hover:underline text-[11px]"
+                  className="text-destructive hover:underline text-11px"
                 >
                   Clear all
                 </button>
@@ -206,7 +206,7 @@ export function UploadModal({
                     {getFileIcon(file)}
                     <div className="min-w-0">
                       <p className="truncate font-medium">{file.name}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-2xs text-muted-foreground">
                         {formatFileSize(file.size)}
                       </p>
                     </div>

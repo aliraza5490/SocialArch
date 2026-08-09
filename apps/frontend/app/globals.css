@@ -43,6 +43,35 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Custom Typography Scales */
+  --text-3xs: 0.6875rem;
+  --text-2xs: 0.75rem;
+  --text-11px: 0.75rem;
+  --text-13px: 0.875rem;
+
+  /* Centralized Card & Container Sizing Tokens */
+  --width-card-auth: 28rem;
+  --width-card-dialog-sm: 26.5rem;
+  --width-card-dialog-md: 30rem;
+  --width-card-dialog-lg: 32.5rem;
+  --width-card-dialog-xl: 50rem;
+
+  --width-glow-md: 37.5rem;
+  --width-glow-lg: 50rem;
+  --width-glow-xl: 62.5rem;
+
+  --height-glow-md: 28.125rem;
+  --height-glow-lg: 31.25rem;
+  --height-glow-xl: 37.5rem;
+
+  --height-card-chart: 13.125rem;
+  --height-card-chart-sm: 11.25rem;
+  --height-card-chart-xs: 8.75rem;
+
+  --height-card-textarea-min: 5rem;
+  --height-card-hero-min: 21.25rem;
+  --height-card-preview-min: 27.5rem;
 }
 
 :root {
@@ -190,6 +219,67 @@
 
   .animate-float {
     animation: float 3s ease-in-out infinite;
+  }
+
+  /* Standardized Card Container Utilities */
+  .card-auth {
+    width: 100%;
+    max-width: var(--width-card-auth);
+  }
+
+  .card-dialog-sm {
+    max-width: var(--width-card-dialog-sm);
+  }
+
+  .card-dialog-md {
+    max-width: var(--width-card-dialog-md);
+  }
+
+  .card-dialog-lg {
+    max-width: var(--width-card-dialog-lg);
+  }
+
+  .card-dialog-xl {
+    max-width: var(--width-card-dialog-xl);
+  }
+
+  .bg-glow-lg {
+    width: var(--width-glow-lg);
+    height: var(--height-glow-lg);
+  }
+
+  .bg-glow-md {
+    width: var(--width-glow-md);
+    height: var(--height-glow-lg);
+  }
+
+  .bg-glow-xl {
+    width: var(--width-glow-xl);
+    height: var(--height-glow-xl);
+  }
+
+  .bg-glow-hero-top {
+    width: var(--width-glow-lg);
+    height: var(--height-glow-md);
+  }
+
+  .bg-glow-hero-bottom {
+    width: var(--width-glow-md);
+    height: var(--height-glow-md);
+  }
+
+  .h-card-chart {
+    height: var(--height-card-chart-xs);
+  }
+  @media (min-width: 640px) {
+    .h-card-chart {
+      height: var(--height-card-chart-sm);
+    }
+  }
+  @media (min-width: 768px) {
+    .h-card-chart {
+      height: var(--height-card-chart);
+    }
   }
 
   /* Markdown Prose Styles */

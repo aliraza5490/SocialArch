@@ -195,7 +195,7 @@ export function ChatComposer({
                 return (
                   <div
                     key={att.id}
-                    className="flex items-center gap-2.5 bg-muted/60 hover:bg-muted/90 border border-border/70 rounded-xl px-2.5 py-1.5 text-foreground shrink-0 shadow-2xs group transition-colors h-12 max-w-[210px]"
+                    className="flex items-center gap-2.5 bg-muted/60 hover:bg-muted/90 border border-border/70 rounded-xl px-2.5 py-1.5 text-foreground shrink-0 shadow-2xs group transition-colors h-12 max-w-52"
                   >
                     {isPdf ? (
                       <div className="w-7.5 h-7.5 rounded-lg bg-red-500/15 text-red-500 flex items-center justify-center shrink-0">
@@ -209,7 +209,7 @@ export function ChatComposer({
 
                     <div className="flex flex-col min-w-0 pr-0.5 flex-1 leading-tight">
                       <span className="text-xs font-semibold text-foreground truncate">{att.name}</span>
-                      <span className="text-[10px] text-muted-foreground font-medium mt-0.5">{fileTypeLabel}</span>
+                      <span className="text-2xs text-muted-foreground font-medium mt-0.5">{fileTypeLabel}</span>
                     </div>
 
                     <button
@@ -299,12 +299,12 @@ export function ChatComposer({
         </div>
 
         {/* Disclaimer & Shortcut Text */}
-        <p className="text-[10px] text-center text-muted-foreground flex items-center justify-center gap-1.5 flex-wrap mt-1">
+        <p className="text-2xs text-center text-muted-foreground flex items-center justify-center gap-1.5 flex-wrap mt-1">
           <span>SocialArch AI can make mistakes. Check important info.</span>
           <span className="text-muted-foreground/40">•</span>
           <span className="inline-flex items-center gap-1">
             <span>Press</span>
-            <kbd className="pointer-events-none inline-flex h-3.5 select-none items-center gap-0.5 rounded border border-border/60 bg-muted/60 px-1 font-mono text-[9px] font-medium text-muted-foreground">
+            <kbd className="pointer-events-none inline-flex h-3.5 select-none items-center gap-0.5 rounded border border-border/60 bg-muted/60 px-1 font-mono text-3xs font-medium text-muted-foreground">
               Ctrl+Shift+O
             </kbd>
             <span>to start new chat</span>

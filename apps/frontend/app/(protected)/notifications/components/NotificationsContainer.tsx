@@ -194,7 +194,7 @@ export function NotificationsContainer() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-medium">Content Updates</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-11px text-muted-foreground">
                         Get notified when your content is ready
                       </p>
                     </div>
@@ -203,7 +203,7 @@ export function NotificationsContainer() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-medium">Account Activity</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-11px text-muted-foreground">
                         Updates about your account and billing
                       </p>
                     </div>
@@ -212,7 +212,7 @@ export function NotificationsContainer() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-medium">System Updates</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-11px text-muted-foreground">
                         New features and platform announcements
                       </p>
                     </div>
@@ -221,7 +221,7 @@ export function NotificationsContainer() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs font-medium">Marketing</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-11px text-muted-foreground">
                         Promotional content and tips
                       </p>
                     </div>
@@ -279,7 +279,7 @@ export function NotificationsContainer() {
         >
           Unread
           {unreadCount > 0 && (
-            <span className="ml-1.5 h-4 px-1.5 text-[10px] font-semibold gradient-primary text-primary-foreground rounded-full flex items-center justify-center">
+            <span className="ml-1.5 h-4 px-1.5 text-2xs font-semibold gradient-primary text-primary-foreground rounded-full flex items-center justify-center">
               {unreadCount}
             </span>
           )}
@@ -334,7 +334,7 @@ export function NotificationsContainer() {
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {notification.message}
                       </p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
+                      <p className="text-11px text-muted-foreground mt-0.5">
                         {formatTime(notification.timestamp)}
                       </p>
                     </div>

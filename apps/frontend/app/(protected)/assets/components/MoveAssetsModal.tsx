@@ -247,7 +247,7 @@ export function MoveAssetsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isSubmitting && onClose()}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:card-dialog-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base font-semibold">
             {mode === 'move' ? (

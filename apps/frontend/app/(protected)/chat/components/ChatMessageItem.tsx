@@ -88,7 +88,7 @@ function RenderAttachments({
           return (
             <div
               key={att.id}
-              className="relative group/img rounded-xl overflow-hidden border border-border bg-card shadow-xs max-w-[240px] cursor-pointer"
+              className="relative group/img rounded-xl overflow-hidden border border-border bg-card shadow-xs max-w-60 cursor-pointer"
               onClick={() => onPreviewAsset?.(att.id)}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -130,7 +130,7 @@ function RenderAttachments({
         return (
           <div
             key={att.id}
-            className="flex items-center gap-3 bg-muted/70 hover:bg-muted border border-border/70 rounded-xl p-2.5 text-xs text-foreground shrink-0 shadow-2xs max-w-[280px] transition-colors"
+            className="flex items-center gap-3 bg-muted/70 hover:bg-muted border border-border/70 rounded-xl p-2.5 text-xs text-foreground shrink-0 shadow-2xs max-w-70 transition-colors"
           >
             <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <FileText className="h-4 w-4" />
@@ -141,7 +141,7 @@ function RenderAttachments({
                 {att.name}
               </span>
               {att.size && (
-                <span className="text-[10px] text-muted-foreground mt-0.5">{formatFileSize(att.size)}</span>
+                <span className="text-2xs text-muted-foreground mt-0.5">{formatFileSize(att.size)}</span>
               )}
             </div>
 

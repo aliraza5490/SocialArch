@@ -188,7 +188,7 @@ export function BillingContainer() {
               </div>
               <div>
                 <p className="text-xs font-semibold">Pro Plan</p>
-                <p className="text-[11px] text-muted-foreground">Current plan</p>
+                <p className="text-11px text-muted-foreground">Current plan</p>
               </div>
             </div>
             <div className="text-2xl font-bold">
@@ -208,7 +208,7 @@ export function BillingContainer() {
               </div>
               <div>
                 <p className="text-xs font-semibold">Credits Usage</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-11px text-muted-foreground">
                   AI credits remaining
                 </p>
               </div>
@@ -221,7 +221,7 @@ export function BillingContainer() {
               value={(creditsUsed / creditsTotal) * 100}
               className="h-1.5"
             />
-            <p className="text-[11px] text-muted-foreground mt-1.5">
+            <p className="text-11px text-muted-foreground mt-1.5">
               Resets in 12 days
             </p>
           </CardContent>
@@ -235,7 +235,7 @@ export function BillingContainer() {
               </div>
               <div>
                 <p className="text-xs font-semibold">Next Billing</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-11px text-muted-foreground">
                   Subscription renewal
                 </p>
               </div>
@@ -267,7 +267,7 @@ export function BillingContainer() {
               >
                 {plan.popular && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                    <Badge className="gradient-primary text-primary-foreground text-[10px] px-2 py-0.5 shadow-glow">
+                    <Badge className="gradient-primary text-primary-foreground text-2xs px-2 py-0.5 shadow-glow">
                       Most Popular
                     </Badge>
                   </div>
@@ -359,7 +359,7 @@ export function BillingContainer() {
                             : 'destructive'
                       }
                       className={cn(
-                        'text-[10px] px-2 py-0.5',
+                        'text-2xs px-2 py-0.5',
                         transaction.status === 'completed' &&
                           'bg-green-500/10 text-green-500 hover:bg-green-500/20',
                       )}

@@ -89,15 +89,15 @@ export function EmailVerificationCard() {
 
   if (state === 'loading') {
     return (
-      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
-        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
-          <CardTitle className="text-lg font-bold text-center">Verifying Email</CardTitle>
-          <CardDescription className="text-center text-xs">
+      <Card className="card-auth shadow-xl p-6 sm:p-7 border border-border/80 rounded-2xl">
+        <CardHeader className="p-0 space-y-1 mb-4">
+          <CardTitle className="text-2xl font-bold text-center tracking-tight">Verifying Email</CardTitle>
+          <CardDescription className="text-center text-sm text-muted-foreground">
             Please wait while we verify your email address
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center px-4 pt-0">
-          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-3" />
+        <CardContent className="text-center p-0 space-y-3">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto my-2" />
           <p className="text-xs text-muted-foreground">
             This may take a few moments...
           </p>
@@ -108,26 +108,28 @@ export function EmailVerificationCard() {
 
   if (state === 'success') {
     return (
-      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
-        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
-          <CardTitle className="text-lg font-bold text-center">Email Verified!</CardTitle>
-          <CardDescription className="text-center text-xs">
+      <Card className="card-auth shadow-xl p-6 sm:p-7 border border-border/80 rounded-2xl">
+        <CardHeader className="p-0 space-y-1 mb-4">
+          <CardTitle className="text-2xl font-bold text-center tracking-tight">Email Verified!</CardTitle>
+          <CardDescription className="text-center text-sm text-muted-foreground">
             Your email has been successfully verified
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-3 px-4 pt-0">
-          <CheckCircle className="h-10 w-10 text-emerald-500 mx-auto" />
+        <CardContent className="text-center space-y-4 p-0">
+          <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto" />
           <p className="text-xs text-muted-foreground">
             {message || 'Congratulations! Your email has been verified. You can now sign in to your account.'}
           </p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Redirecting to login page...
           </p>
-          <Link href="/login">
-            <Button className="w-full h-8 text-xs font-medium">
-              Continue to Sign In
-            </Button>
-          </Link>
+          <div className="pt-1">
+            <Link href="/login">
+              <Button className="w-full h-10 text-sm font-semibold rounded-lg gradient-primary">
+                Continue to Sign In
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     );
@@ -135,22 +137,22 @@ export function EmailVerificationCard() {
 
   if (state === 'error') {
     return (
-      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
-        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
-          <CardTitle className="text-lg font-bold text-center">Verification Failed</CardTitle>
-          <CardDescription className="text-center text-xs">
+      <Card className="card-auth shadow-xl p-6 sm:p-7 border border-border/80 rounded-2xl">
+        <CardHeader className="p-0 space-y-1 mb-4">
+          <CardTitle className="text-2xl font-bold text-center tracking-tight">Verification Failed</CardTitle>
+          <CardDescription className="text-center text-sm text-muted-foreground">
             We couldn&apos;t verify your email address
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-3 px-4 pt-0">
-          <XCircle className="h-10 w-10 text-rose-500 mx-auto" />
-          <Alert variant="destructive" className="py-2 text-xs">
+        <CardContent className="text-center space-y-4 p-0">
+          <XCircle className="h-12 w-12 text-rose-500 mx-auto" />
+          <Alert variant="destructive" className="py-2.5 text-xs">
             <AlertDescription className="text-xs">{message}</AlertDescription>
           </Alert>
-          <div className="space-y-2">
+          <div className="pt-1">
             <Link href="/login">
-              <Button variant="outline" className="w-full h-8 text-xs font-medium">
-                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+              <Button variant="outline" className="w-full h-10 text-sm font-semibold rounded-lg">
+                <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Sign In
               </Button>
             </Link>
@@ -162,51 +164,51 @@ export function EmailVerificationCard() {
 
   // Invalid token state
   return (
-    <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
-      <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
-        <CardTitle className="text-lg font-bold text-center">Invalid Verification Link</CardTitle>
-        <CardDescription className="text-center text-xs">
+    <Card className="card-auth shadow-xl p-6 sm:p-7 border border-border/80 rounded-2xl">
+      <CardHeader className="p-0 space-y-1 mb-4">
+        <CardTitle className="text-2xl font-bold text-center tracking-tight">Invalid Verification Link</CardTitle>
+        <CardDescription className="text-center text-sm text-muted-foreground">
           The verification link is invalid or has expired
         </CardDescription>
       </CardHeader>
-      <CardContent className="text-center space-y-3 px-4 pt-0">
-        <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto" />
+      <CardContent className="text-center space-y-4 p-0">
+        <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto" />
 
         {resendVerificationMutation.isSuccess ? (
-          <Alert className="py-2 text-xs">
-            <Mail className="h-3.5 w-3.5" />
+          <Alert className="py-2.5 text-xs">
+            <Mail className="h-4 w-4" />
             <AlertDescription className="text-xs">
               A new verification email has been sent to your email address.
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <p className="text-xs text-muted-foreground">
               The verification link may have expired or is invalid. Please request a new verification email.
             </p>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5 pt-1">
               <Button
                 onClick={() => handleResendVerification('')}
                 disabled={resendVerificationMutation.isPending}
-                className="w-full h-8 text-xs font-medium"
+                className="w-full h-10 text-sm font-semibold rounded-lg gradient-primary"
               >
                 {resendVerificationMutation.isPending ? (
                   <>
-                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Sending...
                   </>
                 ) : (
                   <>
-                    <Mail className="mr-1.5 h-3.5 w-3.5" />
+                    <Mail className="mr-2 h-4 w-4" />
                     Resend Verification Email
                   </>
                 )}
               </Button>
 
               <Link href="/login">
-                <Button variant="outline" className="w-full h-8 text-xs font-medium">
-                  <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                <Button variant="outline" className="w-full h-10 text-sm font-semibold rounded-lg">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Sign In
                 </Button>
               </Link>

@@ -14,7 +14,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="animate-fade-in">
         <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-[11px] text-muted-foreground mt-0.5">
+        <p className="text-11px text-muted-foreground mt-0.5">
           Track your content creation progress
         </p>
       </div>
@@ -93,12 +93,12 @@ export default function DashboardPage() {
                 <div className="h-1.5 w-1.5 rounded-full bg-primary" />
                 <div>
                   <p className="text-xs font-medium">{activity.action}</p>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-11px text-muted-foreground">
                     {activity.item}
                   </p>
                 </div>
               </div>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-11px text-muted-foreground">
                 {activity.time}
               </span>
             </div>

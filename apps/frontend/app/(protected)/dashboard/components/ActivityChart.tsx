@@ -81,9 +81,9 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
                 size="sm"
                 onClick={() => setTimeRange(range)}
                 className={cn(
-                  'text-[11px] capitalize px-2.5 h-6',
+                  'text-xs capitalize px-3 h-7.5 font-medium',
                   timeRange === range &&
-                    'bg-background shadow-xs text-foreground',
+                    'bg-background shadow-xs text-foreground font-semibold',
                 )}
               >
                 {range}
@@ -93,7 +93,7 @@ export function ActivityChart({ title, type }: ActivityChartProps) {
         </div>
       </div>
 
-      <div className="w-full h-[140px] sm:h-[180px] md:h-[210px]">
+      <div className="w-full h-card-chart">
         <ResponsiveContainer width="100%" height="100%">
           {type === 'area' ? (
             <AreaChart

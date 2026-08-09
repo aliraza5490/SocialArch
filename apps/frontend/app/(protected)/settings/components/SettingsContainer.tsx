@@ -170,7 +170,7 @@ export function SettingsContainer() {
                   <Button variant="outline" size="sm" className="h-7 text-xs px-3">
                     Change Avatar
                   </Button>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-11px text-muted-foreground">
                     JPG, PNG or GIF. Max size 2MB.
                   </p>
                 </div>
@@ -279,7 +279,7 @@ export function SettingsContainer() {
                   <label className="text-xs font-medium">
                     Email Notifications
                   </label>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-11px text-muted-foreground">
                     Receive email updates about your content
                   </p>
                 </div>
@@ -299,7 +299,7 @@ export function SettingsContainer() {
                   <label className="text-xs font-medium">
                     Push Notifications
                   </label>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-11px text-muted-foreground">
                     Get push notifications in your browser
                   </p>
                 </div>
@@ -319,7 +319,7 @@ export function SettingsContainer() {
                   <label className="text-xs font-medium">
                     Weekly Reports
                   </label>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-11px text-muted-foreground">
                     Receive weekly analytics summaries
                   </p>
                 </div>
@@ -367,13 +367,13 @@ export function SettingsContainer() {
                         <h4 className="text-xs font-semibold flex items-center gap-2">
                           {integration.name}
                           {integration.connected && (
-                            <span className="inline-flex items-center gap-1 text-[10px] text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">
+                            <span className="inline-flex items-center gap-1 text-2xs text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded-full font-medium">
                               <Check className="h-2.5 w-2.5" />
                               Connected
                             </span>
                           )}
                         </h4>
-                        <p className="text-[11px] text-muted-foreground">
+                        <p className="text-11px text-muted-foreground">
                           {integration.description}
                         </p>
                       </div>
@@ -424,7 +424,7 @@ export function SettingsContainer() {
                   Regenerate
                 </Button>
               </div>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-11px text-muted-foreground">
                 Your API key is secret. Never share it publicly.
               </p>
             </CardContent>

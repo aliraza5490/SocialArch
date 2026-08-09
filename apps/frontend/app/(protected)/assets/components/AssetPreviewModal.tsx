@@ -186,13 +186,13 @@ export function AssetPreviewModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden bg-card">
+      <DialogContent className="sm:card-dialog-xl p-0 overflow-hidden bg-card">
         <DialogHeader className="sr-only">
           <DialogTitle>Asset Preview: {asset.name}</DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-1 md:grid-cols-12 min-h-[440px]">
+        <div className="grid grid-cols-1 md:grid-cols-12 min-h-card-preview">
           {/* Media Preview Area */}
-          <div className="md:col-span-7 bg-muted/40 p-4 flex flex-col items-center justify-center relative border-b md:border-b-0 md:border-r border-border min-h-[300px]">
+          <div className="md:col-span-7 bg-muted/40 p-4 flex flex-col items-center justify-center relative border-b md:border-b-0 md:border-r border-border min-h-75">
             {isMarkdownFile(asset) ? (
               <div className="flex flex-col w-full h-full space-y-2.5">
                 <div className="flex items-center justify-between px-1">
@@ -205,7 +205,7 @@ export function AssetPreviewModal({
                       type="button"
                       onClick={() => setPreviewTab('rendered')}
                       className={cn(
-                        'flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-sm font-medium transition-colors',
+                        'flex items-center gap-1 text-11px px-2 py-0.5 rounded-sm font-medium transition-colors',
                         previewTab === 'rendered'
                           ? 'bg-background text-foreground shadow-xs'
                           : 'text-muted-foreground hover:text-foreground'
@@ -218,7 +218,7 @@ export function AssetPreviewModal({
                       type="button"
                       onClick={() => setPreviewTab('raw')}
                       className={cn(
-                        'flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-sm font-medium transition-colors',
+                        'flex items-center gap-1 text-11px px-2 py-0.5 rounded-sm font-medium transition-colors',
                         previewTab === 'raw'
                           ? 'bg-background text-foreground shadow-xs'
                           : 'text-muted-foreground hover:text-foreground'
@@ -230,7 +230,7 @@ export function AssetPreviewModal({
                   </div>
                 </div>
 
-                <div className="flex-1 w-full max-h-[360px] min-h-[260px] overflow-y-auto p-4 bg-background/80 rounded-xl border border-border/80 shadow-inner text-left">
+                <div className="flex-1 w-full max-h-90 min-h-65 overflow-y-auto p-4 bg-background/80 rounded-xl border border-border/80 shadow-inner text-left">
                   {isLoadingContent ? (
                     <div className="flex flex-col items-center justify-center h-48 text-muted-foreground space-y-2">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -246,7 +246,7 @@ export function AssetPreviewModal({
                 </div>
               </div>
             ) : (asset.type === 'image' || (!!asset.mimeType && asset.mimeType.startsWith('image/'))) && !imageError ? (
-              <div className="relative w-full h-full min-h-[260px] flex items-center justify-center">
+              <div className="relative w-full h-full min-h-65 flex items-center justify-center">
                 {isLoadingMedia || !blobUrl ? (
                   <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
                     <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -256,7 +256,7 @@ export function AssetPreviewModal({
                   <img
                     src={blobUrl}
                     alt={asset.name}
-                    className="max-h-[360px] max-w-full object-contain rounded-lg shadow-md"
+                    className="max-h-90 max-w-full object-contain rounded-lg shadow-md"
                     onError={() => setImageError(true)}
                   />
                 )}
@@ -265,7 +265,7 @@ export function AssetPreviewModal({
               <video
                 src={fileUrl}
                 controls
-                className="max-h-[360px] max-w-full rounded-lg shadow-md"
+                className="max-h-90 max-w-full rounded-lg shadow-md"
               />
             ) : (
               <div className="flex flex-col items-center justify-center p-6 text-center text-muted-foreground">
@@ -316,14 +316,14 @@ export function AssetPreviewModal({
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setIsEditingName(true)}>
-                      <h2 className="text-base font-bold tracking-tight truncate max-w-[200px]" title={asset.name}>
+                      <h2 className="text-base font-bold tracking-tight truncate max-w-50" title={asset.name}>
                         {asset.name}
                       </h2>
                       <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground capitalize mt-0.5">
+                <p className="text-11px text-muted-foreground capitalize mt-0.5">
                   {asset.type} File
                 </p>
               </div>
@@ -348,7 +348,7 @@ export function AssetPreviewModal({
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <FileText className="h-4 w-4 text-primary shrink-0" />
                     <span>MIME:</span>
-                    <span className="font-medium text-foreground ml-auto truncate max-w-[140px]">
+                    <span className="font-medium text-foreground ml-auto truncate max-w-35">
                       {asset.mimeType}
                     </span>
                   </div>
@@ -367,7 +367,7 @@ export function AssetPreviewModal({
                     <Badge
                       key={t}
                       variant="secondary"
-                      className="text-[10px] px-2 py-0.5 gap-1 group"
+                      className="text-2xs px-2 py-0.5 gap-1 group"
                     >
                       {t}
                       <button
@@ -379,7 +379,7 @@ export function AssetPreviewModal({
                     </Badge>
                   ))}
                   {tags.length === 0 && (
-                    <p className="text-[11px] text-muted-foreground italic">
+                    <p className="text-11px text-muted-foreground italic">
                       No tags assigned
                     </p>
                   )}
@@ -390,9 +390,9 @@ export function AssetPreviewModal({
                     placeholder="Add tag..."
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
-                    className="h-7 text-[11px]"
+                    className="h-7 text-11px"
                   />
-                  <Button type="submit" size="sm" variant="outline" className="h-7 text-[11px] px-2">
+                  <Button type="submit" size="sm" variant="outline" className="h-7 text-11px px-2">
                     Add
                   </Button>
                 </form>

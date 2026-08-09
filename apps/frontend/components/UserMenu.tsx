@@ -71,7 +71,7 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
           </Avatar>
           <div className="grid flex-1 text-left leading-tight">
             <span className="truncate font-medium text-xs">{fullName}</span>
-            <span className="truncate text-[10px] text-muted-foreground">{user.email}</span>
+            <span className="truncate text-2xs text-muted-foreground">{user.email}</span>
           </div>
         </div>
       </DropdownMenuLabel>
@@ -132,7 +132,7 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
             </Avatar>
             <div className="grid flex-1 text-left leading-tight">
               <span className="truncate font-medium text-xs">{fullName}</span>
-              <span className="truncate text-[10px] text-muted-foreground">{user.email}</span>
+              <span className="truncate text-2xs text-muted-foreground">{user.email}</span>
             </div>
           </div>
           
@@ -196,7 +196,7 @@ export function UserMenu({ user, logout, variant = 'sidebar' }: UserMenuProps) {
                 </Avatar>
                 <div className="grid flex-1 text-left leading-tight">
                   <span className="truncate font-medium text-xs">{fullName}</span>
-                  <span className="truncate text-[10px] text-muted-foreground">{user.email}</span>
+                  <span className="truncate text-2xs text-muted-foreground">{user.email}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-3.5 text-muted-foreground" />
               </SidebarMenuButton>

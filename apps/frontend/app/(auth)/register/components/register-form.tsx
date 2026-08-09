@@ -45,21 +45,21 @@ export function RegisterForm() {
 
   if (success) {
     return (
-      <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
-        <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
-          <CardTitle className="text-lg font-bold text-center">Check Your Email</CardTitle>
-          <CardDescription className="text-center text-xs">
+      <Card className="card-auth shadow-xl p-6 sm:p-7 border border-border/80 rounded-2xl">
+        <CardHeader className="p-0 space-y-1 mb-4">
+          <CardTitle className="text-2xl font-bold text-center tracking-tight">Check Your Email</CardTitle>
+          <CardDescription className="text-center text-sm text-muted-foreground">
             We&apos;ve sent you a verification link to complete your registration
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-3 px-4 pt-0">
-          <CheckCircle className="h-10 w-10 text-emerald-500 mx-auto" />
+        <CardContent className="text-center space-y-4 p-0">
+          <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto" />
           <p className="text-xs text-muted-foreground">
             Please check your email and click the verification link to activate your account.
           </p>
-          <div className="space-y-2">
+          <div className="pt-2">
             <Link href="/login">
-              <Button variant="outline" className="w-full h-8 text-xs font-medium">
+              <Button variant="outline" className="w-full h-10 text-sm font-semibold rounded-lg">
                 Back to Sign In
               </Button>
             </Link>
@@ -70,32 +70,32 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm shadow-sm py-3.5 gap-2.5">
-      <CardHeader className="px-4 pt-1 pb-0 space-y-0.5">
-        <CardTitle className="text-lg font-bold text-center">Create Account</CardTitle>
-        <CardDescription className="text-center text-xs">
+    <Card className="card-auth shadow-xl p-6 sm:p-7 border border-border/80 rounded-2xl">
+      <CardHeader className="p-0 space-y-1 mb-4">
+        <CardTitle className="text-2xl font-bold text-center tracking-tight">Create Account</CardTitle>
+        <CardDescription className="text-center text-sm text-muted-foreground">
           Enter your information to create your account
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-4 pt-0">
+      <CardContent className="p-0">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5">
-            <div className="grid grid-cols-2 gap-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
+            <div className="grid grid-cols-2 gap-2.5">
               <FormField
                 control={form.control}
                 name="firstName"
                 render={({ field }) => (
-                  <FormItem className="gap-1">
-                    <FormLabel className="text-xs">First Name</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90">First Name</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="John"
                         {...field}
                         disabled={isLoading}
-                        className="h-8 text-xs px-2.5"
+                        className="h-9.5 text-sm px-3 rounded-lg bg-background/50 border-border/80"
                       />
                     </FormControl>
-                    <FormMessage className="text-[11px]" />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -104,17 +104,17 @@ export function RegisterForm() {
                 control={form.control}
                 name="lastName"
                 render={({ field }) => (
-                  <FormItem className="gap-1">
-                    <FormLabel className="text-xs">Last Name</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90">Last Name</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Doe"
                         {...field}
                         disabled={isLoading}
-                        className="h-8 text-xs px-2.5"
+                        className="h-9.5 text-sm px-3 rounded-lg bg-background/50 border-border/80"
                       />
                     </FormControl>
-                    <FormMessage className="text-[11px]" />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -124,18 +124,18 @@ export function RegisterForm() {
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="gap-1">
-                  <FormLabel className="text-xs">Email</FormLabel>
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90">Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="john.doe@example.com"
                       {...field}
                       disabled={isLoading}
-                      className="h-8 text-xs px-2.5"
+                      className="h-9.5 text-sm px-3 rounded-lg bg-background/50 border-border/80"
                     />
                   </FormControl>
-                  <FormMessage className="text-[11px]" />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -144,8 +144,8 @@ export function RegisterForm() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="gap-1">
-                  <FormLabel className="text-xs">Password</FormLabel>
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90">Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -153,25 +153,25 @@ export function RegisterForm() {
                         placeholder="Create a strong password"
                         {...field}
                         disabled={isLoading}
-                        className="h-8 text-xs pl-2.5 pr-8"
+                        className="h-9.5 text-sm pl-3 pr-9 rounded-lg bg-background/50 border-border/80"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-8 w-8 px-0 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-9.5 w-9.5 px-0 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={isLoading}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                          <Eye className="h-4 w-4 text-muted-foreground" />
                         )}
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage className="text-[11px]" />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -180,8 +180,8 @@ export function RegisterForm() {
               control={form.control}
               name="confirmPassword"
               render={({ field }) => (
-                <FormItem className="gap-1">
-                  <FormLabel className="text-xs">Confirm Password</FormLabel>
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/90">Confirm Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
@@ -189,39 +189,39 @@ export function RegisterForm() {
                         placeholder="Confirm your password"
                         {...field}
                         disabled={isLoading}
-                        className="h-8 text-xs pl-2.5 pr-8"
+                        className="h-9.5 text-sm pl-3 pr-9 rounded-lg bg-background/50 border-border/80"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-8 w-8 px-0 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-9.5 w-9.5 px-0 hover:bg-transparent"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         disabled={isLoading}
                       >
                         {showConfirmPassword ? (
-                          <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                          <Eye className="h-4 w-4 text-muted-foreground" />
                         )}
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage className="text-[11px]" />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" className="w-full h-8 text-xs font-medium mt-1.5" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
+            <Button type="submit" className="w-full h-10 text-sm font-semibold rounded-lg gradient-primary shadow-glow hover:opacity-90 transition-opacity mt-2" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Account
             </Button>
           </form>
         </Form>
 
-        <div className="mt-2.5 text-center text-xs">
+        <div className="mt-4 text-center text-xs text-muted-foreground">
           Already have an account?{' '}
-          <Link href="/login" className="text-primary hover:underline font-medium">
+          <Link href="/login" className="text-primary hover:underline font-semibold">
             Sign in
           </Link>
         </div>

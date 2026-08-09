@@ -46,7 +46,7 @@ export function ConfirmDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !isLoading && onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:card-dialog-sm">
         <DialogHeader>
           <div className="flex items-center gap-3">
             {icon !== undefined ? icon : defaultIcon}

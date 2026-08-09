@@ -66,7 +66,7 @@ function DashboardShell({
     <div className="flex h-screen w-full overflow-hidden">
       <AppSidebar logout={logout} />
       <SidebarInset className="h-full overflow-hidden flex flex-col">
-        <header className="h-12 border-b border-border flex items-center justify-between px-4 bg-card/50 backdrop-blur-sm shrink-0 z-10">
+        <header className="h-14 border-b border-border flex items-center justify-between px-4 bg-card/50 backdrop-blur-sm shrink-0 z-10">
           <div className="flex items-center gap-3">
             <SidebarTrigger />
             <Link href="/dashboard" className="flex lg:hidden items-center gap-2">
@@ -82,7 +82,7 @@ function DashboardShell({
                 <span className="font-bold text-xs tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   SocialArch
                 </span>
-                <span className="text-[8px] text-muted-foreground -mt-0.5">
+                <span className="text-3xs text-muted-foreground -mt-0.5">
                   AI-Powered Studio
                 </span>
               </div>

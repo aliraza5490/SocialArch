@@ -276,7 +276,7 @@ export function AssetsContainer() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold tracking-tight">Assets</h1>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
+          <p className="text-11px text-muted-foreground mt-0.5">
             Manage, organize, and upload media assets and files
           </p>
         </div>
@@ -530,7 +530,7 @@ export function AssetsContainer() {
                     {asset.name}
                   </p>
                   {asset.type !== 'folder' && (
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                    <p className="text-2xs text-muted-foreground mt-0.5">
                       {formatFileSize(asset.size)}
                     </p>
                   )}
@@ -611,16 +611,16 @@ export function AssetsContainer() {
                     className="h-4 w-4 rounded"
                   />
                 </th>
-                <th className="text-left text-[11px] font-medium text-muted-foreground p-2.5 px-3">
+                <th className="text-left text-11px font-medium text-muted-foreground p-2.5 px-3">
                   Name
                 </th>
-                <th className="text-left text-[11px] font-medium text-muted-foreground p-2.5 px-3">
+                <th className="text-left text-11px font-medium text-muted-foreground p-2.5 px-3">
                   Type
                 </th>
-                <th className="text-left text-[11px] font-medium text-muted-foreground p-2.5 px-3">
+                <th className="text-left text-11px font-medium text-muted-foreground p-2.5 px-3">
                   Size
                 </th>
-                <th className="text-left text-[11px] font-medium text-muted-foreground p-2.5 px-3">
+                <th className="text-left text-11px font-medium text-muted-foreground p-2.5 px-3">
                   Uploaded
                 </th>
                 <th className="w-8"></th>
@@ -655,7 +655,7 @@ export function AssetsContainer() {
                           icon={getFileIcon(asset.type, 'h-4 w-4')}
                           className="h-7 w-7 shrink-0 mb-0"
                         />
-                        <span className="font-medium truncate max-w-[240px]">
+                        <span className="font-medium truncate max-w-60">
                           {asset.name}
                         </span>
                       </div>

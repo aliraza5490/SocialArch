@@ -146,7 +146,7 @@ export function AppSidebar({
     >
       <SidebarHeader
         className={cn(
-          'h-12 p-0 flex flex-row items-center shrink-0 w-full border-b border-border/50',
+          'h-14 p-0 flex flex-row items-center shrink-0 w-full border-b border-border/50',
           collapsed && !isMobile
             ? 'justify-center px-0'
             : 'justify-start px-4',
@@ -156,14 +156,14 @@ export function AppSidebar({
           href="/dashboard"
           onClick={() => isMobile && setOpenMobile(false)}
           className={cn(
-            'flex items-center gap-2 h-full my-auto',
+            'flex items-center gap-2.5 h-full my-auto',
             collapsed && !isMobile ? 'justify-center' : 'justify-start',
           )}
         >
           <div className={cn(
             'relative shrink-0',
-            isMobile ? 'h-5.5 w-5.5' : 'h-5 w-5',
-            'group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5',
+            isMobile ? 'h-6 w-6' : 'h-6 w-6',
+            'group-data-[collapsible=icon]:h-6 group-data-[collapsible=icon]:w-6',
           )}>
             <Image
               src="/logo.png"
@@ -174,10 +174,10 @@ export function AppSidebar({
           </div>
           {(!collapsed || isMobile) && (
             <div className="flex flex-col justify-center">
-              <span className="font-bold text-sm leading-tight tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              <span className="font-bold text-base leading-tight tracking-tight bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 SocialArch
               </span>
-              <span className="text-[8px] leading-tight text-muted-foreground">
+              <span className="text-2xs leading-tight text-muted-foreground font-medium">
                 AI-Powered Studio
               </span>
             </div>
@@ -188,43 +188,43 @@ export function AppSidebar({
       <SidebarContent className="pl-2 pr-0 overflow-hidden flex flex-col flex-1 min-h-0">
         <div
           className={cn(
-            'mt-2.5 pt-1 pb-1.5 shrink-0 pr-2',
+            'mt-3 pt-1 pb-2 shrink-0 pr-2',
             collapsed && !isMobile ? 'flex justify-center pr-0' : '',
           )}
         >
           <Button
             asChild
-            size={collapsed && !isMobile ? 'icon' : 'sm'}
+            size={collapsed && !isMobile ? 'icon' : 'default'}
             className={cn(
-              'w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-xs transition-all duration-200 rounded-md',
+              'w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs transition-all duration-200 rounded-lg',
               collapsed && !isMobile
-                ? 'h-8 w-8 justify-center p-0'
-                : 'h-8 justify-start gap-2 px-2 text-xs',
+                ? 'h-9 w-9 justify-center p-0'
+                : 'h-9.5 justify-start gap-2.5 px-3 text-sm',
             )}
             title={collapsed && !isMobile ? 'New Chat' : undefined}
           >
             <Link
               href="/chat"
               onClick={() => isMobile && setOpenMobile(false)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2.5"
             >
-              <Plus className="h-3.5 w-3.5 shrink-0" />
+              <Plus className="h-4 w-4 shrink-0" />
               {(!collapsed || isMobile) && <span>New Chat</span>}
             </Link>
           </Button>
         </div>
 
-        <SidebarGroup className="py-0.5 shrink-0 p-0 pr-2">
+        <SidebarGroup className="py-1 shrink-0 p-0 pr-2">
           <SidebarGroupLabel
             className={cn(
-              'text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-0.5 h-5 px-2',
+              'text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mb-1 h-6 px-2.5',
               collapsed && !isMobile ? 'sr-only' : '',
             )}
           >
             Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5">
+            <SidebarMenu className="space-y-1">
               {menuItems.map((item) => {
                 const isActive = pathname === item.url && !currentChatId;
 
@@ -234,11 +234,11 @@ export function AppSidebar({
                       asChild
                       tooltip={collapsed && !isMobile ? item.title : undefined}
                       className={cn(
-                        'h-7.5 w-full px-2 py-1.5 transition-all duration-200 rounded-md group/item border border-transparent flex items-center gap-2',
+                        'h-9 w-full px-2.5 py-2 transition-all duration-200 rounded-lg group/item border border-transparent flex items-center gap-2.5',
                         collapsed && !isMobile ? 'justify-center px-0' : 'justify-start',
                         isActive
                           ? 'bg-primary/15 dark:bg-primary/25 text-primary border-primary/30 shadow-xs font-semibold'
-                          : 'text-muted-foreground/75 hover:text-foreground hover:bg-muted/60',
+                          : 'text-muted-foreground/80 hover:text-foreground hover:bg-muted/60',
                       )}
                     >
                       <Link
@@ -251,13 +251,13 @@ export function AppSidebar({
                             isActive ? 'text-primary font-bold' : 'text-muted-foreground/80 group-hover/item:text-foreground',
                           )}
                         >
-                          <item.icon className="h-3.5 w-3.5" />
+                          <item.icon className="h-4 w-4" />
                         </div>
                         {(!collapsed || isMobile) && (
                           <span
                             className={cn(
-                              'text-xs transition-colors truncate',
-                              isActive ? 'font-semibold text-primary' : 'font-medium text-muted-foreground/80 group-hover/item:text-foreground',
+                              'text-sm transition-colors truncate',
+                              isActive ? 'font-bold text-primary' : 'font-medium text-muted-foreground/85 group-hover/item:text-foreground',
                             )}
                           >
                             {item.title}
@@ -278,14 +278,14 @@ export function AppSidebar({
         {/* Recent Conversations Section */}
         {(!collapsed || isMobile) && (
           <SidebarGroup className="py-2 mt-1 flex-1 min-h-0 flex flex-col overflow-hidden p-0">
-            <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 px-2 h-5 flex items-center justify-between shrink-0 pr-2">
+            <SidebarGroupLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 px-2.5 h-6 flex items-center justify-between shrink-0 pr-2">
               <span>Recent Chats</span>
-              {isLoadingChats && <span className="text-[9px] animate-pulse text-muted-foreground">Syncing...</span>}
+              {isLoadingChats && <span className="text-2xs animate-pulse text-muted-foreground">Syncing...</span>}
             </SidebarGroupLabel>
             <SidebarGroupContent className="flex-1 min-h-0 overflow-y-auto">
-              <div className="space-y-0.5 mt-1 pb-2 pr-2">
+              <div className="space-y-1 mt-1 pb-2 pr-2">
                 {recentChats.length === 0 && !isLoadingChats ? (
-                  <p className="px-2 py-1 text-[11px] text-muted-foreground/60 italic">No recent chats</p>
+                  <p className="px-2.5 py-1.5 text-xs text-muted-foreground/60 italic">No recent chats</p>
                 ) : (
                   recentChats.map((chat) => {
                     const isSelected = currentChatId === chat.ID;
@@ -301,9 +301,9 @@ export function AppSidebar({
                           }
                         }}
                         className={cn(
-                          'group/chat flex items-center justify-between rounded-md px-2 py-1.5 text-xs transition-colors cursor-pointer border border-transparent select-none',
+                          'group/chat flex items-center justify-between rounded-lg px-2.5 py-2 text-sm transition-colors cursor-pointer border border-transparent select-none',
                           isSelected
-                            ? 'bg-accent text-accent-foreground font-medium border-border/40 shadow-2xs'
+                            ? 'bg-accent text-accent-foreground font-semibold border-border/40 shadow-2xs'
                             : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
                         )}
                       >
@@ -311,20 +311,20 @@ export function AppSidebar({
                           <form
                             onSubmit={(e) => handleSaveRename(chat.ID, e)}
                             onClick={(e) => e.stopPropagation()}
-                            className="flex items-center gap-1 w-full"
+                            className="flex items-center gap-1.5 w-full"
                           >
                             <input
                               type="text"
                               value={editingTitle}
                               onChange={(e) => setEditingTitle(e.target.value)}
                               autoFocus
-                              className="w-full bg-background border border-primary/50 rounded px-1.5 py-0.5 text-xs focus:outline-hidden"
+                              className="w-full bg-background border border-primary/50 rounded-md px-2 py-1 text-xs focus:outline-hidden"
                             />
                             <button
                               type="submit"
-                              className="text-primary hover:text-primary/80 p-0.5"
+                              className="text-primary hover:text-primary/80 p-1"
                             >
-                              <Check className="h-3 w-3" />
+                              <Check className="h-3.5 w-3.5" />
                             </button>
                             <button
                               type="button"
@@ -332,9 +332,9 @@ export function AppSidebar({
                                 e.stopPropagation();
                                 setEditingChatId(null);
                               }}
-                              className="text-muted-foreground hover:text-foreground p-0.5"
+                              className="text-muted-foreground hover:text-foreground p-1"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-3.5 w-3.5" />
                             </button>
                           </form>
                         ) : (
@@ -342,10 +342,10 @@ export function AppSidebar({
                             <Link
                               href={`/chat?id=${chat.ID}`}
                               onClick={() => isMobile && setOpenMobile(false)}
-                              className="flex items-center gap-2 truncate flex-1 min-w-0 pr-1"
+                              className="flex items-center gap-2.5 truncate flex-1 min-w-0 pr-1"
                             >
-                              <MessageSquare className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                              <span className="truncate">{chat.title || 'Untitled Chat'}</span>
+                              <MessageSquare className="h-4 w-4 shrink-0 opacity-70" />
+                              <span className="truncate font-medium">{chat.title || 'Untitled Chat'}</span>
                             </Link>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>

@@ -35,11 +35,11 @@ export function Navbar() {
           : 'bg-transparent border-b border-transparent'
       }`}
     >
-      <div className="container max-w-6xl mx-auto px-4 py-2.5">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           <Link 
             href="/" 
-            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center space-x-2.5 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={(e) => {
               // If already on homepage, scroll to top smoothly
               if (window.location.pathname === '/') {
@@ -48,7 +48,7 @@ export function Navbar() {
               }
             }}
           >
-            <div className="w-7 h-7 relative flex items-center justify-center">
+            <div className="w-8 h-8 relative flex items-center justify-center">
               <Image 
                 src="/logo.png" 
                 alt="SocialArch Logo" 
@@ -56,30 +56,30 @@ export function Navbar() {
                 className="object-contain"
               />
             </div>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">
+            <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
               SocialArch
             </span>
           </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                className="text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 {link.name}
               </Link>
             ))}
           </div>
 
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-3">
             <Link href="/login">
-              <Button variant="ghost" size="sm">Sign In</Button>
+              <Button variant="ghost" size="sm" className="h-9 px-4 text-sm font-semibold">Sign In</Button>
             </Link>
             <Link href="/register">
-              <Button size="sm">Get Started</Button>
+              <Button size="sm" className="h-9 px-5 text-sm font-semibold gradient-primary shadow-glow">Get Started</Button>
             </Link>
           </div>
 
