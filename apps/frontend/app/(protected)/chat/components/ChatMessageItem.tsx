@@ -283,23 +283,23 @@ export function ChatMessageItem({
         </div>
       ) : (
         /* Assistant Message & Action Bar */
-        <div className="flex items-start gap-2.5 w-full max-w-full">
-          <div className="h-6.5 w-6.5 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+        <div className="flex items-start gap-3 w-full max-w-full">
+          <div className="h-7 w-7 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
             <Image
               src="/logo.png"
               alt="SocialArch AI"
-              width={14}
-              height={14}
+              width={16}
+              height={16}
               className="object-contain"
             />
           </div>
 
-          <div className="flex-1 space-y-2 overflow-hidden min-w-0">
+          <div className="flex-1 space-y-2 overflow-hidden min-w-0 pt-0">
             <RenderAttachments attachments={msg.attachments} onPreviewAsset={onPreviewAsset} />
             {msg.content ? (
               <MarkdownContent content={msg.content} />
             ) : (
-              <div className="flex items-center gap-2 text-muted-foreground text-xs animate-pulse py-1">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs md:text-sm animate-pulse py-0.5">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 <span>Thinking...</span>
               </div>

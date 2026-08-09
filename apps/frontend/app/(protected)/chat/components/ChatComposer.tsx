@@ -120,8 +120,8 @@ export function ChatComposer({
       className={cn(
         'w-full transition-all duration-500 ease-out animate-in fade-in slide-in-from-bottom-3',
         isEmpty
-          ? 'px-0'
-          : 'sticky bottom-0 bg-linear-to-t from-background via-background/90 to-transparent pt-2.5 pb-2 px-4'
+          ? 'px-4'
+          : 'sticky bottom-0 bg-gradient-to-t from-background via-background/95 to-transparent pt-3 pb-3 px-4 md:px-8'
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -135,20 +135,20 @@ export function ChatComposer({
         className="hidden"
       />
 
-      <div className="max-w-2xl mx-auto space-y-1.5">
+      <div className="max-w-4xl mx-auto space-y-2">
         {/* ChatGPT Shell with adaptive roundness */}
         <div
           className={cn(
             'border bg-card shadow-md transition-all focus-within:border-primary/50 focus-within:ring-1 focus-within:ring-primary/20',
             stagedAttachments.length > 0 || isUploading
-              ? 'rounded-3xl p-3'
-              : 'rounded-full px-3 py-1.5',
+              ? 'rounded-3xl p-3 md:p-4'
+              : 'rounded-full px-5 py-2.5 md:py-3',
             isDragging ? 'border-primary ring-2 ring-primary/30 bg-primary/5' : 'border-border'
           )}
         >
           {/* Staged Attachment Chips */}
           {(stagedAttachments.length > 0 || isUploading) && (
-            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 px-1 pt-2 scrollbar-none">
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-2 px-1 pt-1 scrollbar-none">
               {stagedAttachments.map((att) => {
                 const isImage =
                   att.mimeType?.startsWith('image/') ||
@@ -233,15 +233,15 @@ export function ChatComposer({
             </div>
           )}
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {/* Attachment Control */}
             <TooltipIconButton
               tooltip="Add photos & files"
-              className="h-7.5 w-7.5 text-muted-foreground hover:text-foreground hover:bg-muted shrink-0"
+              className="h-8.5 w-8.5 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-full shrink-0 transition-colors"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading || isRunning}
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-4 w-4" />
             </TooltipIconButton>
 
             {/* Textarea Input */}
@@ -253,44 +253,44 @@ export function ChatComposer({
               onPaste={handlePaste}
               placeholder={isUploading ? 'Uploading attachments...' : 'Ask anything or upload files...'}
               rows={1}
-              className="flex-1 bg-transparent border-0 resize-none py-1 px-1 text-xs md:text-sm text-foreground placeholder:text-muted-foreground focus:outline-hidden max-h-36"
+              className="flex-1 bg-transparent border-0 resize-none py-1.5 px-2 text-xs md:text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none min-h-[36px] max-h-44 leading-relaxed"
             />
 
             {/* Four-State Primary Action Controls */}
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               {isRunning ? (
                 <TooltipIconButton
                   tooltip="Stop responding"
-                  className="h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+                  className="h-8.5 w-8.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-xs flex items-center justify-center"
                   onClick={handleCancel}
                 >
-                  <Square className="h-3 w-3 fill-current" />
+                  <Square className="h-3.5 w-3.5 fill-current" />
                 </TooltipIconButton>
               ) : canSend ? (
                 <TooltipIconButton
                   tooltip="Send prompt"
-                  className="h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+                  className="h-8.5 w-8.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-xs flex items-center justify-center transition-transform hover:scale-105"
                   onClick={() => handleSend()}
                   disabled={isUploading}
                 >
-                  {isUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowUp className="h-3.5 w-3.5" />}
+                  {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
                 </TooltipIconButton>
               ) : (
                 <>
                   <TooltipIconButton
                     tooltip="Dictate"
-                    className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted"
+                    className="h-8.5 w-8.5 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-full"
                     onClick={() => toast.info('Dictate option selected')}
                   >
-                    <Mic className="h-3.5 w-3.5" />
+                    <Mic className="h-4 w-4" />
                   </TooltipIconButton>
 
                   <TooltipIconButton
                     tooltip="Use voice mode"
-                    className="h-7 w-7 bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+                    className="h-8.5 w-8.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-xs flex items-center justify-center transition-transform hover:scale-105"
                     onClick={() => toast.info('Voice mode option selected')}
                   >
-                    <AudioLines className="h-3.5 w-3.5" />
+                    <AudioLines className="h-4 w-4" />
                   </TooltipIconButton>
                 </>
               )}

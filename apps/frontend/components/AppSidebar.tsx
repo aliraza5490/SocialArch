@@ -185,28 +185,32 @@ export function AppSidebar({
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="pl-2 pr-0 overflow-hidden flex flex-col flex-1 min-h-0">
+      <SidebarContent
+        className={cn(
+          'overflow-hidden flex flex-col flex-1 min-h-0',
+          collapsed && !isMobile ? 'px-0' : 'pl-2 pr-0',
+        )}
+      >
         <div
           className={cn(
-            'mt-3 pt-1 pb-2 shrink-0 pr-2',
-            collapsed && !isMobile ? 'flex justify-center pr-0' : '',
+            'mt-3 pt-1 pb-2 shrink-0 flex items-center justify-center',
+            collapsed && !isMobile ? 'px-0' : 'px-2',
           )}
         >
           <Button
             asChild
             size={collapsed && !isMobile ? 'icon' : 'default'}
             className={cn(
-              'w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs transition-all duration-200 rounded-lg',
+              'bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs transition-all duration-200 rounded-lg',
               collapsed && !isMobile
-                ? 'h-9 w-9 justify-center p-0'
-                : 'h-9.5 justify-start gap-2.5 px-3 text-sm',
+                ? 'w-9! h-9! size-9! aspect-square! p-0 justify-center shrink-0'
+                : 'w-full h-9.5 justify-start gap-2.5 px-3 text-sm',
             )}
             title={collapsed && !isMobile ? 'New Chat' : undefined}
           >
             <Link
               href="/chat"
               onClick={() => isMobile && setOpenMobile(false)}
-              className="flex items-center gap-2.5"
             >
               <Plus className="h-4 w-4 shrink-0" />
               {(!collapsed || isMobile) && <span>New Chat</span>}
@@ -214,7 +218,12 @@ export function AppSidebar({
           </Button>
         </div>
 
-        <SidebarGroup className="py-1 shrink-0 p-0 pr-2">
+        <SidebarGroup
+          className={cn(
+            'py-1 shrink-0 p-0',
+            collapsed && !isMobile ? 'px-0' : 'pr-2',
+          )}
+        >
           <SidebarGroupLabel
             className={cn(
               'text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mb-1 h-6 px-2.5',
@@ -224,18 +233,26 @@ export function AppSidebar({
             Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu className={cn('space-y-1', collapsed && !isMobile && 'items-center')}>
               {menuItems.map((item) => {
                 const isActive = pathname === item.url && !currentChatId;
 
                 return (
-                  <SidebarMenuItem key={item.title} className="w-full">
+                  <SidebarMenuItem
+                    key={item.title}
+                    className={cn(
+                      'w-full',
+                      collapsed && !isMobile && 'flex justify-center',
+                    )}
+                  >
                     <SidebarMenuButton
                       asChild
                       tooltip={collapsed && !isMobile ? item.title : undefined}
                       className={cn(
-                        'h-9 w-full px-2.5 py-2 transition-all duration-200 rounded-lg group/item border border-transparent flex items-center gap-2.5',
-                        collapsed && !isMobile ? 'justify-center px-0' : 'justify-start',
+                        'h-9 transition-all duration-200 rounded-lg group/item border border-transparent flex items-center gap-2.5',
+                        collapsed && !isMobile
+                          ? 'w-9 h-9 justify-center p-0 mx-auto'
+                          : 'w-full px-2.5 py-2 justify-start',
                         isActive
                           ? 'bg-primary/15 dark:bg-primary/25 text-primary border-primary/30 shadow-xs font-semibold'
                           : 'text-muted-foreground/80 hover:text-foreground hover:bg-muted/60',
@@ -244,6 +261,10 @@ export function AppSidebar({
                       <Link
                         href={item.url}
                         onClick={() => isMobile && setOpenMobile(false)}
+                        className={cn(
+                          'flex items-center gap-2.5',
+                          collapsed && !isMobile && 'justify-center w-full h-full p-0',
+                        )}
                       >
                         <div
                           className={cn(
