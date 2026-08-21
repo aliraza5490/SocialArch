@@ -11,6 +11,7 @@ import {
   UploadedFiles,
   Res,
   NotFoundException,
+  Inject,
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { Response } from "express";
@@ -56,7 +57,7 @@ export const multerOptions = {
 @ApiBearerAuth()
 @Controller("assets")
 export class AssetsController {
-  constructor(private readonly assetsService: AssetsService) {}
+  constructor(@Inject(AssetsService) private readonly assetsService: AssetsService) {}
 
   @Get()
   findAll(@JWTUser() user: any, @Query() query: QueryAssetsDto) {
@@ -74,18 +75,12 @@ export class AssetsController {
   }
 
   @Post("folder")
-  createFolder(
-    @JWTUser() user: any,
-    @Body() createFolderDto: CreateFolderDto,
-  ) {
+  createFolder(@JWTUser() user: any, @Body() createFolderDto: CreateFolderDto) {
     return this.assetsService.createFolder(user.ID, createFolderDto);
   }
 
   @Post("save-markdown")
-  saveMarkdown(
-    @JWTUser() user: any,
-    @Body() dto: SaveMarkdownDto,
-  ) {
+  saveMarkdown(@JWTUser() user: any, @Body() dto: SaveMarkdownDto) {
     return this.assetsService.saveMarkdown(user.ID, dto);
   }
 
@@ -97,8 +92,15 @@ export class AssetsController {
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Body("parentId") parentId?: string,
   ) {
-    const validParentId = parentId && parentId !== "null" && parentId !== "undefined" ? parentId : undefined;
-    return this.assetsService.handleFileUpload(user.ID, files || [], validParentId);
+    const validParentId =
+      parentId && parentId !== "null" && parentId !== "undefined"
+        ? parentId
+        : undefined;
+    return this.assetsService.handleFileUpload(
+      user.ID,
+      files || [],
+      validParentId,
+    );
   }
 
   @Post("move")

@@ -3,7 +3,6 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import compression from "compression";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
 
@@ -53,7 +52,6 @@ async function bootstrap() {
       },
     }),
   );
-  app.use(compression());
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -3,7 +3,11 @@ import { ConfigService } from "@nestjs/config";
 import { AgentService } from "./agent.service";
 import { GeminiImageService } from "./gemini-image.service";
 import { AssetsService } from "@/assets/services/assets.service";
-import { HumanMessage, AIMessageChunk, BaseMessage } from "@langchain/core/messages";
+import {
+  HumanMessage,
+  AIMessageChunk,
+  BaseMessage,
+} from "@langchain/core/messages";
 import { Response } from "express";
 import {
   contentIdeaGeneratorTool,
@@ -138,15 +142,15 @@ describe("Agent Tools & AgentService", () => {
       const result = await service.streamResponse(
         [new HumanMessage("Hello")],
         res,
-        "chat-123"
+        "chat-123",
       );
 
       expect(result).toBe("Here is your response.");
       expect(res.write).toHaveBeenCalledWith(
-        `data: ${JSON.stringify({ chatId: "chat-123" })}\n\n`
+        `data: ${JSON.stringify({ chatId: "chat-123" })}\n\n`,
       );
       expect(res.write).toHaveBeenCalledWith(
-        `data: ${JSON.stringify({ content: "Here is your response." })}\n\n`
+        `data: ${JSON.stringify({ content: "Here is your response." })}\n\n`,
       );
       expect(res.write).toHaveBeenCalledWith("data: [DONE]\n\n");
       expect(res.end).toHaveBeenCalled();
@@ -174,18 +178,20 @@ describe("Agent Tools & AgentService", () => {
 
       let callCount = 0;
       const mockModelWithTools = {
-        stream: jest.fn().mockImplementation(async (messages: BaseMessage[]) => {
-          callCount++;
-          if (callCount === 1) {
-            return [toolCallChunk];
-          } else {
-            // Verify tool message was added to conversation history for turn 2
-            const lastMsg = messages[messages.length - 1];
-            expect(lastMsg.constructor.name).toBe("ToolMessage");
-            expect((lastMsg as any).name).toBe("hashtag_generator");
-            return [finalChunk];
-          }
-        }),
+        stream: jest
+          .fn()
+          .mockImplementation(async (messages: BaseMessage[]) => {
+            callCount++;
+            if (callCount === 1) {
+              return [toolCallChunk];
+            } else {
+              // Verify tool message was added to conversation history for turn 2
+              const lastMsg = messages[messages.length - 1];
+              expect(lastMsg.constructor.name).toBe("ToolMessage");
+              expect((lastMsg as any).name).toBe("hashtag_generator");
+              return [finalChunk];
+            }
+          }),
       };
 
       (service as any).model = {
@@ -194,7 +200,7 @@ describe("Agent Tools & AgentService", () => {
 
       const result = await service.streamResponse(
         [new HumanMessage("Give me hashtags for AI")],
-        res
+        res,
       );
 
       expect(result).toBe("Here are hashtags for AI: #ai #digitalgrowth");
@@ -202,7 +208,7 @@ describe("Agent Tools & AgentService", () => {
       expect(res.write).toHaveBeenCalledWith(
         `data: ${JSON.stringify({
           content: "Here are hashtags for AI: #ai #digitalgrowth",
-        })}\n\n`
+        })}\n\n`,
       );
       expect(res.end).toHaveBeenCalled();
     });

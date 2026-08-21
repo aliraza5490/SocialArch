@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Inject } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { AppService } from "./app.service";
 import { JWTUser } from "@/auth/decorators/jwtUser.decorator";
@@ -8,7 +8,7 @@ import { JWTPayload, UserRole } from "./shared/types";
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(@Inject(AppService) private readonly appService: AppService) {}
 
   @Get()
   @Public()

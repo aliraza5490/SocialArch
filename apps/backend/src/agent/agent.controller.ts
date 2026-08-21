@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Inject } from "@nestjs/common";
 import { AgentService } from "./agent.service";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 
@@ -6,7 +6,7 @@ import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 @ApiBearerAuth()
 @Controller("agent")
 export class AgentController {
-  constructor(private readonly agentService: AgentService) {}
+  constructor(@Inject(AgentService) private readonly agentService: AgentService) {}
 
   @Get("info")
   getAgentInfo() {

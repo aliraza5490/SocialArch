@@ -24,9 +24,9 @@ export class RateLimitGuard implements CanActivate {
   private readonly windowMs = 15 * 60 * 1000;
 
   constructor(
-    private reflector: Reflector,
+    @Inject(Reflector) private reflector: Reflector,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private configService: ConfigService,
+    @Inject(ConfigService) private configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

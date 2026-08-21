@@ -25,7 +25,7 @@ export class RateLimitInterceptor implements NestInterceptor {
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private configService: ConfigService,
+    @Inject(ConfigService) private configService: ConfigService,
   ) {}
 
   async intercept(

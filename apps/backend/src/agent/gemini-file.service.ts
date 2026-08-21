@@ -1,8 +1,11 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { GoogleAIFileManager } from "@google/generative-ai/server";
 import * as fs from "fs";
-import { normalizeMimeType, isGeminiSupportedMimeType } from "@/common/utils/mime-utils";
+import {
+  normalizeMimeType,
+  isGeminiSupportedMimeType,
+} from "@/common/utils/mime-utils";
 
 export interface GeminiFileResult {
   fileUri: string;
@@ -15,7 +18,7 @@ export class GeminiFileService {
   private readonly logger = new Logger(GeminiFileService.name);
   private fileManager: GoogleAIFileManager | null = null;
 
-  constructor(private configService: ConfigService) {
+  constructor(@Inject(ConfigService) private configService: ConfigService) {
     const apiKey = this.configService.get<string>("GEMINI_API_KEY");
     if (apiKey) {
       this.fileManager = new GoogleAIFileManager(apiKey);
@@ -47,7 +50,9 @@ export class GeminiFileService {
     }
 
     try {
-      this.logger.log(`Uploading file to Gemini File API: ${filePath} (${normalizedMime})`);
+      this.logger.log(
+        `Uploading file to Gemini File API: ${filePath} (${normalizedMime})`,
+      );
       const uploadResult = await this.fileManager.uploadFile(filePath, {
         mimeType: normalizedMime,
         displayName: displayName || "Uploaded Asset",

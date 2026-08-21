@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
@@ -21,8 +21,11 @@ export class AgentService {
   private readonly modelName: string;
 
   constructor(
+    @Inject(ConfigService)
     private configService: ConfigService,
+    @Inject(AssetsService)
     private assetsService: AssetsService,
+    @Inject(GeminiImageService)
     private geminiImageService: GeminiImageService,
   ) {
     this.modelName =
@@ -35,7 +38,7 @@ export class AgentService {
       this.configService.get<string>("GEMINI_API_KEY") || "dummy-key";
 
     this.logger.log(
-      `Initializing ChatGoogleGenerativeAI with model: ${this.modelName}`
+      `Initializing ChatGoogleGenerativeAI with model: ${this.modelName}`,
     );
 
     return new ChatGoogleGenerativeAI({
@@ -115,9 +118,9 @@ export class AgentService {
 
         for await (const chunk of stream) {
           if (!aggregatedChunk) {
-            aggregatedChunk = chunk as AIMessageChunk;
+            aggregatedChunk = chunk;
           } else {
-            aggregatedChunk = aggregatedChunk.concat(chunk as AIMessageChunk);
+            aggregatedChunk = aggregatedChunk.concat(chunk);
           }
 
           let chunkContent = "";
@@ -149,26 +152,41 @@ export class AgentService {
           let toolResult: string;
 
           this.logger.log(
-            `Executing tool '${toolCall.name}' with args: ${JSON.stringify(toolCall.args)}`
+            `Executing tool '${toolCall.name}' with args: ${JSON.stringify(toolCall.args)}`,
           );
 
           if (toolCall.name === "generate_image" && userId) {
             try {
               const prompt = toolCall.args?.prompt || "A social media graphic";
-              const title = toolCall.args?.title || toolCall.args?.name || "generated_image";
+              const title =
+                toolCall.args?.title ||
+                toolCall.args?.name ||
+                "generated_image";
               const aspectRatio = toolCall.args?.aspectRatio || "1:1";
-              const tags = toolCall.args?.tags || ["ai-generated", "chat-image"];
+              const tags = toolCall.args?.tags || [
+                "ai-generated",
+                "chat-image",
+              ];
 
-              res.write(`data: ${JSON.stringify({ content: `\n\n*(Generating image with Gemini AI...)*\n\n` })}\n\n`);
+              res.write(
+                `data: ${JSON.stringify({ content: `\n\n*(Generating image with Gemini AI...)*\n\n` })}\n\n`,
+              );
               safeFlush();
 
-              const imageResult = await this.geminiImageService.generateGeminiImage(prompt, aspectRatio);
-              const savedAsset = await this.assetsService.saveGeneratedImage(userId, {
-                name: title,
-                buffer: imageResult.buffer,
-                mimeType: imageResult.mimeType,
-                tags,
-              });
+              const imageResult =
+                await this.geminiImageService.generateGeminiImage(
+                  prompt,
+                  aspectRatio,
+                );
+              const savedAsset = await this.assetsService.saveGeneratedImage(
+                userId,
+                {
+                  name: title,
+                  buffer: imageResult.buffer,
+                  mimeType: imageResult.mimeType,
+                  tags,
+                },
+              );
 
               attachments.push({
                 id: savedAsset.ID,
@@ -179,7 +197,9 @@ export class AgentService {
                 url: `/assets/${savedAsset.ID}/file`,
               });
 
-              res.write(`data: ${JSON.stringify({ attachment: savedAsset })}\n\n`);
+              res.write(
+                `data: ${JSON.stringify({ attachment: savedAsset })}\n\n`,
+              );
               safeFlush();
 
               toolResult = JSON.stringify({
@@ -188,14 +208,18 @@ export class AgentService {
                 asset: savedAsset,
               });
             } catch (imgErr: any) {
-              this.logger.error(`Error generating image for user ${userId}: ${imgErr.message}`, imgErr.stack);
+              this.logger.error(
+                `Error generating image for user ${userId}: ${imgErr.message}`,
+                imgErr.stack,
+              );
               toolResult = JSON.stringify({
                 error: `Failed to generate image: ${imgErr.message}`,
               });
             }
           } else if (toolCall.name === "save_markdown_asset" && userId) {
             try {
-              const title = toolCall.args?.title || toolCall.args?.name || "document.md";
+              const title =
+                toolCall.args?.title || toolCall.args?.name || "document.md";
               const content = toolCall.args?.content || "";
               const tags = toolCall.args?.tags || ["markdown", "agent-saved"];
               const savedAsset = await this.assetsService.saveMarkdown(userId, {
@@ -213,7 +237,9 @@ export class AgentService {
                 url: `/assets/${savedAsset.ID}/file`,
               });
 
-              res.write(`data: ${JSON.stringify({ attachment: savedAsset })}\n\n`);
+              res.write(
+                `data: ${JSON.stringify({ attachment: savedAsset })}\n\n`,
+              );
               safeFlush();
 
               toolResult = JSON.stringify({
@@ -222,7 +248,9 @@ export class AgentService {
                 asset: savedAsset,
               });
             } catch (saveErr: any) {
-              this.logger.error(`Error saving markdown asset for user ${userId}: ${saveErr.message}`);
+              this.logger.error(
+                `Error saving markdown asset for user ${userId}: ${saveErr.message}`,
+              );
               toolResult = JSON.stringify({
                 error: `Failed to save asset: ${saveErr.message}`,
               });
@@ -236,7 +264,7 @@ export class AgentService {
                   : JSON.stringify(rawResult);
             } catch (toolErr: any) {
               this.logger.error(
-                `Error executing tool '${toolCall.name}': ${toolErr.message}`
+                `Error executing tool '${toolCall.name}': ${toolErr.message}`,
               );
               toolResult = JSON.stringify({
                 error: `Tool execution failed: ${toolErr.message}`,
@@ -254,14 +282,14 @@ export class AgentService {
               content: toolResult,
               tool_call_id: toolCall.id || "",
               name: toolCall.name,
-            })
+            }),
           );
         }
       }
     } catch (err: any) {
       this.logger.error(
         `Error during agent stream execution: ${err.message}`,
-        err.stack
+        err.stack,
       );
       if (!fullText) {
         const errorFallback =
@@ -279,6 +307,3 @@ export class AgentService {
     return { fullText, attachments };
   }
 }
-
-
-

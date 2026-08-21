@@ -3,15 +3,15 @@ import { Column, Entity } from "typeorm";
 
 @Entity()
 export class AuthToken extends AppEntity {
-  @Column()
+  @Column({ type: "varchar" })
   type: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   token: string;
 
-  @Column()
+  @Column({ type: "varchar" })
   identifier: string;
 
-  @Column()
+  @Column({ type: "timestamp" })
   TTL: Date;
 }

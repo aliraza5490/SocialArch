@@ -4,6 +4,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
   OnModuleInit,
@@ -28,9 +29,13 @@ import { AuthLogService } from "./AuthLog.service";
 @Injectable()
 export class AuthService implements OnModuleInit {
   constructor(
+    @Inject(TokenService)
     private readonly tokenService: TokenService,
+    @Inject(MailService)
     private readonly mailService: MailService,
+    @Inject(ConfigService)
     private readonly configService: ConfigService,
+    @Inject(AuthLogService)
     private readonly logService: AuthLogService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,

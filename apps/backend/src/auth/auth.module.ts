@@ -15,7 +15,6 @@ import LoginLog from "./entities/LoginLog.entity";
   imports: [
     TypeOrmModule.forFeature([AuthToken, User, LoginLog]),
     JwtModule.registerAsync({
-      imports: [],
       useFactory: async (configService: ConfigService) => {
         const secret = configService.get<string>("JWT_SECRET");
         if (!secret) {
@@ -30,5 +29,6 @@ import LoginLog from "./entities/LoginLog.entity";
   ],
   controllers: [AuthController],
   providers: [AuthService, TokenService, AuthTokenSubscriber, AuthLogService],
+  exports: [AuthService, TokenService, AuthLogService],
 })
 export class AuthModule {}

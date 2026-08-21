@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { createTransport, Transporter } from "nodemailer";
 import * as fs from "fs";
@@ -12,7 +12,10 @@ import {
 @Injectable()
 export class MailService {
   private readonly transporter: Transporter;
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    @Inject(ConfigService)
+    private readonly configService: ConfigService,
+  ) {
     this.transporter = createTransport({
       host: this.configService.get<string>("MAIL_HOST"),
       port: this.configService.get<number>("MAIL_PORT") || 587,
@@ -24,7 +27,10 @@ export class MailService {
     });
   }
 
-  private loadTemplate(templateFileName: string, replacements: Record<string, string>): string {
+  private loadTemplate(
+    templateFileName: string,
+    replacements: Record<string, string>,
+  ): string {
     const templatePath = path.join(__dirname, "templates", templateFileName);
     let html = fs.readFileSync(templatePath, "utf-8");
     for (const [key, value] of Object.entries(replacements)) {

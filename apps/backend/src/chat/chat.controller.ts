@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Res,
+  Inject,
 } from "@nestjs/common";
 import { Response } from "express";
 import { ChatService } from "./chat.service";
@@ -20,7 +21,7 @@ import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 @ApiBearerAuth()
 @Controller("chat")
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(@Inject(ChatService) private readonly chatService: ChatService) {}
 
   @Get()
   findAll(@JWTUser() user: any) {

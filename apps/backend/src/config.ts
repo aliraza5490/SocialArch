@@ -1,4 +1,4 @@
-import { plainToInstance } from "class-transformer";
+import { Type, plainToInstance } from "class-transformer";
 import {
   IsEnum,
   IsNumber,
@@ -25,18 +25,22 @@ class EnvironmentVariables {
   @IsString()
   PG_CONNECTION_STRING: string;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   EMAIL_VERIFICATION_TOKEN_EXPIRATION: number;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   REFRESH_TOKEN_EXPIRATION: number;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   ACCESS_TOKEN_EXPIRATION: number;
 
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   RESET_PASSWORD_TOKEN_EXPIRATION: number;

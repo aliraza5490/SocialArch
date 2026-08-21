@@ -18,4 +18,3 @@ import { AssetsModule } from "@/assets/assets.module";
   exports: [ChatService],
 })
 export class ChatModule {}
-

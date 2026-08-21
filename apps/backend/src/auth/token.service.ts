@@ -2,6 +2,7 @@ import { InvalidTokenException } from "@/shared/exceptions";
 import { User } from "./entities/User.entity";
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
@@ -15,7 +16,9 @@ import { AuthTokenType } from "./types";
 @Injectable()
 export class TokenService {
   constructor(
+    @Inject(JwtService)
     private readonly jwtService: JwtService,
+    @Inject(ConfigService)
     private readonly configService: ConfigService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,

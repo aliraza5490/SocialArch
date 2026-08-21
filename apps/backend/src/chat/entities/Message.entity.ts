@@ -25,4 +25,3 @@ export class Message extends AppEntity {
   @Column({ type: "jsonb", nullable: true })
   attachments: any[] | null;
 }
-

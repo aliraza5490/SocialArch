@@ -86,7 +86,8 @@ export class AssetsService {
     parentId?: string | null,
   ): Promise<Asset> {
     const cleanName = folderName.trim();
-    const targetParentId = parentId && parentId !== "root" && parentId !== "null" ? parentId : null;
+    const targetParentId =
+      parentId && parentId !== "root" && parentId !== "null" ? parentId : null;
 
     const queryBuilder = this.assetRepository
       .createQueryBuilder("asset")
@@ -95,7 +96,9 @@ export class AssetsService {
       .andWhere("LOWER(asset.name) = LOWER(:name)", { name: cleanName });
 
     if (targetParentId) {
-      queryBuilder.andWhere("asset.parentId = :targetParentId", { targetParentId });
+      queryBuilder.andWhere("asset.parentId = :targetParentId", {
+        targetParentId,
+      });
     } else {
       queryBuilder.andWhere("asset.parentId IS NULL");
     }
@@ -117,7 +120,8 @@ export class AssetsService {
     files: Array<Express.Multer.File>,
     parentId?: string,
   ): Promise<Asset[]> {
-    let targetParentId: string | null = parentId && parentId !== "root" && parentId !== "null" ? parentId : null;
+    let targetParentId: string | null =
+      parentId && parentId !== "root" && parentId !== "null" ? parentId : null;
 
     if (!targetParentId) {
       const uploadsFolder = await this.getOrCreateFolder(userId, "uploads");
@@ -136,7 +140,10 @@ export class AssetsService {
     const createdAssets: Asset[] = [];
 
     for (const file of files) {
-      const normalizedMime = normalizeMimeType(file.originalname || file.filename, file.mimetype);
+      const normalizedMime = normalizeMimeType(
+        file.originalname || file.filename,
+        file.mimetype,
+      );
       const assetType = this.determineAssetType(normalizedMime);
 
       const asset = this.assetRepository.create({
@@ -160,7 +167,13 @@ export class AssetsService {
   }
 
   async findAll(userId: string, query: QueryAssetsDto) {
-    const { parentId, search, type, sortBy = "createdAt", sortOrder = "DESC" } = query;
+    const {
+      parentId,
+      search,
+      type,
+      sortBy = "createdAt",
+      sortOrder = "DESC",
+    } = query;
 
     const queryBuilder = this.assetRepository
       .createQueryBuilder("asset")
@@ -356,7 +369,10 @@ export class AssetsService {
     ids: string[],
     targetParentId?: string | null,
   ): Promise<void> {
-    const destinationId = targetParentId && targetParentId !== "root" && targetParentId !== "null" ? targetParentId : null;
+    const destinationId =
+      targetParentId && targetParentId !== "root" && targetParentId !== "null"
+        ? targetParentId
+        : null;
 
     if (destinationId) {
       const targetFolder = await this.assetRepository.findOne({
@@ -369,7 +385,9 @@ export class AssetsService {
 
     for (const id of ids) {
       if (id === destinationId) continue; // Skip moving folder into itself
-      const asset = await this.assetRepository.findOne({ where: { ID: id, userId } });
+      const asset = await this.assetRepository.findOne({
+        where: { ID: id, userId },
+      });
       if (asset) {
         asset.parentId = destinationId;
         await this.assetRepository.save(asset);
@@ -382,7 +400,10 @@ export class AssetsService {
     ids: string[],
     targetParentId?: string | null,
   ): Promise<void> {
-    const destinationId = targetParentId && targetParentId !== "root" && targetParentId !== "null" ? targetParentId : null;
+    const destinationId =
+      targetParentId && targetParentId !== "root" && targetParentId !== "null"
+        ? targetParentId
+        : null;
 
     if (destinationId) {
       const targetFolder = await this.assetRepository.findOne({
@@ -394,7 +415,9 @@ export class AssetsService {
     }
 
     for (const id of ids) {
-      const asset = await this.assetRepository.findOne({ where: { ID: id, userId } });
+      const asset = await this.assetRepository.findOne({
+        where: { ID: id, userId },
+      });
       if (!asset) continue;
 
       if (asset.type === AssetType.FOLDER) {
@@ -477,13 +500,12 @@ export class AssetsService {
     return savedFolder;
   }
 
-  async saveMarkdown(
-    userId: string,
-    dto: SaveMarkdownDto,
-  ): Promise<Asset> {
+  async saveMarkdown(userId: string, dto: SaveMarkdownDto): Promise<Asset> {
     const { name, content, parentId, tags } = dto;
     const cleanName = name.trim();
-    const finalName = cleanName.toLowerCase().endsWith(".md") ? cleanName : `${cleanName}.md`;
+    const finalName = cleanName.toLowerCase().endsWith(".md")
+      ? cleanName
+      : `${cleanName}.md`;
 
     if (parentId && parentId !== "root" && parentId !== "null") {
       const parent = await this.assetRepository.findOne({
@@ -511,7 +533,10 @@ export class AssetsService {
       size: stats.size,
       path: filePath,
       thumbnailUrl: null,
-      parentId: parentId && parentId !== "root" && parentId !== "null" ? parentId : null,
+      parentId:
+        parentId && parentId !== "root" && parentId !== "null"
+          ? parentId
+          : null,
       userId,
       tags: assetTags,
     });
@@ -525,8 +550,11 @@ export class AssetsService {
   ): Promise<Asset> {
     const { name, buffer, mimeType = "image/png", parentId, tags } = dto;
     const cleanName = (name || "generated_image").trim();
-    const ext = mimeType.includes("jpeg") || mimeType.includes("jpg") ? ".jpg" : ".png";
-    const finalName = cleanName.toLowerCase().endsWith(ext) ? cleanName : `${cleanName}${ext}`;
+    const ext =
+      mimeType.includes("jpeg") || mimeType.includes("jpg") ? ".jpg" : ".png";
+    const finalName = cleanName.toLowerCase().endsWith(ext)
+      ? cleanName
+      : `${cleanName}${ext}`;
 
     if (parentId && parentId !== "root" && parentId !== "null") {
       const parent = await this.assetRepository.findOne({
@@ -555,7 +583,10 @@ export class AssetsService {
       size: stats.size,
       path: filePath,
       thumbnailUrl: null,
-      parentId: parentId && parentId !== "root" && parentId !== "null" ? parentId : null,
+      parentId:
+        parentId && parentId !== "root" && parentId !== "null"
+          ? parentId
+          : null,
       userId,
       tags: assetTags,
     });
@@ -563,5 +594,3 @@ export class AssetsService {
     return this.assetRepository.save(asset);
   }
 }
-
-

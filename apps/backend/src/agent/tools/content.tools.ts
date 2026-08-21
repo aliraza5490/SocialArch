@@ -30,12 +30,20 @@ export const contentIdeaGeneratorTool = tool(
   },
   {
     name: "content_idea_generator",
-    description: "Generates creative social media content ideas for a given topic and target audience.",
+    description:
+      "Generates creative social media content ideas for a given topic and target audience.",
     schema: z.object({
-      topic: z.string().describe("The primary subject or topic for content creation"),
-      targetAudience: z.string().optional().describe("The intended audience (e.g. beginners, founders, developers)"),
+      topic: z
+        .string()
+        .describe("The primary subject or topic for content creation"),
+      targetAudience: z
+        .string()
+        .optional()
+        .describe(
+          "The intended audience (e.g. beginners, founders, developers)",
+        ),
     }),
-  }
+  },
 );
 
 export const hashtagGeneratorTool = tool(
@@ -57,12 +65,16 @@ export const hashtagGeneratorTool = tool(
   },
   {
     name: "hashtag_generator",
-    description: "Generates targeted, high-performing hashtags for a specific topic and social media platform.",
+    description:
+      "Generates targeted, high-performing hashtags for a specific topic and social media platform.",
     schema: z.object({
       topic: z.string().describe("Topic or niche for hashtags"),
-      platform: z.enum(["instagram", "linkedin", "twitter", "tiktok", "general"]).optional().describe("Target social media platform"),
+      platform: z
+        .enum(["instagram", "linkedin", "twitter", "tiktok", "general"])
+        .optional()
+        .describe("Target social media platform"),
     }),
-  }
+  },
 );
 
 export const postOptimizerTool = tool(
@@ -79,12 +91,15 @@ export const postOptimizerTool = tool(
   },
   {
     name: "post_optimizer",
-    description: "Analyzes draft social media text and provides actionable optimization recommendations for maximum engagement.",
+    description:
+      "Analyzes draft social media text and provides actionable optimization recommendations for maximum engagement.",
     schema: z.object({
       draftText: z.string().describe("The draft post content to optimize"),
-      platform: z.string().describe("Target platform (e.g. LinkedIn, Twitter/X, Instagram)"),
+      platform: z
+        .string()
+        .describe("Target platform (e.g. LinkedIn, Twitter/X, Instagram)"),
     }),
-  }
+  },
 );
 
 export const saveMarkdownAssetTool = tool(
@@ -94,8 +109,12 @@ export const saveMarkdownAssetTool = tool(
       fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    const cleanTitle = (title || "agent_response").trim().replace(/[^a-zA-Z0-9_\-\. ]/g, "");
-    const finalName = cleanTitle.toLowerCase().endsWith(".md") ? cleanTitle : `${cleanTitle}.md`;
+    const cleanTitle = (title || "agent_response")
+      .trim()
+      .replace(/[^a-zA-Z0-9_\-\. ]/g, "");
+    const finalName = cleanTitle.toLowerCase().endsWith(".md")
+      ? cleanTitle
+      : `${cleanTitle}.md`;
     const filename = `${uuidv4()}.md`;
     const filePath = path.join(uploadDir, filename);
 
@@ -116,13 +135,23 @@ export const saveMarkdownAssetTool = tool(
   },
   {
     name: "save_markdown_asset",
-    description: "Saves a markdown text response, post draft, strategy document, or article into user assets as a .md file.",
+    description:
+      "Saves a markdown text response, post draft, strategy document, or article into user assets as a .md file.",
     schema: z.object({
-      title: z.string().describe("Filename or title for the markdown document (e.g. content_strategy.md)"),
-      content: z.string().describe("The full markdown formatted body content to save"),
-      tags: z.array(z.string()).optional().describe("Optional list of tags for organizing the asset"),
+      title: z
+        .string()
+        .describe(
+          "Filename or title for the markdown document (e.g. content_strategy.md)",
+        ),
+      content: z
+        .string()
+        .describe("The full markdown formatted body content to save"),
+      tags: z
+        .array(z.string())
+        .optional()
+        .describe("Optional list of tags for organizing the asset"),
     }),
-  }
+  },
 );
 
 export const generateImageTool = tool(
@@ -137,14 +166,25 @@ export const generateImageTool = tool(
   },
   {
     name: "generate_image",
-    description: "Generates an AI image using Gemini model (gemini-3.1-flash-lite-image) from a detailed descriptive prompt, saves it to user assets, and presents it in chat.",
+    description:
+      "Generates an AI image using Gemini model (gemini-3.1-flash-lite-image) from a detailed descriptive prompt, saves it to user assets, and presents it in chat.",
     schema: z.object({
-      prompt: z.string().describe("Detailed descriptive prompt describing the image to generate"),
-      aspectRatio: z.enum(["1:1", "16:9", "4:3", "3:4", "9:16"]).optional().describe("Aspect ratio for generated image (default 1:1)"),
+      prompt: z
+        .string()
+        .describe(
+          "Detailed descriptive prompt describing the image to generate",
+        ),
+      aspectRatio: z
+        .enum(["1:1", "16:9", "4:3", "3:4", "9:16"])
+        .optional()
+        .describe("Aspect ratio for generated image (default 1:1)"),
       title: z.string().optional().describe("Name/title for saved image asset"),
-      tags: z.array(z.string()).optional().describe("Optional tags to organize the image asset"),
+      tags: z
+        .array(z.string())
+        .optional()
+        .describe("Optional tags to organize the image asset"),
     }),
-  }
+  },
 );
 
 export const agentTools = [
@@ -154,5 +194,3 @@ export const agentTools = [
   saveMarkdownAssetTool,
   generateImageTool,
 ];
-
-

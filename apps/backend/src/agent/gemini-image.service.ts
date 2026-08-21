@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { GoogleGenAI } from "@google/genai";
 
@@ -11,14 +11,13 @@ export interface GeneratedImageResult {
 export class GeminiImageService {
   private readonly logger = new Logger(GeminiImageService.name);
 
-  constructor(private configService: ConfigService) {}
+  constructor(@Inject(ConfigService) private configService: ConfigService) {}
 
   async generateGeminiImage(
     prompt: string,
     aspectRatio?: string,
   ): Promise<GeneratedImageResult> {
-    const geminiApiKey =
-      this.configService.get<string>("GEMINI_API_KEY") || "";
+    const geminiApiKey = this.configService.get<string>("GEMINI_API_KEY") || "";
 
     this.logger.log(
       "Generating image with GoogleGenAI interaction (models/gemini-3.1-flash-lite-image)...",

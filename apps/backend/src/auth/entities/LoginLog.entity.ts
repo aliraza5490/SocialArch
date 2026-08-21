@@ -4,23 +4,24 @@ import { Column, Entity, Index } from "typeorm";
 @Entity()
 class LoginLog extends AppEntity {
   @Column({
+    type: "varchar",
     unique: true,
   })
   @Index({ unique: true })
   ip: string;
 
-  @Column()
+  @Column({ type: "int", default: 0 })
   retries: number;
 
   @Column({
+    type: "timestamp",
     nullable: true,
-    default: new Date(),
   })
   blockedUntil: Date;
 
   @Column({
+    type: "timestamp",
     nullable: true,
-    default: new Date(),
   })
   lastLogin: Date;
 }

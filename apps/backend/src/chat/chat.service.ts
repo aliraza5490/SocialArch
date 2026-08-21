@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Chat } from "./entities/Chat.entity";
@@ -33,8 +33,11 @@ export class ChatService {
     private chatRepository: Repository<Chat>,
     @InjectRepository(Message)
     private messageRepository: Repository<Message>,
+    @Inject(AgentService)
     private agentService: AgentService,
+    @Inject(GeminiFileService)
     private geminiFileService: GeminiFileService,
+    @Inject(AssetsService)
     private assetsService: AssetsService,
   ) {}
 
@@ -116,7 +119,11 @@ export class ChatService {
 
     // 1. Resolve or create chat
     if (newChat || !targetChatId) {
-      const title = content ? content.trim().slice(0, 50) : attachments?.length ? `File upload (${attachments.length})` : "New Chat";
+      const title = content
+        ? content.trim().slice(0, 50)
+        : attachments?.length
+          ? `File upload (${attachments.length})`
+          : "New Chat";
       const chat = this.chatRepository.create({ title, userId });
       const newChatObj = await this.chatRepository.save(chat);
       targetChatId = newChatObj.ID;
@@ -157,7 +164,10 @@ export class ChatService {
               // Ignore asset lookup error
             }
           } else {
-            item.mimeType = normalizeMimeType(item.name || item.path, item.mimeType);
+            item.mimeType = normalizeMimeType(
+              item.name || item.path,
+              item.mimeType,
+            );
           }
           return item;
         }),
@@ -226,7 +236,11 @@ export class ChatService {
                 fileUri: att.geminiFileUri,
                 mimeType: mime,
               });
-            } else if (att.path && fs.existsSync(att.path) && isTextMimeType(mime)) {
+            } else if (
+              att.path &&
+              fs.existsSync(att.path) &&
+              isTextMimeType(mime)
+            ) {
               try {
                 const textContent = fs.readFileSync(att.path, "utf-8");
                 parts.push({
@@ -238,7 +252,12 @@ export class ChatService {
               }
             }
           }
-          const attNames = msg.attachments.map((a: any) => `${a.name} (${normalizeMimeType(a.name, a.mimeType)})`).join(", ");
+          const attNames = msg.attachments
+            .map(
+              (a: any) =>
+                `${a.name} (${normalizeMimeType(a.name, a.mimeType)})`,
+            )
+            .join(", ");
           parts.push({
             type: "text",
             text: `\n\n[Attached Files: ${attNames}]`,
@@ -251,13 +270,15 @@ export class ChatService {
     });
 
     // 6. Stream response via AgentService
-    const { fullText: fullAssistantContent, attachments: generatedAttachments } =
-      await this.agentService.streamResponse(
-        messages,
-        res,
-        targetChatId,
-        userId,
-      );
+    const {
+      fullText: fullAssistantContent,
+      attachments: generatedAttachments,
+    } = await this.agentService.streamResponse(
+      messages,
+      res,
+      targetChatId,
+      userId,
+    );
 
     // 7. Save assistant message at next position
     const assistPosition = finalPosition + 1;
@@ -274,7 +295,10 @@ export class ChatService {
         content: fullAssistantContent,
         position: assistPosition,
         version: assistVersion,
-        attachments: generatedAttachments && generatedAttachments.length > 0 ? generatedAttachments : null,
+        attachments:
+          generatedAttachments && generatedAttachments.length > 0
+            ? generatedAttachments
+            : null,
       }),
     );
   }
@@ -308,13 +332,10 @@ export class ChatService {
     });
 
     // 4. Stream response via AgentService
-    const { fullText: fullAssistantContent, attachments: generatedAttachments } =
-      await this.agentService.streamResponse(
-        messages,
-        res,
-        chatId,
-        userId,
-      );
+    const {
+      fullText: fullAssistantContent,
+      attachments: generatedAttachments,
+    } = await this.agentService.streamResponse(messages, res, chatId, userId);
 
     // 5. Save new version of assistant message
     const maxAssistVersion = await this.messageRepository.findOne({
@@ -330,10 +351,12 @@ export class ChatService {
         content: fullAssistantContent,
         position,
         version: assistVersion,
-        attachments: generatedAttachments && generatedAttachments.length > 0 ? generatedAttachments : null,
+        attachments:
+          generatedAttachments && generatedAttachments.length > 0
+            ? generatedAttachments
+            : null,
       }),
     );
-
   }
 
   private filterHistoryByVersion(

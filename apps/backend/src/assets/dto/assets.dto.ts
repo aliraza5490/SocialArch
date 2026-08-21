@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import {
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from "class-validator";
 import { AssetType } from "../entities/Asset.entity";
 
 export class CreateFolderDto {
@@ -33,7 +40,9 @@ export class UpdateAssetDto {
 }
 
 export class QueryAssetsDto {
-  @ApiPropertyOptional({ description: "Parent folder UUID ('root' or empty for top-level)" })
+  @ApiPropertyOptional({
+    description: "Parent folder UUID ('root' or empty for top-level)",
+  })
   @IsOptional()
   @IsString()
   parentId?: string;
@@ -48,7 +57,9 @@ export class QueryAssetsDto {
   @IsEnum(AssetType)
   type?: AssetType;
 
-  @ApiPropertyOptional({ description: "Sort column ('name', 'createdAt', 'size', 'type')" })
+  @ApiPropertyOptional({
+    description: "Sort column ('name', 'createdAt', 'size', 'type')",
+  })
   @IsOptional()
   @IsString()
   sortBy?: "name" | "createdAt" | "size" | "type";
@@ -60,7 +71,10 @@ export class QueryAssetsDto {
 }
 
 export class BulkDeleteAssetsDto {
-  @ApiProperty({ description: "Array of asset UUIDs to delete", type: [String] })
+  @ApiProperty({
+    description: "Array of asset UUIDs to delete",
+    type: [String],
+  })
   @IsArray()
   @IsUUID("all", { each: true })
   ids: string[];
@@ -72,7 +86,9 @@ export class BulkMoveAssetsDto {
   @IsUUID("all", { each: true })
   ids: string[];
 
-  @ApiPropertyOptional({ description: "Target folder UUID (null or empty for root)" })
+  @ApiPropertyOptional({
+    description: "Target folder UUID (null or empty for root)",
+  })
   @IsOptional()
   @IsString()
   targetParentId?: string | null;
@@ -84,7 +100,9 @@ export class BulkCopyAssetsDto {
   @IsUUID("all", { each: true })
   ids: string[];
 
-  @ApiPropertyOptional({ description: "Target folder UUID (null or empty for root)" })
+  @ApiPropertyOptional({
+    description: "Target folder UUID (null or empty for root)",
+  })
   @IsOptional()
   @IsString()
   targetParentId?: string | null;
@@ -122,7 +140,9 @@ export class SaveGeneratedImageDto {
   @ApiProperty({ description: "Image binary buffer or base64" })
   buffer: Buffer;
 
-  @ApiPropertyOptional({ description: "MIME type (e.g. image/png or image/jpeg)" })
+  @ApiPropertyOptional({
+    description: "MIME type (e.g. image/png or image/jpeg)",
+  })
   @IsOptional()
   @IsString()
   mimeType?: string;
@@ -138,5 +158,3 @@ export class SaveGeneratedImageDto {
   @IsString({ each: true })
   tags?: string[];
 }
-
-

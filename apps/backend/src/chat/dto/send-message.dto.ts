@@ -1,5 +1,11 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsNumber, IsObject, IsOptional, IsString } from "class-validator";
+import {
+  IsBoolean,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from "class-validator";
 
 export class SendMessageDto {
   @ApiPropertyOptional()
@@ -31,4 +37,3 @@ export class SendMessageDto {
   @IsOptional()
   attachments?: any[];
 }
-

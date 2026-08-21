@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Ip,
   Post,
   Query,
@@ -26,7 +27,9 @@ import { RateLimit } from "./decorators/rate-limit.decorator";
 @Controller("auth")
 export class AuthController {
   constructor(
+    @Inject(AuthService)
     private readonly authService: AuthService,
+    @Inject(TokenService)
     private readonly tokenService: TokenService,
   ) {}
 
