@@ -1,29 +1,17 @@
 import { BadRequestException, Logger, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
-import { ExpressAdapter, NestExpressApplication } from "@nestjs/platform-express";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import compression from "compression";
 import helmet from "helmet";
-import express, { Request, Response } from "express";
-import { AppModule } from "../src/app.module";
-
-const server = express();
-let initialized = false;
+import { AppModule } from "./app.module";
 
 async function bootstrap(): Promise<void> {
-  if (initialized) {
-    return;
-  }
-
-  const app = await NestFactory.create<NestExpressApplication>(
-    AppModule,
-    new ExpressAdapter(server),
-  );
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const configService = app.get(ConfigService);
-  const logger = new Logger("Vercel");
-
-  // Your existing middleware/configuration...
+  const logger = new Logger("NestApp");
 
   app.enableCors({
     origin: (origin, callback) => {
@@ -61,6 +49,8 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
+  app.use(compression());
+
   app.useGlobalPipes(
     new ValidationPipe({
       forbidUnknownValues: true,
@@ -76,21 +66,15 @@ async function bootstrap(): Promise<void> {
     .addBearerAuth()
     .build();
 
-  SwaggerModule.setup(
-    "docs",
-    app,
-    () => SwaggerModule.createDocument(app, config),
+  SwaggerModule.setup("docs", app, () =>
+    SwaggerModule.createDocument(app, config),
   );
 
-  await app.init();
-
-  initialized = true;
+  const port = configService.get<number>("PORT") ?? process.env.PORT ?? 8000;
+  await app.listen(port);
+  logger.log(`Application is running on: http://localhost:${port}/docs`);
 }
 
-export default async function handler(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  await bootstrap();
-  server(req, res);
-}
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+bootstrap();
+

@@ -4,7 +4,9 @@ import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { JwtModule } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CacheModule } from "@nestjs/cache-manager";
-import { redisStore } from "cache-manager-ioredis-yet";
+import { Keyv } from "keyv";
+import { KeyvCacheableMemory } from "cacheable";
+import KeyvRedis from "@keyv/redis";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthGuard } from "@/auth/guards/auth.guard";
@@ -22,6 +24,12 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [
+        ".env",
+        ".env.local",
+        "apps/backend/.env",
+        "apps/backend/.env.local",
+      ],
       validate: validate,
     }),
     JwtModule.register({}),
@@ -30,9 +38,9 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
         type: "postgres",
         url: configService.get<string>("PG_CONNECTION_STRING"),
         entities: [__dirname + "/**/*.entity{.ts,.js}"],
-        synchronize: configService.get("NODE_ENV") !== "production",
+        synchronize: configService.get("NODE_ENV") == "development",
         migrations: [__dirname + "/migrations/*.{ts,js}"],
-        migrationsRun: true,
+        migrationsRun: false,
         logging: configService.get("NODE_ENV") !== "production",
       }),
       inject: [ConfigService],
@@ -41,9 +49,14 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        store: await redisStore({
-          url: configService.get<string>("REDIS_URL"),
-        }),
+        stores: [
+          new Keyv({
+            store: new KeyvCacheableMemory({ ttl: 60000, lruSize: 5000 }),
+          }),
+          new KeyvRedis(
+            configService.get<string>("REDIS_URL") ?? "redis://localhost:6379",
+          ),
+        ],
       }),
       inject: [ConfigService],
     }),
@@ -71,4 +84,4 @@ import { RateLimitInterceptor } from "@/shared/interceptors/rate-limit.intercept
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
